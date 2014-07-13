@@ -293,15 +293,15 @@ void mode_default(void){
 					RingBuffer_Remove(&ram.USARTtoUSB_Buffer);
 				}
 			}
-
-			// Turn off TX LED(s) once the TX pulse period has elapsed
-			if (ram.PulseMSRemaining.TxLEDPulse && !(--ram.PulseMSRemaining.TxLEDPulse))
-				LEDs_TurnOffLEDs(LEDMASK_TX);
-
-			// Turn off RX LED(s) once the RX pulse period has elapsed
-			if (ram.PulseMSRemaining.RxLEDPulse && !(--ram.PulseMSRemaining.RxLEDPulse))
-				LEDs_TurnOffLEDs(LEDMASK_RX);
 		}
+
+		// Turn off TX LED(s) once the TX pulse period has elapsed
+		if (ram.PulseMSRemaining.TxLEDPulse && !(--ram.PulseMSRemaining.TxLEDPulse))
+			LEDs_TurnOffLEDs(LEDMASK_TX);
+
+		// Turn off RX LED(s) once the RX pulse period has elapsed
+		if (ram.PulseMSRemaining.RxLEDPulse && !(--ram.PulseMSRemaining.RxLEDPulse))
+			LEDs_TurnOffLEDs(LEDMASK_RX);
 	}
 
 	// Load the next byte from the USART transmit buffer into the USART
