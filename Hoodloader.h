@@ -153,11 +153,13 @@ void universal(void);
 void write_flash(int length);
 void fillbuffer(uint8_t buffer[], int n);
 
+//================================================================================
+// HID
+//================================================================================
 
-// functions to check HID
 void checkNHPProtocol(uint8_t input);
 void checkNHPControlAddressError(void);
-void writeNHPreadBuffer(uint8_t length);
+uint8_t writeToCDC(uint8_t buffer[], uint8_t length);
 
 //================================================================================
 // NHP Definitions/Prototypes
@@ -199,7 +201,7 @@ void writeNHPreadBuffer(uint8_t length);
 #define NHP_USAGE_ARDUINOHID 0x01
 
 // general multifunctional read/write functions for NHP
-bool NHPreadChecksum(uint8_t input);
+uint8_t NHPreadChecksum(uint8_t input);
 uint8_t NHPwriteChecksum(uint8_t address, uint16_t indata, uint8_t* buff);
 
 //================================================================================

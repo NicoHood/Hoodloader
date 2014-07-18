@@ -14,3 +14,10 @@ $ cd Hoodloader_Source
 $ sudo make clean
 $ sudo make
 ```
+
+changelog:
+Removed USBtoUSART buffer (not needed)
+Integrated NHP directly
+Seperated different modes better to not cause any errors in default mode
+Improved writing to CDC Host
+fixed a bug in checkNHPProtocol: & needs to be a==

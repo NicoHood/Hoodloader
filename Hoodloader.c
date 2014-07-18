@@ -39,12 +39,6 @@ static struct{
 	// indicates what mode we are in
 	uint8_t mode;
 
-	// Circular buffer to hold data from the host before it is sent to the device via the serial port.
-	RingBuffer_t USBtoUSART_Buffer;
-
-	// Underlying data buffer for \ref USBtoUSART_Buffer, where the stored bytes are located. 
-	uint8_t      USBtoUSART_Buffer_Data[128];
-
 	union{
 		// normal mode if HID is on
 		struct{
@@ -65,11 +59,11 @@ static struct{
 				// variable to perform a "HID flush" and to indicate what report should be written down
 				uint8_t ID;
 				// length of the report
-				uint8_t Length;
+				uint8_t length;
 				// number of bytes received
 				uint8_t recvlength;
 				// Buffer for the incoming HID report
-				uint8_t reportBuffer[sizeof(HID_HIDReport_Data_t)];
+				uint8_t buffer[sizeof(HID_HIDReport_Data_t)];
 			}HID;
 
 			struct{
@@ -92,7 +86,7 @@ static struct{
 			int here;
 			int pagesize;
 			int eepromsize;
-			uint8_t buffer[128];
+			uint8_t buffer[256];
 		} isp;
 
 	};
@@ -163,23 +157,17 @@ int main(void)
 {
 	SetupHardware();
 
-	// Serial rx/tx buffers Setup
-	RingBuffer_InitBuffer(&ram.USBtoUSART_Buffer, ram.USBtoUSART_Buffer_Data, sizeof(ram.USBtoUSART_Buffer_Data));
-
-	// normal Setup
+	// Serial tx buffers Setup
 	RingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, sizeof(ram.USARTtoUSB_Buffer_Data));
 
-	/*
 	// HID Setup
-	RingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, sizeof(ram.USARTtoUSB_Buffer_Data));
-	NHPbuff.mErrorLevel = NHP_INPUT_RESET; // enough to initialize all variables
-	HIDReportState.recvlength = 0;
-	HIDReportState.ID = 0;
+	ram.NHP.mBlocks = 0;
+	ram.NHP.readlength = 0;
+	ram.HID.ID = 0;
 
 	// AVR ISP Setup
-	isp.error = 0;
-	isp.pmode = 0;
-	*/
+	//isp.error = 0;
+	//isp.pmode = 0;
 
 	ram.mode = MODE_DEFAULT;
 
@@ -187,10 +175,10 @@ int main(void)
 
 	for (;;)
 	{
-		if (ram.mode == MODE_DEFAULT)
-			mode_default();
+		//if (ram.mode == MODE_DEFAULT)
+		//mode_default();
+		mode_hid();
 
-		//new Send reports <--
 		CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
 		USB_USBTask();
 	}
@@ -241,79 +229,6 @@ void SetupHardware(void)
 	AVR_NO_HID_DDR &= ~AVR_NO_HID_MASK; // Input
 	AVR_NO_HID_PORT |= AVR_NO_HID_MASK; // Pullup
 }
-
-//================================================================================
-// Default Mode
-//================================================================================
-
-void mode_default(void){
-	// Only try to read in bytes from the CDC interface if the transmit buffer is not full
-	if (!(RingBuffer_IsFull(&ram.USBtoUSART_Buffer)))
-	{
-		int16_t ReceivedByte = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
-
-		//( Store received byte into the USART transmit buffer */
-		if (!(ReceivedByte < 0))
-			RingBuffer_Insert(&ram.USBtoUSART_Buffer, ReceivedByte);
-	}
-
-	// Check if the UART receive buffer flush timer has expired or the buffer is nearly full
-	uint16_t BufferCount = RingBuffer_GetCount(&ram.USARTtoUSB_Buffer);
-	if ((TIFR0 & (1 << TOV0)) || (BufferCount > (sizeof(ram.USARTtoUSB_Buffer_Data) - 32)))
-	{
-		TIFR0 |= (1 << TOV0);
-
-		if (BufferCount)
-		{
-			// Turn on TX LED
-			LEDs_TurnOnLEDs(LEDMASK_TX);
-			ram.PulseMSRemaining.TxLEDPulse = TX_RX_LED_PULSE_MS;
-
-			Endpoint_SelectEndpoint(VirtualSerial_CDC_Interface.Config.DataINEndpoint.Address);
-
-			// Check if a packet is already enqueued to the host - if so, we shouldn't try to send more data
-			// until it completes as there is a chance nothing is listening and a lengthy timeout could occur
-			if (Endpoint_IsINReady())
-			{
-				// Never send more than one bank size less one byte to the host at a time, so that we don't block
-				// while a Zero Length Packet (ZLP) to terminate the transfer is sent if the host isn't listening
-				uint8_t BytesToSend = MIN(BufferCount, (CDC_TXRX_EPSIZE - 1));
-
-				/// Read bytes from the USART receive buffer into the USB IN endpoint */
-				while (BytesToSend--)
-				{
-					// Try to send the next byte of data to the host, abort if there is an error without dequeuing
-					if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
-						RingBuffer_Peek(&ram.USARTtoUSB_Buffer)) != ENDPOINT_READYWAIT_NoError)
-					{
-						break;
-					}
-
-					// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
-					RingBuffer_Remove(&ram.USARTtoUSB_Buffer);
-				}
-			}
-		}
-
-		// Turn off TX LED(s) once the TX pulse period has elapsed
-		if (ram.PulseMSRemaining.TxLEDPulse && !(--ram.PulseMSRemaining.TxLEDPulse))
-			LEDs_TurnOffLEDs(LEDMASK_TX);
-
-		// Turn off RX LED(s) once the RX pulse period has elapsed
-		if (ram.PulseMSRemaining.RxLEDPulse && !(--ram.PulseMSRemaining.RxLEDPulse))
-			LEDs_TurnOffLEDs(LEDMASK_RX);
-	}
-
-	// Load the next byte from the USART transmit buffer into the USART
-	if (!(RingBuffer_IsEmpty(&ram.USBtoUSART_Buffer))){
-		Serial_SendByte(RingBuffer_Remove(&ram.USBtoUSART_Buffer));
-
-		// Turn on RX LED
-		LEDs_TurnOnLEDs(LEDMASK_RX);
-		ram.PulseMSRemaining.RxLEDPulse = TX_RX_LED_PULSE_MS;
-	}
-}
-
 
 //================================================================================
 // Lufa USB functions
@@ -460,16 +375,16 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 	void* ReportData,
 	uint16_t* const ReportSize)
 {
-	/*
 	//write report and reset ID
-	memcpy(ReportData, HIDReportBuffer, HIDReportState.length);
-	*ReportID = HIDReportState.ID;
-	*ReportSize = HIDReportState.length;
-	HIDReportState.ID = 0;
-	HIDReportState.recvlength = 0; //just to be sure if you call HID_Task by accident
+	memcpy(ReportData, ram.HID.buffer, ram.HID.length);
+	*ReportID = ram.HID.ID;
+	*ReportSize = ram.HID.length;
+	ram.HID.ID = 0;
+	ram.HID.recvlength = 0; //just to be sure if you call HID_Task by accident again
+	ram.HID.length = 0; //just to be sure if you call HID_Task by accident again
+
 	// always return true, because we cannot compare with >1 report due to ram limit
-	// this will forcewrite the report everytime
-	*/
+	// this will forcewrite the report every time
 	return true;
 }
 
@@ -490,367 +405,355 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 	// Unused in this demo, since there are no Host->Device reports
 	//	uint8_t* LEDReport = (uint8_t*)ReportData;
 }
-/*
+
+//================================================================================
+// Default Mode
+//================================================================================
+
+void mode_default(void){
+	// read in bytes from the CDC interface
+	int16_t ReceivedByte = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
+	if (!(ReceivedByte < 0)){
+		// Turn on RX LED
+		LEDs_TurnOnLEDs(LEDMASK_RX);
+		ram.PulseMSRemaining.RxLEDPulse = TX_RX_LED_PULSE_MS;
+
+		// Send byte directly
+		Serial_SendByte(ReceivedByte);
+	}
+
+	// read in bytes from the Serial buffer
+	uint16_t BufferCount = RingBuffer_GetCount(&ram.USARTtoUSB_Buffer);
+	if (BufferCount)
+	{
+		// Turn on TX LED
+		LEDs_TurnOnLEDs(LEDMASK_TX);
+		ram.PulseMSRemaining.TxLEDPulse = TX_RX_LED_PULSE_MS;
+
+		Endpoint_SelectEndpoint(VirtualSerial_CDC_Interface.Config.DataINEndpoint.Address);
+
+		// Check if a packet is already enqueued to the host - if so, we shouldn't try to send more data
+		// until it completes as there is a chance nothing is listening and a lengthy timeout could occur
+		if (Endpoint_IsINReady())
+		{
+			// Never send more than one bank size less one byte to the host at a time, so that we don't block
+			// while a Zero Length Packet (ZLP) to terminate the transfer is sent if the host isn't listening
+			uint8_t BytesToSend = MIN(BufferCount, (CDC_TXRX_EPSIZE - 1));
+
+			/// Read bytes from the USART receive buffer into the USB IN endpoint */
+			while (BytesToSend--)
+			{
+				// Try to send the next byte of data to the host, abort if there is an error without dequeuing
+				if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
+					RingBuffer_Peek(&ram.USARTtoUSB_Buffer)) != ENDPOINT_READYWAIT_NoError)
+				{
+					break;
+				}
+
+				// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
+				RingBuffer_Remove(&ram.USARTtoUSB_Buffer);
+			}
+		}
+	}
+
+	// Check if the led flush timer has expired
+	if (TIFR0 & (1 << TOV0)){
+		// reset the timer
+		TIFR0 |= (1 << TOV0);
+
+		// Turn off TX LED(s) once the TX pulse period has elapsed
+		if (ram.PulseMSRemaining.TxLEDPulse && !(--ram.PulseMSRemaining.TxLEDPulse))
+			LEDs_TurnOffLEDs(LEDMASK_TX);
+
+		// Turn off RX LED(s) once the RX pulse period has elapsed
+		if (ram.PulseMSRemaining.RxLEDPulse && !(--ram.PulseMSRemaining.RxLEDPulse))
+			LEDs_TurnOffLEDs(LEDMASK_RX);
+	}
+
+}
 
 //================================================================================
 // HID
 //================================================================================
 
 void mode_hid(void){
-// Only try to read in bytes from the CDC interface if the transmit buffer is not full
-if (!(RingBuffer_IsFull(&ram.USBtoUSART_Buffer)))
-{
-int16_t ReceivedByte = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
+	// read in bytes from the CDC interface
+	int16_t ReceivedByte = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
+	if (!(ReceivedByte < 0)){
+		// Turn on RX LED
+		LEDs_TurnOnLEDs(LEDMASK_RX);
+		ram.PulseMSRemaining.RxLEDPulse = TX_RX_LED_PULSE_MS;
 
-// Read bytes from the USB OUT endpoint into the USART transmit buffer
-if (!(ReceivedByte < 0))
-RingBuffer_Insert(&ram.USBtoUSART_Buffer, ReceivedByte);
+		// Send byte directly
+		Serial_SendByte(ReceivedByte);
+	}
+
+	// read in bytes from the Serial buffer
+	uint16_t BufferCount = RingBuffer_GetCount(&ram.USARTtoUSB_Buffer);
+	if (BufferCount)
+	{
+		// Turn on TX LED
+		LEDs_TurnOnLEDs(LEDMASK_TX);
+		ram.PulseMSRemaining.TxLEDPulse = TX_RX_LED_PULSE_MS;
+
+		// Read bytes from the USART receive buffer
+		while (BufferCount--){
+			// main function to proceed HID input checks
+			checkNHPProtocol(RingBuffer_Remove(&ram.USARTtoUSB_Buffer));
+
+			// deactivated
+			//uint8_t b = RingBuffer_Remove(&ram.USARTtoUSB_Buffer);
+			//writeToCDC(&b, 1);
+		}
+	}
+
+	// Check if the led flush timer has expired
+	if (TIFR0 & (1 << TOV0)){
+		// reset the timer
+		TIFR0 |= (1 << TOV0);
+
+		// if reading has timed out write the buffers down the serial and turn off the led
+		if (ram.PulseMSRemaining.TxLEDPulse && !(--ram.PulseMSRemaining.TxLEDPulse)){
+			// check if previous reading was a valid Control Address and write it down
+			checkNHPControlAddressError();
+
+			// write the rest of the cached NHP buffer down
+			writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
+			ram.NHP.mBlocks = 0;
+			ram.NHP.readlength = 0;
+
+			// Turn off TX LED(s) once the TX pulse period has elapsed
+			LEDs_TurnOffLEDs(LEDMASK_TX);
+		}
+
+		// Turn off RX LED(s) once the RX pulse period has elapsed
+		if (ram.PulseMSRemaining.RxLEDPulse && !(--ram.PulseMSRemaining.RxLEDPulse))
+			LEDs_TurnOffLEDs(LEDMASK_RX);
+
+	}
 }
 
-// discard Serial bytes if baud is ISP baud to not interrupt programming
-if (VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS != 19200){
-uint16_t BufferCount = RingBuffer_GetCount(&ram.USARTtoUSB_Buffer);
-// Check if the UART receive buffer flush timer has expired or the buffer is nearly full
-if ((TIFR0 & (1 << TOV0)) || BufferCount >(sizeof(ram.USARTtoUSB_Buffer_Data) - 32)){
-TIFR0 |= (1 << TOV0);
-
-if (ram.USARTtoUSB_Buffer.Count) {
-LEDs_TurnOnLEDs(LEDMASK_TX);
-PulseMSRemaining.TxLEDPulse = TX_RX_LED_PULSE_MS;
-}
-
-// Read bytes from the USART receive buffer
-while (BufferCount--){
-
-//read newest byte and check for Protocol if activated
-uint8_t  b = RingBuffer_Remove(&ram.USARTtoUSB_Buffer);
-
-// only process signal if HID is turned on
-// make sure that no report is still active (like holding down a keyboard key)!
-// Or dont recognize if baud is not 115200 to ensure that there is no conflict with other bauds
-// Secound != 0 is for starting from powerup when no lineEncoding is set
-if (!(AVR_NO_HID_PIN & AVR_NO_HID_MASK) ||
-(VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS != 115200 && VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS != 0)){
-// HID is off
-
-// clear NHP buffer
-NHPreset();
-// reset any pending HID reports
-HIDReportState.ID = 0;
-//just to be sure if you call HID_Task by accident
-HIDReportState.recvlength = 0;
-// send byte directly with no DTR check!
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, b);
-}
-else{
-// HID is on
-// new Protocol check<--
-// if a reading finished succesfull without valid checksum or an error occured (ignore a reset)
-if (NHPgetErrorLevel()&(~NHP_INPUT_RESET)){
-// check if previous reading was a valid Control Address and write it down
-if (HIDReportState.ID)
-checkNHPControlAddressError();
-
-// Write the last invalid signals. This will not write a possible new lead to keep
-// it for the next reading. This is implemented in the Protocol itself.
-writeNHPreadBuffer(NHPreadlength);
-}
-// main function to proceed HID input checks
-checkNHPProtocol(b);
-}
-}
-
-
-// if reading has timed out write the buffers down the serial and turn off the led
-if (PulseMSRemaining.TxLEDPulse && !(--PulseMSRemaining.TxLEDPulse)){
-
-// check if previous reading was a valid Control Address and write it down
-if (HIDReportState.ID)
-checkNHPControlAddressError();
-
-// only write if there is input (ignore a reset)
-if (!(NHPgetErrorLevel() & NHP_INPUT_RESET)){
-// Lead errors are not in the buff length to keep them for next reading.
-// But we want to write it down now after timeout.
-uint8_t len = NHPreadlength;
-if (NHPgetErrorLevel()& NHP_ERR_LEAD) len++;
-writeNHPreadBuffer(len);
-}
-// do not write again in the while loop above anyways
-NHPreset();
-
-// Turn off TX LED(s) once the TX pulse period has elapsed
-LEDs_TurnOffLEDs(LEDMASK_TX);
-}
-
-// Turn off RX LED(s) once the RX pulse period has elapsed
-if (PulseMSRemaining.RxLEDPulse && !(--PulseMSRemaining.RxLEDPulse))
-LEDs_TurnOffLEDs(LEDMASK_RX);
-}
-}
-if (VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS == 19200){
-// run ISP function for this baud
-// is pmode active?
-if (isp.pmode) LEDs_TurnOnLEDs(LEDMASK_TX);
-else LEDs_TurnOffLEDs(LEDMASK_TX);
-// is there an error?
-if (isp.error) LEDs_TurnOnLEDs(LEDMASK_RX);
-else LEDs_TurnOffLEDs(LEDMASK_RX);
-
-if (!(RingBuffer_IsEmpty(&ram.USBtoUSART_Buffer)))
-avrisp();
-}
-else{
-// Load the next byte from the USART transmit buffer into the USART
-if (!(RingBuffer_IsEmpty(&ram.USBtoUSART_Buffer))) {
-
-Serial_SendByte(RingBuffer_Remove(&ram.USBtoUSART_Buffer)); //<--new syntax
-
-LEDs_TurnOnLEDs(LEDMASK_RX);
-PulseMSRemaining.RxLEDPulse = TX_RX_LED_PULSE_MS;
-}
-}
-}
-
-
-// Writes the NHP read buffer with the given length
-void writeNHPreadBuffer(uint8_t length){
-for (int i = 0; i < length; i++){
-bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR); //new <--
-if (CurrentDTRState)
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, NHPreadbuffer[i]);
-}
-}
 
 // Checks for a valid protocol input and writes HID report
 void checkNHPProtocol(uint8_t input){
-uint8_t address = NHPreadChecksum(input);
-if (address){
-// nearly the same priciple like the Protocol itself: check for control address
-if (address == NHP_ADDRESS_CONTROL && NHPgetChecksumData1() & NHP_USAGE_ARDUINOHID){
+	uint8_t address = NHPreadChecksum(input);
 
-// check if previous reading was a valid Control Address and write it down
-if (HIDReportState.ID)
-checkNHPControlAddressError();
+	// if we have got an address this also means the checksum is correct!
+	// if not the buff is automatically written down
+	if (address){
 
-// get the new report ID and reset the buffer
-HIDReportState.ID = NHPgetChecksumData0();
-HIDReportState.recvlength = 0;
-memset(HIDReportBuffer, 0, sizeof(HIDReportBuffer));
+		// nearly the same priciple like the Protocol itself: check for control address
+		if ((address == NHP_ADDRESS_CONTROL) && (((ram.NHP.mWorkData >> 8) & 0xFF) == NHP_USAGE_ARDUINOHID)){
+			// check if previous reading was a valid Control Address and write it down
+			checkNHPControlAddressError();
 
-// Determine which interface must have its report generated
-switch (HIDReportState.ID){
-case HID_REPORTID_MouseReport:
-HIDReportState.length = sizeof(HID_MouseReport_Data_t);
-//HIDReportState.forcewrite = true;
-break;
+			// get the new report ID and reset the buffer
+			ram.HID.ID = ram.NHP.mWorkData & 0xFF;
+			ram.HID.recvlength = 0;
+			memset(ram.HID.buffer, 0, sizeof(ram.HID.buffer));
 
-case HID_REPORTID_KeyboardReport:
-HIDReportState.length = sizeof(HID_KeyboardReport_Data_t);
-//HIDReportState.forcewrite = true; // set to true because of some bugs with joystick 1+2
-break;
+			// Determine which interface must have its report generated
+			switch (ram.HID.ID){
+			case HID_REPORTID_MouseReport:
+				ram.HID.length = sizeof(HID_MouseReport_Data_t);
+				break;
 
-case HID_REPORTID_MediaReport:
-HIDReportState.length = sizeof(HID_MediaReport_Data_t);
-//HIDReportState.forcewrite = true;
-break;
+			case HID_REPORTID_KeyboardReport:
+				ram.HID.length = sizeof(HID_KeyboardReport_Data_t);
+				break;
 
-case HID_REPORTID_SystemReport:
-HIDReportState.length = sizeof(HID_SystemReport_Data_t);
-//HIDReportState.forcewrite = true;
-break;
+			case HID_REPORTID_MediaReport:
+				ram.HID.length = sizeof(HID_MediaReport_Data_t);
+				break;
 
-case HID_REPORTID_Gamepad1Report:
-case HID_REPORTID_Gamepad2Report:
-HIDReportState.length = sizeof(HID_GamepadReport_Data_t);
-//HIDReportState.forcewrite = true;
-break;
+			case HID_REPORTID_SystemReport:
+				ram.HID.length = sizeof(HID_SystemReport_Data_t);
+				break;
 
-case HID_REPORTID_Joystick1Report:
-case HID_REPORTID_Joystick2Report:
-HIDReportState.length = sizeof(HID_JoystickReport_Data_t);
-//HIDReportState.forcewrite = true;
-break;
+			case HID_REPORTID_Gamepad1Report:
+			case HID_REPORTID_Gamepad2Report:
+				ram.HID.length = sizeof(HID_GamepadReport_Data_t);
+				break;
 
-// not supported yet <--
-//case HID_REPORTID_MidiReport:
-//HID_Report_Size=sizeof(HID_MidiReport_Data_t);
-//HID_Report_ForceWrite=false;
-//break;
+			case HID_REPORTID_Joystick1Report:
+			case HID_REPORTID_Joystick2Report:
+				ram.HID.length = sizeof(HID_JoystickReport_Data_t);
+				break;
 
-default:
-// error
-checkNHPControlAddressError();
-break;
-} //end switch
+			default:
+				// error
+				checkNHPControlAddressError();
+				break;
+			} //end switch
 
-// The Protocol received a valid signal with inverse checksum
-// Do not write the buff in the loop above or below, filter it out
-NHPreset();
-} // end if control address byte
+			// The Protocol received a valid signal with inverse checksum
+			// Do not write the buff in the loop above or below, filter it out
+		} // end if control address byte
 
-else if (HIDReportState.ID){
-// check if the new Address is in correct order of HID reports.
-// the first 2 bytes are sent with Address 2 and so on.
-if (address == (((HIDReportState.recvlength + 2) / 2) + 1)){
-// save the first byte
-HIDReportBuffer[HIDReportState.recvlength++] = NHPgetChecksumData0();
+		// we already got a pending report
+		else if (ram.HID.ID){
+			// check if the new Address is in correct order of HID reports.
+			// the first 2 bytes are sent with Address 2 and so on.
+			if (address == (((ram.HID.recvlength + 2) / 2) + 1)){
+				// save the first byte
+				ram.HID.buffer[ram.HID.recvlength++] = (ram.NHP.mWorkData & 0xFF);
 
-// if there is another byte we need (for odd max HID reports important
-// to not write over the buff array)
-if (HIDReportState.length != HIDReportState.recvlength)
-HIDReportBuffer[HIDReportState.recvlength++] = NHPgetChecksumData1();
+				// if there is another byte we need (for odd max HID reports important
+				// to not write over the buff array)
+				if (ram.HID.length != ram.HID.recvlength)
+					ram.HID.buffer[ram.HID.recvlength++] = (ram.NHP.mWorkData >> 8);
 
-// we are ready to submit the new report to the usb host
-if (HIDReportState.length == HIDReportState.recvlength){
-// TODO timeout? <--
-while (HIDReportState.ID)
-HID_Device_USBTask(&Device_HID_Interface);
-}
-// The Protocol received a valid signal with inverse checksum
-// Do not write the buff in the loop above or below, filter it out
-NHPreset();
-}
+				// we are ready to submit the new report to the usb host
+				if (ram.HID.length == ram.HID.recvlength){
 
-// we received a corrupt data packet
-else
-// check if previous reading was a valid Control Address and write it down
-checkNHPControlAddressError();
+					// TODO timeout? <--
+					while (ram.HID.ID)
+						HID_Device_USBTask(&Device_HID_Interface);
+				}
+				// The Protocol received a valid signal with inverse checksum
+				// Do not write the buff in the loop above or below, filter it out
+			}
 
-} // end if HIDReportState.ID
+			// we received a corrupt data packet
+			else
+				// check if previous reading was a valid Control Address and write it down
+				// if not discard the bytes because we assume it is corrupted data
+				checkNHPControlAddressError();
 
-else {
-// just a normal Protocol outside our control address
-}
-} // end if readChecksum
+		} // end if ram.HID.ID
+
+		else {
+			// just a normal Protocol outside our control address, write it down
+			writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
+		}
+		// in any case: clear NHP buffer and start a new reading
+		ram.NHP.mBlocks = 0;
+		ram.NHP.readlength = 0;
+	} // end if address
 }
 
 void checkNHPControlAddressError(void){
-// only write if it was just before, maybe it was a random valid address
-// but if we already received some data we handle this as corrupted data and just
-// discard all the bytes
-if (HIDReportState.recvlength == 0){
-// write the cached buffer (recreate protocol)
-uint8_t buff[6];
-uint8_t length = NHPwriteChecksum(NHP_ADDRESS_CONTROL, (NHP_USAGE_ARDUINOHID << 8) | HIDReportState.ID, buff);
-for (int i = 0; i < length; i++){
-bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR); //new <--
-if (CurrentDTRState)
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, buff[i]);
-}
-}
-// reset any pending HID reports
-HIDReportState.ID = 0;
-HIDReportState.recvlength = 0; //just to be sure if you call HID_Task by accident
+	// only write if an control address was just before, maybe it was a random valid address
+	// but if we already received some data we handle this as corrupted data and just
+	// discard all the bytes
+	if (ram.HID.ID && !ram.HID.recvlength){
+		// write the cached buffer (recreate protocol)
+		uint8_t buff[6];
+		uint8_t length = NHPwriteChecksum(NHP_ADDRESS_CONTROL, (NHP_USAGE_ARDUINOHID << 8) | ram.HID.ID, buff);
+
+		// Writes the NHP read buffer with the given length
+		// If host is not listening it will discard all bytes to not block any HID reading
+		writeToCDC(buff, length);
+	}
+
+	// reset any pending HID reports
+	ram.HID.ID = 0;
 }
 
+uint8_t writeToCDC(uint8_t buffer[], uint8_t length){
+	// Writes the buffer with the given length
+	// If host is not listening it will discard all bytes to not block any HID reading
+
+	int i;
+	for (i = 0; i < length; i++){
+		// Try to send the next byte of data to the host, abort if there is an error
+		bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
+		if (CurrentDTRState){
+			if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface, buffer[i]) != ENDPOINT_READYWAIT_NoError)
+				break;
+		}
+	}
+
+	// return how many bytes we wrote
+	return i;
+}
 
 //================================================================================
 // Read NHP
 //================================================================================
 
 // reads two bytes and check its inverse
-bool NHPreadChecksum(uint8_t input, NHPbuffer buff){
-//reset if previous read was with an input/error
-if (buff.mErrorLevel){
-// cancel any pending data reads if a reset was triggered
-if (buff.mErrorLevel & NHP_INPUT_RESET){
-buff.mBlocks = 0;
-buff.mWorkData = 0;
-}
-// if previous read was a lead error keep this byte
-if (buff.mErrorLevel & NHP_ERR_LEAD){
-buff.readbuffer[0] = buff.readbuffer[buff.readlength];
-buff.readlength = 1;
-}
-else buff.readlength = 0;
-}
+uint8_t NHPreadChecksum(uint8_t input){
+	//write input to the buffer
+	ram.NHP.readbuffer[ram.NHP.readlength++] = input;
 
-// reset fully read data
-buff.mErrorLevel = 0;
+	// check the lead/end/data indicator
+	switch (input & NHP_MASK_START){
 
-//write input to the buffer
-buff.readbuffer[buff.readlength] = input;
-buff.readlength++;
+	case(NHP_MASK_LEAD) :
+	{
+		// we were still reading!  Log an error
+		if (ram.NHP.mBlocks){
+			// check if previous reading was a valid Control Address and write it down
+			checkNHPControlAddressError();
+			// write down the last signal but keep lead
+			// substract 1 more because we already added the count
+			writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength - 1);
+			ram.NHP.readbuffer[0] = ram.NHP.readbuffer[ram.NHP.readlength - 1];
+			ram.NHP.readlength = 1;
+		}
 
-// check the lead/end/data indicator
-switch (input & NHP_MASK_START){
+		// read command indicator or block length
+		ram.NHP.mBlocks = (input & NHP_MASK_LENGTH) >> 3;
+		switch (ram.NHP.mBlocks){
+		case 0:
+		case 1:
+			// ignore command, return 0 write buff down
+			break;
+		case 7:
+			// save block length + first 4 data bits (special case)
+			ram.NHP.mWorkData = input & NHP_MASK_DATA_4BIT;
+			ram.NHP.mBlocks -= 2;
+			return 0; // everything is okay
+			break;
+		default:
+			// save block length + first 3 data bits
+			ram.NHP.mWorkData = input & NHP_MASK_DATA_3BIT;
+			ram.NHP.mBlocks--;
+			return 0; // everything is okay
+			break;
+		}
+	}
+						break;
 
-case(NHP_MASK_LEAD) :
-{
-// we were still reading!  Log an error
-if (buff.mBlocks){
-buff.mErrorLevel |= NHP_ERR_LEAD | NHP_ERR_READ;
-buff.readlength--;
-}
+	case(NHP_MASK_END) :
+	{
+		if (ram.NHP.mBlocks == 1){
+			// save data + address
+			// we know its a valid input, left some things out here
+			if (((ram.NHP.mWorkData & 0xFFFF) ^ (ram.NHP.mWorkData >> 16)) == 0xFFFF){
+				uint8_t address = (input & 0x3F) + 1;
+				// do NOT reset for new reading, cause the values might be wrong and need to be written down again.
+				return address;
+			}
+		}
+		// wrong checksum or wrong end, write down buffer
+	}
+					   break;
 
-// read command indicator or block length
-buff.mBlocks = (input & NHP_MASK_LENGTH) >> 3;
-switch (buff.mBlocks){
-case 0:
-case 1:
-// ignore command, return false
-buff.mBlocks = 0;
-buff.mErrorLevel |= NHP_INPUT_COMMAND | NHP_INPUT_NEW;
-return false;
-break;
-case 7:
-// save block length + first 4 data bits (special case)
-buff.mWorkData = input & NHP_MASK_DATA_4BIT;
-buff.mBlocks -= 2;
-break;
-default:
-// save block length + first 3 data bits
-buff.mWorkData = input & NHP_MASK_DATA_3BIT;
-buff.mBlocks--;
-break;
-}
-}
-break;
+	default:
+	{
+		if (ram.NHP.mBlocks >= 2){
+			ram.NHP.mBlocks--;
+			// get next 7 bits of data
+			ram.NHP.mWorkData <<= 7;
+			// dont need &NHP_MASK_DATA_7BIT because first bit is zero!
+			ram.NHP.mWorkData |= input;
+			return 0; // everything is okay
+		}
+		// log an error, expecting an address or header byte
+	}
+		break;
+	} // end switch
 
-case(NHP_MASK_END) :
-{
-if (buff.mBlocks-- == 1){
-// save data + address
-buff.mErrorLevel |= NHP_INPUT_ADDRESS | NHP_INPUT_NEW;
-
-// we know its a valid input, left some things out here
-if (((buff.mWorkData & 0xFFFF) ^ (buff.mWorkData >> 16)) == 0xFFFF){
-uint8_t address = (input & 0x3F) + 1;
-return address;
+	// check if previous reading was a valid Control Address and write it down
+	checkNHPControlAddressError();
+	// invalid input, write down buffer
+	writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
+	ram.NHP.mBlocks = 0;
+	ram.NHP.readlength = 0;
+	return 0;
 }
-else
-return false;
-}
-else{
-// log an error, not ready for an address byte, and reset data counters
-buff.mErrorLevel |= NHP_ERR_DATA | NHP_ERR_READ;
-buff.mBlocks = 0;
-}
-}
-break;
-
-default:
-{
-if (buff.mBlocks-- < 2){
-// log an error, expecting an address or header byte
-buff.mErrorLevel |= NHP_ERR_END | NHP_ERR_READ;
-buff.mBlocks = 0;
-}
-else{
-// get next 7 bits of data
-buff.mWorkData <<= 7;
-// dont need &NHP_MASK_DATA_7BIT because first bit is zero!
-buff.mWorkData |= input;
-}
-}
-break;
-} // end switch
-
-// no new input
-return false;
-}
-
 
 //================================================================================
 // Write NHP
@@ -858,52 +761,52 @@ return false;
 
 // writes two bytes with its inverse
 uint8_t NHPwriteChecksum(uint8_t address, uint16_t indata, uint8_t* buff){
-// create checksum data
-uint32_t temp = ~indata;
-uint32_t data = (temp << 16) | indata;
+	// create checksum data
+	uint32_t temp = ~indata;
+	uint32_t data = (temp << 16) | indata;
 
-// start with the maximum size of blocks
-uint8_t blocks = 7;
+	// start with the maximum size of blocks
+	uint8_t blocks = 7;
 
-// check for the first 7 bit block that doesnt fit into the first 3 bits
-while (blocks > 2){
-uint8_t nextvalue = (data >> (7 * (blocks - 3)));
-if (nextvalue > NHP_MASK_DATA_3BIT){
-// special case for the MSB
-if (blocks == 7) {
-buff[0] = nextvalue;
-blocks--;
+	// check for the first 7 bit block that doesnt fit into the first 3 bits
+	while (blocks > 2){
+		uint8_t nextvalue = (data >> (7 * (blocks - 3)));
+		if (nextvalue > NHP_MASK_DATA_3BIT){
+			// special case for the MSB
+			if (blocks == 7) {
+				buff[0] = nextvalue;
+				blocks--;
+			}
+			break;
+		}
+		else{
+			// write the possible first 3 bits and check again after if zero
+			buff[0] = nextvalue;
+			blocks--;
+			// we have our first bits, stop (nonzero)
+			if (nextvalue)
+				break;
+		}
+	}
+
+	// write the rest of the data bits
+	uint8_t datablocks = blocks - 2;
+	while (datablocks > 0){
+		buff[datablocks] = data & NHP_MASK_DATA_7BIT;
+		data >>= 7;
+		datablocks--;
+	}
+
+	// write lead + length mask
+	buff[0] |= NHP_MASK_LEAD | (blocks << 3);
+
+	// write end mask
+	buff[blocks - 1] = NHP_MASK_END | ((address - 1) & NHP_MASK_ADDRESS);
+
+	// return the length
+	return blocks;
 }
-break;
-}
-else{
-// write the possible first 3 bits and check again after if zero
-buff[0] = nextvalue;
-blocks--;
-// we have our first bits, stop (nonzero)
-if (nextvalue)
-break;
-}
-}
-
-// write the rest of the data bits
-uint8_t datablocks = blocks - 2;
-while (datablocks > 0){
-buff[datablocks] = data & NHP_MASK_DATA_7BIT;
-data >>= 7;
-datablocks--;
-}
-
-// write lead + length mask
-buff[0] |= NHP_MASK_LEAD | (blocks << 3);
-
-// write end mask
-buff[blocks - 1] = NHP_MASK_END | ((address - 1) & NHP_MASK_ADDRESS);
-
-// return the length
-return blocks;
-}
-
+/*
 //================================================================================
 // AVRISP
 //================================================================================
