@@ -57,10 +57,6 @@ THE SOFTWARE.
 #define MODE_AVRISP 4
 #define MODE_TRIGGER_AVRISP 5
 
-void mode_default(void);
-void mode_hid(void);
-void mode_avrisp(void);
-
 //================================================================================
 // Hardware
 //================================================================================
@@ -132,7 +128,7 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 
 void checkNHPProtocol(uint8_t input);
 void checkNHPControlAddressError(void);
-uint8_t writeToCDC(uint8_t buffer[], uint8_t length);
+void writeToCDC(uint8_t buffer[], uint8_t length);
 void resetNHPbuffer(void);
 
 //================================================================================
