@@ -21,3 +21,4 @@ Integrated NHP directly
 Seperated different modes better to not cause any errors in default mode
 Improved writing to CDC Host
 fixed a bug in checkNHPProtocol: & needs to be a==
+improved ram usage, now with a big union of ram

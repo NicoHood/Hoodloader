@@ -49,7 +49,7 @@ static struct{
 			uint8_t      USARTtoUSB_Buffer_Data[128];
 
 			// Pulse generation counters to keep track of the number of milliseconds remaining for each pulse type
-			volatile struct{
+			struct{
 				uint8_t TxLEDPulse; // Milliseconds remaining for data Tx LED pulse
 				uint8_t RxLEDPulse; // Milliseconds remaining for data Rx LED pulse
 			}PulseMSRemaining;
@@ -157,27 +157,56 @@ int main(void)
 {
 	SetupHardware();
 
-	// Serial tx buffers Setup
-	RingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, sizeof(ram.USARTtoUSB_Buffer_Data));
-
-	// HID Setup
-	ram.NHP.mBlocks = 0;
-	ram.NHP.readlength = 0;
-	ram.HID.ID = 0;
-
-	// AVR ISP Setup
-	//isp.error = 0;
-	//isp.pmode = 0;
-
-	ram.mode = MODE_DEFAULT;
+	// by default HID is active to use HID at startup of the uno without any serial usb baud change
+	ram.mode = MODE_TRIGGER_HID;
+	//ram.mode = MODE_TRIGGER_DEFAULT; //todo<--
 
 	GlobalInterruptEnable();
 
 	for (;;)
 	{
-		//if (ram.mode == MODE_DEFAULT)
-		//mode_default();
-		mode_hid();
+		switch (ram.mode){
+
+			// default mode
+		case MODE_TRIGGER_DEFAULT:
+			// Serial tx buffers Setup
+			RingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, sizeof(ram.USARTtoUSB_Buffer_Data));
+
+			ram.mode = MODE_DEFAULT;
+			break;
+		case MODE_DEFAULT:
+			mode_default();
+			break;
+
+			// hid mode
+		case MODE_TRIGGER_HID:
+			// Serial tx buffers Setup
+			RingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, sizeof(ram.USARTtoUSB_Buffer_Data));
+
+			// HID Setup
+			ram.NHP.mBlocks = 0;
+			ram.NHP.readlength = 0;
+			ram.HID.ID = 0;
+
+			ram.mode = MODE_HID;
+			break;
+		case MODE_HID:
+			mode_hid();
+			break;
+
+			// avr isp mode
+		case MODE_TRIGGER_AVRISP:
+			// AVR ISP Setup
+			ram.isp.error = 0;
+			ram.isp.pmode = 0;
+			ram.mode = MODE_AVRISP;
+			break;
+		case MODE_AVRISP:
+			//mode_avrisp();
+			break;
+
+		}
+
 
 		CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
 		USB_USBTask();
@@ -325,7 +354,8 @@ ISR(USART1_RX_vect, ISR_BLOCK)
 {
 	uint8_t ReceivedByte = UDR1;
 
-	if (USB_DeviceState == DEVICE_STATE_Configured)
+	// only save the byte if AVRISP is off and if usb device is ready
+	if (ram.mode != MODE_AVRISP && ram.mode != MODE_AVRISP && USB_DeviceState == DEVICE_STATE_Configured)
 		RingBuffer_Insert(&ram.USARTtoUSB_Buffer, ReceivedByte);
 }
 
@@ -409,6 +439,78 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 //================================================================================
 // Default Mode
 //================================================================================
+
+void mode_default_temp_canbedelted(void){
+	// read in bytes from the CDC interface
+	int16_t ReceivedByte = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
+	if (!(ReceivedByte < 0)){
+		// Turn on RX LED
+		LEDs_TurnOnLEDs(LEDMASK_RX);
+		ram.PulseMSRemaining.RxLEDPulse = TX_RX_LED_PULSE_MS;
+
+		// Send byte directly
+		Serial_SendByte(ReceivedByte);
+	}
+
+	// read in bytes from the Serial buffer
+	uint16_t BufferCount = RingBuffer_GetCount(&ram.USARTtoUSB_Buffer);
+	if (BufferCount)
+	{
+		// Turn on TX LED
+		LEDs_TurnOnLEDs(LEDMASK_TX);
+		ram.PulseMSRemaining.TxLEDPulse = TX_RX_LED_PULSE_MS;
+
+		if (BufferCount > 100){
+			LEDs_TurnOnLEDs(LEDMASK_TX);
+			LEDs_TurnOnLEDs(LEDMASK_RX);
+			while (1); //halt
+		}
+
+		/// Read bytes from the USART receive buffer into the USB IN endpoint */
+		while (BufferCount--)
+		{
+			uint8_t input = RingBuffer_Remove(&ram.USARTtoUSB_Buffer);
+			//CDC_Device_SendByte(&VirtualSerial_CDC_Interface, input);
+			//continue;
+
+			//write input to the buffer
+			ram.NHP.readbuffer[ram.NHP.readlength] = input;
+			ram.NHP.readlength++;
+
+			//writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength); // write 2nd byte
+			//ram.NHP.readlength = 0; // reset buffer
+			//continue;
+
+			if (ram.NHP.readlength == 2){
+				writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength - 1); //write first byte (length 1)
+				ram.NHP.readbuffer[0] = ram.NHP.readbuffer[ram.NHP.readlength - 1]; // move 2nd byte
+				ram.NHP.readlength = 1;
+				writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength); // write 2nd byte
+				ram.NHP.readlength = 0; // reset buffer
+
+			}
+		}
+	}
+
+	// Check if the led flush timer has expired
+	if (TIFR0 & (1 << TOV0)){
+		// reset the timer
+		TIFR0 |= (1 << TOV0);
+
+		// Turn off TX LED(s) once the TX pulse period has elapsed
+		if (ram.PulseMSRemaining.TxLEDPulse && !(--ram.PulseMSRemaining.TxLEDPulse)){
+			LEDs_TurnOffLEDs(LEDMASK_TX);
+			writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength); // write buffer down now
+			ram.NHP.readlength = 0; // reset buffer
+		}
+
+		// Turn off RX LED(s) once the RX pulse period has elapsed
+		if (ram.PulseMSRemaining.RxLEDPulse && !(--ram.PulseMSRemaining.RxLEDPulse))
+			LEDs_TurnOffLEDs(LEDMASK_RX);
+	}
+
+}
+
 
 void mode_default(void){
 	// read in bytes from the CDC interface
@@ -499,10 +601,10 @@ void mode_hid(void){
 		// Read bytes from the USART receive buffer
 		while (BufferCount--){
 			// main function to proceed HID input checks
-			checkNHPProtocol(RingBuffer_Remove(&ram.USARTtoUSB_Buffer));
+			uint8_t b = RingBuffer_Remove(&ram.USARTtoUSB_Buffer);
+			checkNHPProtocol(b);
 
 			// deactivated
-			//uint8_t b = RingBuffer_Remove(&ram.USARTtoUSB_Buffer);
 			//writeToCDC(&b, 1);
 		}
 	}
@@ -519,8 +621,7 @@ void mode_hid(void){
 
 			// write the rest of the cached NHP buffer down
 			writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
-			ram.NHP.mBlocks = 0;
-			ram.NHP.readlength = 0;
+			resetNHPbuffer();
 
 			// Turn off TX LED(s) once the TX pulse period has elapsed
 			LEDs_TurnOffLEDs(LEDMASK_TX);
@@ -540,100 +641,104 @@ void checkNHPProtocol(uint8_t input){
 
 	// if we have got an address this also means the checksum is correct!
 	// if not the buff is automatically written down
-	if (address){
+	if (!address)
+		return;
 
-		// nearly the same priciple like the Protocol itself: check for control address
-		if ((address == NHP_ADDRESS_CONTROL) && (((ram.NHP.mWorkData >> 8) & 0xFF) == NHP_USAGE_ARDUINOHID)){
-			// check if previous reading was a valid Control Address and write it down
+	// nearly the same priciple like the Protocol itself: check for control address
+	if ((address == NHP_ADDRESS_CONTROL) && (((ram.NHP.mWorkData >> 8) & 0xFF) == NHP_USAGE_ARDUINOHID)){
+		// check if previous reading was a valid Control Address and write it down
+		checkNHPControlAddressError();
+
+		// get the new report ID and reset the buffer
+		ram.HID.ID = ram.NHP.mWorkData & 0xFF;
+		ram.HID.recvlength = 0;
+		memset(ram.HID.buffer, 0, sizeof(ram.HID.buffer));
+
+		// Determine which interface must have its report generated
+		switch (ram.HID.ID){
+		case HID_REPORTID_MouseReport:
+			ram.HID.length = sizeof(HID_MouseReport_Data_t);
+			break;
+
+		case HID_REPORTID_KeyboardReport:
+			ram.HID.length = sizeof(HID_KeyboardReport_Data_t);
+			break;
+
+		case HID_REPORTID_MediaReport:
+			ram.HID.length = sizeof(HID_MediaReport_Data_t);
+			break;
+
+		case HID_REPORTID_SystemReport:
+			ram.HID.length = sizeof(HID_SystemReport_Data_t);
+			break;
+
+		case HID_REPORTID_Gamepad1Report:
+		case HID_REPORTID_Gamepad2Report:
+			ram.HID.length = sizeof(HID_GamepadReport_Data_t);
+			break;
+
+		case HID_REPORTID_Joystick1Report:
+		case HID_REPORTID_Joystick2Report:
+			ram.HID.length = sizeof(HID_JoystickReport_Data_t);
+			break;
+
+		default:
+			// error, write down this wrong ID report
 			checkNHPControlAddressError();
+			break;
+		} //end switch
 
-			// get the new report ID and reset the buffer
-			ram.HID.ID = ram.NHP.mWorkData & 0xFF;
-			ram.HID.recvlength = 0;
-			memset(ram.HID.buffer, 0, sizeof(ram.HID.buffer));
+		// The Protocol received a valid signal with inverse checksum
+		// Do not write the buff in the loop above or below, filter it out at the end
+	} // end if control address byte
 
-			// Determine which interface must have its report generated
-			switch (ram.HID.ID){
-			case HID_REPORTID_MouseReport:
-				ram.HID.length = sizeof(HID_MouseReport_Data_t);
-				break;
+	// we already got a pending report
+	else if (ram.HID.ID){
+		// check if the new Address is in correct order of HID reports.
+		// the first 2 bytes are sent with Address 2 and so on.
+		if (address == (((ram.HID.recvlength + 2) / 2) + 1)){
+			// save the first byte
+			ram.HID.buffer[ram.HID.recvlength++] = (ram.NHP.mWorkData & 0xFF);
 
-			case HID_REPORTID_KeyboardReport:
-				ram.HID.length = sizeof(HID_KeyboardReport_Data_t);
-				break;
+			// if there is another byte we need (for odd max HID reports important
+			// to not write over the buff array)
+			if (ram.HID.length != ram.HID.recvlength)
+				ram.HID.buffer[ram.HID.recvlength++] = (ram.NHP.mWorkData >> 8);
 
-			case HID_REPORTID_MediaReport:
-				ram.HID.length = sizeof(HID_MediaReport_Data_t);
-				break;
+			// we are ready to submit the new report to the usb host
+			if (ram.HID.length == ram.HID.recvlength){
 
-			case HID_REPORTID_SystemReport:
-				ram.HID.length = sizeof(HID_SystemReport_Data_t);
-				break;
-
-			case HID_REPORTID_Gamepad1Report:
-			case HID_REPORTID_Gamepad2Report:
-				ram.HID.length = sizeof(HID_GamepadReport_Data_t);
-				break;
-
-			case HID_REPORTID_Joystick1Report:
-			case HID_REPORTID_Joystick2Report:
-				ram.HID.length = sizeof(HID_JoystickReport_Data_t);
-				break;
-
-			default:
-				// error
-				checkNHPControlAddressError();
-				break;
-			} //end switch
-
+				// TODO timeout? <--
+				while (ram.HID.ID)
+					HID_Device_USBTask(&Device_HID_Interface);
+			}
 			// The Protocol received a valid signal with inverse checksum
 			// Do not write the buff in the loop above or below, filter it out
-		} // end if control address byte
-
-		// we already got a pending report
-		else if (ram.HID.ID){
-			// check if the new Address is in correct order of HID reports.
-			// the first 2 bytes are sent with Address 2 and so on.
-			if (address == (((ram.HID.recvlength + 2) / 2) + 1)){
-				// save the first byte
-				ram.HID.buffer[ram.HID.recvlength++] = (ram.NHP.mWorkData & 0xFF);
-
-				// if there is another byte we need (for odd max HID reports important
-				// to not write over the buff array)
-				if (ram.HID.length != ram.HID.recvlength)
-					ram.HID.buffer[ram.HID.recvlength++] = (ram.NHP.mWorkData >> 8);
-
-				// we are ready to submit the new report to the usb host
-				if (ram.HID.length == ram.HID.recvlength){
-
-					// TODO timeout? <--
-					while (ram.HID.ID)
-						HID_Device_USBTask(&Device_HID_Interface);
-				}
-				// The Protocol received a valid signal with inverse checksum
-				// Do not write the buff in the loop above or below, filter it out
-			}
-
-			// we received a corrupt data packet
-			else
-				// check if previous reading was a valid Control Address and write it down
-				// if not discard the bytes because we assume it is corrupted data
-				checkNHPControlAddressError();
-
-		} // end if ram.HID.ID
-
-		else {
-			// just a normal Protocol outside our control address, write it down
-			writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
 		}
-		// in any case: clear NHP buffer and start a new reading
-		ram.NHP.mBlocks = 0;
-		ram.NHP.readlength = 0;
-	} // end if address
+
+		// we received a corrupt data packet
+		else
+			// check if previous reading was a valid Control Address and write it down
+			// if not discard the bytes because we assume it is corrupted data
+			checkNHPControlAddressError();
+
+	} // end if ram.HID.ID
+
+	else {
+		// just a normal Protocol outside our control address, write it down
+		writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
+	}
+	// in any case: clear NHP buffer now and start a new reading
+	resetNHPbuffer();
+}
+
+void resetNHPbuffer(void){
+	ram.NHP.readlength = 0;
+	ram.NHP.mBlocks = 0;
 }
 
 void checkNHPControlAddressError(void){
-	// only write if an control address was just before, maybe it was a random valid address
+	// only write if a control address was just before, maybe it was a random valid address
 	// but if we already received some data we handle this as corrupted data and just
 	// discard all the bytes
 	if (ram.HID.ID && !ram.HID.recvlength){
@@ -654,15 +759,28 @@ uint8_t writeToCDC(uint8_t buffer[], uint8_t length){
 	// Writes the buffer with the given length
 	// If host is not listening it will discard all bytes to not block any HID reading
 
-	int i;
-	for (i = 0; i < length; i++){
-		// Try to send the next byte of data to the host, abort if there is an error
-		bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
-		if (CurrentDTRState){
-			if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface, buffer[i]) != ENDPOINT_READYWAIT_NoError)
-				break;
-		}
-	}
+	int i = 0;
+	//for (i = 0; i < length; i++){
+
+	//	if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface, buffer[i]) != ENDPOINT_READYWAIT_NoError){
+	//		while (1);
+
+	//	}
+	//	//break; // maybe remove this if you have problems <--
+	//}
+	//Endpoint_SelectEndpoint(VirtualSerial_CDC_Interface.Config.DataINEndpoint.Address);
+
+	// Check if a packet is already enqueued to the host - if so, we shouldn't try to send more data
+	// until it completes as there is a chance nothing is listening and a lengthy timeout could occur
+	//while (!Endpoint_IsINReady());
+	//while (CDC_Device_SendByte(&VirtualSerial_CDC_Interface, buffer[i]) != ENDPOINT_READYWAIT_NoError);
+	//CDC_Device_Flush(&VirtualSerial_CDC_Interface);
+	// Try to send the next byte of data to the host, abort if there is an error
+	bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
+	if (CurrentDTRState)
+		CDC_Device_SendData(&VirtualSerial_CDC_Interface, buffer, length);
+	CDC_Device_Flush(&VirtualSerial_CDC_Interface);
+	//}
 
 	// return how many bytes we wrote
 	return i;
@@ -675,13 +793,32 @@ uint8_t writeToCDC(uint8_t buffer[], uint8_t length){
 // reads two bytes and check its inverse
 uint8_t NHPreadChecksum(uint8_t input){
 	//write input to the buffer
-	ram.NHP.readbuffer[ram.NHP.readlength++] = input;
+	ram.NHP.readbuffer[ram.NHP.readlength] = input;
+	ram.NHP.readlength++;
 
 	// check the lead/end/data indicator
 	switch (input & NHP_MASK_START){
 
 	case(NHP_MASK_LEAD) :
 	{
+		// read command indicator or block length
+		uint8_t blocks = (input & NHP_MASK_LENGTH) >> 3;
+
+		// ignore command, return 0 write buff down completely
+		if (blocks == 0 || blocks == 1)
+			break;
+
+		else if (blocks == 7){
+			// save block length + first 4 data bits (special case)
+			ram.NHP.mWorkData = input & NHP_MASK_DATA_4BIT;
+			blocks -= 2;
+		}
+		else{
+			// save block length + first 3 data bits
+			ram.NHP.mWorkData = input & NHP_MASK_DATA_3BIT;
+			blocks--;
+		}
+
 		// we were still reading!  Log an error
 		if (ram.NHP.mBlocks){
 			// check if previous reading was a valid Control Address and write it down
@@ -692,27 +829,9 @@ uint8_t NHPreadChecksum(uint8_t input){
 			ram.NHP.readbuffer[0] = ram.NHP.readbuffer[ram.NHP.readlength - 1];
 			ram.NHP.readlength = 1;
 		}
-
-		// read command indicator or block length
-		ram.NHP.mBlocks = (input & NHP_MASK_LENGTH) >> 3;
-		switch (ram.NHP.mBlocks){
-		case 0:
-		case 1:
-			// ignore command, return 0 write buff down
-			break;
-		case 7:
-			// save block length + first 4 data bits (special case)
-			ram.NHP.mWorkData = input & NHP_MASK_DATA_4BIT;
-			ram.NHP.mBlocks -= 2;
-			return 0; // everything is okay
-			break;
-		default:
-			// save block length + first 3 data bits
-			ram.NHP.mWorkData = input & NHP_MASK_DATA_3BIT;
-			ram.NHP.mBlocks--;
-			return 0; // everything is okay
-			break;
-		}
+		// save new block length
+		ram.NHP.mBlocks = blocks;
+		return 0; // everything is okay
 	}
 						break;
 
@@ -748,10 +867,10 @@ uint8_t NHPreadChecksum(uint8_t input){
 
 	// check if previous reading was a valid Control Address and write it down
 	checkNHPControlAddressError();
+
 	// invalid input, write down buffer
 	writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
-	ram.NHP.mBlocks = 0;
-	ram.NHP.readlength = 0;
+	resetNHPbuffer();
 	return 0;
 }
 
@@ -1303,73 +1422,72 @@ for (int x = 0; x < n; x++) {
 buffer[x] = getch();
 }
 }
-
+*/
 
 // Delay for the given number of microseconds.  Assumes a 8 or 16 MHz clock.
 void delayMicroseconds(unsigned int us){
-// calling avrlib's delay_us() function with low values (e.g. 1 or
-// 2 microseconds) gives delays longer than desired.
-//delay_us(us);
+	// calling avrlib's delay_us() function with low values (e.g. 1 or
+	// 2 microseconds) gives delays longer than desired.
+	//delay_us(us);
 #if F_CPU >= 20000000L
-// for the 20 MHz clock on rare Arduino boards
+	// for the 20 MHz clock on rare Arduino boards
 
-// for a one-microsecond delay, simply wait 2 cycle and return. The overhead
-// of the function call yields a delay of exactly a one microsecond.
-__asm__ __volatile__(
-"nop" "\n\t"
-"nop"); //just waiting 2 cycle
-if (--us == 0)
-return;
+	// for a one-microsecond delay, simply wait 2 cycle and return. The overhead
+	// of the function call yields a delay of exactly a one microsecond.
+	__asm__ __volatile__(
+		"nop" "\n\t"
+		"nop"); //just waiting 2 cycle
+	if (--us == 0)
+		return;
 
-// the following loop takes a 1/5 of a microsecond (4 cycles)
-// per iteration, so execute it five times for each microsecond of
-// delay requested.
-us = (us << 2) + us; // x5 us
+	// the following loop takes a 1/5 of a microsecond (4 cycles)
+	// per iteration, so execute it five times for each microsecond of
+	// delay requested.
+	us = (us << 2) + us; // x5 us
 
-// account for the time taken in the preceeding commands.
-us -= 2;
+	// account for the time taken in the preceeding commands.
+	us -= 2;
 
 #elif F_CPU >= 16000000L
-// for the 16 MHz clock on most Arduino boards
+	// for the 16 MHz clock on most Arduino boards
 
-// for a one-microsecond delay, simply return.  the overhead
-// of the function call yields a delay of approximately 1 1/8 us.
-if (--us == 0)
-return;
+	// for a one-microsecond delay, simply return.  the overhead
+	// of the function call yields a delay of approximately 1 1/8 us.
+	if (--us == 0)
+		return;
 
-// the following loop takes a quarter of a microsecond (4 cycles)
-// per iteration, so execute it four times for each microsecond of
-// delay requested.
-us <<= 2;
+	// the following loop takes a quarter of a microsecond (4 cycles)
+	// per iteration, so execute it four times for each microsecond of
+	// delay requested.
+	us <<= 2;
 
-// account for the time taken in the preceeding commands.
-us -= 2;
+	// account for the time taken in the preceeding commands.
+	us -= 2;
 #else
-// for the 8 MHz internal clock on the ATmega168
+	// for the 8 MHz internal clock on the ATmega168
 
-// for a one- or two-microsecond delay, simply return.  the overhead of
-// the function calls takes more than two microseconds.  can't just
-// subtract two, since us is unsigned; we'd overflow.
-if (--us == 0)
-return;
-if (--us == 0)
-return;
+	// for a one- or two-microsecond delay, simply return.  the overhead of
+	// the function calls takes more than two microseconds.  can't just
+	// subtract two, since us is unsigned; we'd overflow.
+	if (--us == 0)
+		return;
+	if (--us == 0)
+		return;
 
-// the following loop takes half of a microsecond (4 cycles)
-// per iteration, so execute it twice for each microsecond of
-// delay requested.
-us <<= 1;
+	// the following loop takes half of a microsecond (4 cycles)
+	// per iteration, so execute it twice for each microsecond of
+	// delay requested.
+	us <<= 1;
 
-// partially compensate for the time taken by the preceeding commands.
-// we can't subtract any more than this or we'd overflow w/ small delays.
-us--;
+	// partially compensate for the time taken by the preceeding commands.
+	// we can't subtract any more than this or we'd overflow w/ small delays.
+	us--;
 #endif
 
-// busy wait
-__asm__ __volatile__(
-"1: sbiw %0,1" "\n\t" // 2 cycles
-"brne 1b" : "=w" (us) : "0" (us) // 2 cycles
-);
+	// busy wait
+	__asm__ __volatile__(
+		"1: sbiw %0,1" "\n\t" // 2 cycles
+		"brne 1b" : "=w" (us) : "0" (us) // 2 cycles
+		);
 }
 
-*/
