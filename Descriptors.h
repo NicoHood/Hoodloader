@@ -56,7 +56,7 @@ THE SOFTWARE.
 
 /** Size in bytes of each of the HID reporting IN endpoint. */
 // important: only use 8,16,32,64 here!! <--
-#define HID_EPSIZE					32
+#define HID_EPSIZE					32 //TODO get this working with 64 bytes
 
 
 /* Type Defines: */

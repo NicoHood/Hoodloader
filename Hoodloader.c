@@ -165,6 +165,12 @@ int main(void)
 
 	GlobalInterruptEnable();
 
+	//for (;;)
+	//{
+	//	HID_Device_USBTask(&Generic_HID_Interface);
+	//	USB_USBTask();
+	//}
+
 	for (;;)
 	{
 		//todo rework this <--
@@ -289,6 +295,10 @@ int main(void)
 			if (ram.PulseMSRemaining.RxLEDPulse && !(--ram.PulseMSRemaining.RxLEDPulse))
 				LEDs_TurnOffLEDs(LEDMASK_RX);
 		}
+
+		// get new reports from the PC side and try to send pending reports
+		if (ram.mode == MODE_HID)
+			HID_Device_USBTask(&Device_HID_Interface);
 
 		CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
 		USB_USBTask();
@@ -487,17 +497,21 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 	void* ReportData,
 	uint16_t* const ReportSize)
 {
-	//write report and reset ID
-	memcpy(ReportData, ram.HID.buffer, ram.HID.length);
-	*ReportID = ram.HID.ID;
-	*ReportSize = ram.HID.length;
-	ram.HID.ID = 0;
-	ram.HID.recvlength = 0; //just to be sure if you call HID_Task by accident again
-	ram.HID.length = 0; //just to be sure if you call HID_Task by accident again
+	// only send report if there is actually a new report
+	if (ram.HID.ID && ram.HID.length == ram.HID.recvlength){
+		//write report and reset ID
+		memcpy(ReportData, ram.HID.buffer, ram.HID.length);
+		*ReportID = ram.HID.ID;
+		*ReportSize = ram.HID.length;
+		ram.HID.ID = 0;
+		ram.HID.recvlength = 0; //just to be sure if you call HID_Task by accident again
+		ram.HID.length = 0; //just to be sure if you call HID_Task by accident again
 
-	// always return true, because we cannot compare with >1 report due to ram limit
-	// this will forcewrite the report every time
-	return true;
+		// always return true, because we cannot compare with >1 report due to ram limit
+		// this will forcewrite the report every time
+		return true;
+	}
+	else return false;
 }
 
 /** HID class driver callback function for the processing of HID reports from the host.
@@ -516,6 +530,18 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 {
 	// Unused in this demo, since there are no Host->Device reports
 	//	uint8_t* LEDReport = (uint8_t*)ReportData;
+
+	if (ReportID == HID_REPORTID_RawKeyboardReport){
+		//LEDs_SetAllLEDs(LEDS_ALL_LEDS);
+		//while (1); //TODO remove <--
+
+		// Turn on RX LED
+		LEDs_TurnOnLEDs(LEDMASK_RX);
+		ram.PulseMSRemaining.RxLEDPulse = TX_RX_LED_PULSE_MS;
+
+		// Send bytes
+		Serial_SendData(ReportData, ReportSize);
+	}
 }
 
 // Checks for a valid protocol input and writes HID report
@@ -526,6 +552,13 @@ void checkNHPProtocol(uint8_t input){
 	// if not the buff is automatically written down
 	if (!address)
 		return;
+
+	// we have a pending HID report, flush it first
+	if (ram.HID.ID && ram.HID.length == ram.HID.recvlength){
+		// TODO timeout? <--
+		while (ram.HID.ID)
+			HID_Device_USBTask(&Device_HID_Interface);
+	}
 
 	// nearly the same priciple like the Protocol itself: check for control address
 	if ((address == NHP_ADDRESS_CONTROL) && (((ram.NHP.mWorkData >> 8) & 0xFF) == NHP_USAGE_ARDUINOHID)){
@@ -545,6 +578,10 @@ void checkNHPProtocol(uint8_t input){
 
 		case HID_REPORTID_KeyboardReport:
 			ram.HID.length = sizeof(HID_KeyboardReport_Data_t);
+			break;
+
+		case HID_REPORTID_RawKeyboardReport:
+			ram.HID.length = sizeof(HID_RawKeyboardReport_Data_t);
 			break;
 
 		case HID_REPORTID_MediaReport:
@@ -588,13 +625,11 @@ void checkNHPProtocol(uint8_t input){
 		if (ram.HID.length != ram.HID.recvlength)
 			ram.HID.buffer[ram.HID.recvlength++] = (ram.NHP.mWorkData >> 8);
 
-		// we are ready to submit the new report to the usb host
-		if (ram.HID.length == ram.HID.recvlength){
+		// we are ready try to submit the new report to the usb host
+		// dont block here, we flush the report on the next reading if needed
+		if (ram.HID.length == ram.HID.recvlength)
+			HID_Device_USBTask(&Device_HID_Interface);
 
-			// TODO timeout? <--
-			while (ram.HID.ID)
-				HID_Device_USBTask(&Device_HID_Interface);
-		}
 		// The Protocol received a valid signal with inverse checksum
 		// Do not write the buff in the loop above or below, filter it out
 	}

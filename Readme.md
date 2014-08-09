@@ -16,7 +16,7 @@ So be careful if you change the source on your own with important PIDs. (Therefo
 Therefore reinstall the divers for any device or just dont touch the HID reports in the Bootloader.
 The Leonardo/Micro version worked fine till now.
 
-See this how to uninstall the drivers:
+See this how to uninstall the drivers (not tested):
 https://support.microsoft.com/kb/315539
 
 The Hootloader was coded with Windows7/8.1 + Visual Studio Express and compiled with a Raspberry Pi.
@@ -34,11 +34,11 @@ $ cd Desktop
 $ mkdir Arduino
 
 #Test mounting:
-sudo mount -t cifs -o username=yourusername,password=yourpass //YOUR-PC-NAME/Arduino Arduino
+sudo mount -t cifs -o username=yourusername,password=yourpass,nounix,noserverino //YOUR-PC-NAME/Arduino Arduino
 
 #run it automated at startup. If not connected this will cause a long timeout.
 sudo nano /etc/fstab
-//YOUR-PC-NAME/Arduino /home/pi/Desktop/Arduino cifs username=yourusername,password=yourpass 0 0
+//YOUR-PC-NAME/Arduino /home/pi/Desktop/Arduino cifs username=yourusername,password=yourpass,nounix,noserverino 0 0
 ```
 
 You need to install the gcc-avr toolchain, avr-libc and compile with:

@@ -22,7 +22,7 @@ BOARD  = USER
 
 #Vendor ID from lufa       0x03EB
 #Product ID created my own
-#HOODLOADER                0x4E68
+#HOODLOADER                0x6E68
 #HOODLOADER-Lite           0x4E48
 
 #You can also use the native Arduino VID and PID
@@ -36,14 +36,14 @@ ARDUNIOHID_OPTS += -DHOODLOADER_PID=0x6E68
 #Version in BCD:
 ARDUNIOHID_OPTS += -DHOODLOADER_V1=0
 ARDUNIOHID_OPTS += -DHOODLOADER_V2=1
-ARDUNIOHID_OPTS += -DHOODLOADER_V3=5
+ARDUNIOHID_OPTS += -DHOODLOADER_V3=6
 
 
 ARCH         = AVR8
 F_USB        = $(F_CPU)
 OPTIMIZATION = s
 TARGET       = Hoodloader
-SRC          = $(TARGET).c Descriptors.c $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)
+SRC          = $(TARGET).c Descriptors.c lufa-LUFA-140302/LUFA/Drivers/Peripheral/AVR8/Serial_AVR8.c $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)
 LUFA_PATH    = ./lufa-LUFA-140302/LUFA
 CC_FLAGS     = -DUSE_LUFA_CONFIG_HEADER -IConfig/ $(ARDUNIOHID_OPTS)
 LD_FLAGS     =
