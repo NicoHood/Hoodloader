@@ -131,6 +131,9 @@ SS Pin - RESET
 If you are programming the same board only MOSI, MISO, SCK, SS is needed to connect.
 ![pictures/ProgrammingMega.jpg](pictures/ProgrammingMega.jpg)
 
+See Google code discussion:
+https://groups.google.com/a/arduino.cc/forum/#!msg/developers/V_T-Uvj8hSs/h9xlGyM9cJoJ
+
 How it works
 ============
 To sum it up: Serial information is grabbed by the "man in the middle, 16u2" and you dont have to worry to get any wrong Serial stuff via USB.
