@@ -53,8 +53,8 @@ Click the USB Cable and **click open.**
 
 **Click run** to upload the firmware. Uncheck Reset and click Start Application to restart your Arduino. Or just **replug the cable.**
 
-Driver installation
--------------------
+CDC Driver installation
+-----------------------
 **You need to install new drivers for the new device on Windows (Linux, Mac not needed).** Actually they are not new, its just an .inf file that tells
 Windows to use its built in CDC Serial driver. Ironically Microsoft never signed its own driver.
 The drivers are located in Firmwares/Hoodloader.inf.
@@ -129,7 +129,7 @@ SS Pin - RESET
 ```
 ![pictures/ProgrammingNano.jpg](pictures/ProgrammingNano.jpg)
 If you are programming the same board only MODI, MISO, SCK, SS is needed to connect.
-![pictures/ProgrammingNega.jpg](pictures/ProgrammingNega.jpg)
+![pictures/ProgrammingMega.jpg](pictures/ProgrammingMega.jpg)
 
 How it works
 ============
@@ -150,6 +150,7 @@ because the NHP filters that out instantly (see documentation of the NHP). So fi
 
 The 16u2 as ISP works like the Arduino sketch. It just uses its won SPI header to program the device
 and uses a special baud to not get into conflict with other commonly used bauds.
+In ISP mode no data is transferred between Arduino main chip and Pc. This also wouldnt be possible because of shared ram.
 
 This library wouldnt be possible without
 ========================================
@@ -170,10 +171,12 @@ Known Bugs
 ==========
 See the [HID project](https://github.com/NicoHood/HID) for HID related bugs.
 
-Using the Hoodloader on a 8u2 you need to use v1.6(no ISP) and DFU wont work.
-
-Programming Arduino Mega with ISP doesnt work because of fuses. Burning Bootloader error is fixed with IDE 1.5.7 or higher (avrdude bug)!
+**Programming Arduino Mega with ISP doesnt work because of fuses.**
 See this for more information: http://forum.arduino.cc/index.php?topic=126160.0
+
+Burning Bootloader error is fixed with IDE 1.5.7 or higher (avrdude bug)!
+
+Using the Hoodloader on a 8u2 you need to use v1.6(no ISP) and DFU wont work.
 
 Feel free to open an Issue on Github if you find a bug. Or message me via my [blog](http://nicohood.wordpress.com/)!
 
