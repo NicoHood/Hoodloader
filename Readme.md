@@ -128,7 +128,7 @@ SCK - SCK
 SS Pin - RESET
 ```
 ![pictures/ProgrammingNano.jpg](pictures/ProgrammingNano.jpg)
-If you are programming the same board only MODI, MISO, SCK, SS is needed to connect.
+If you are programming the same board only MOSI, MISO, SCK, SS is needed to connect.
 ![pictures/ProgrammingMega.jpg](pictures/ProgrammingMega.jpg)
 
 How it works
