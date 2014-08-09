@@ -81,12 +81,15 @@ static struct{
 
 		// if baud == 19200 AVRISP mode
 		struct{
-			uint8_t error;
-			uint8_t pmode;
-			int here;
-			int pagesize;
-			int eepromsize;
-			uint8_t buffer[256];
+			int error; //TODO improve types
+			int pmode;
+			int _addr; // here
+			struct{
+				int pagesize;
+				int eepromsize;
+			} param;
+
+			uint8_t buff[256];
 		} isp;
 
 	};
@@ -155,150 +158,107 @@ USB_ClassInfo_HID_Device_t Device_HID_Interface =
 */
 int main(void)
 {
+	ram.mode = MODE_NONE;
+
 	SetupHardware();
-
-	ram.mode = MODE_DEFAULT;
-
-	// todo improve this <--
-	// Serial tx buffers Setup
-	RingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, sizeof(ram.USARTtoUSB_Buffer_Data));
 
 	GlobalInterruptEnable();
 
-	//for (;;)
-	//{
-	//	HID_Device_USBTask(&Generic_HID_Interface);
-	//	USB_USBTask();
-	//}
-
 	for (;;)
 	{
-		//todo rework this <--
+		// change ram.mode depending on the selected CDC baud rate
+		selectMode();
 
-		// HID only works for baud 115200 or not configured (startup, no host connection)
-		// you could remove this feature but its to ensure other bauds dont have any problems and the speed is fast enough for reporting
-		if (VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS == 0 || VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS == 115200){
-			// deactivate AVRISP on mode change
-			if (ram.mode == MODE_AVRISP){
-				// Serial tx buffers Setup
-				RingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, sizeof(ram.USARTtoUSB_Buffer_Data));
-				// reset LEDs
-				ram.PulseMSRemaining.TxLEDPulse = 0;
-				ram.PulseMSRemaining.RxLEDPulse = 0;
-				LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
+		// run main code, depending on the selected mode
+		if (ram.mode == MODE_AVRISP)
+			avrisp();
+		else{
+
+			// read in bytes from the CDC interface
+			int16_t ReceivedByte = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
+			if (!(ReceivedByte < 0)){
+				// Turn on RX LED
+				LEDs_TurnOnLEDs(LEDMASK_RX);
+				ram.PulseMSRemaining.RxLEDPulse = TX_RX_LED_PULSE_MS;
+
+				// Send byte directly
+				Serial_SendByte(ReceivedByte);
 			}
 
-			// check if the deactivate jumper is set
-			if (AVR_NO_HID_PIN & AVR_NO_HID_MASK){
-				// enable HID on mode change
-				if (ram.mode != MODE_HID){
-					// HID Setup
-					resetNHPbuffer();
-					ram.HID.ID = 0;
-				}
-				ram.mode = MODE_HID;
-			}
-			else
-				ram.mode = MODE_DEFAULT;
-
-		}
-		else if (ram.mode == MODE_AVRISP){
-			//todo <--
-			// AVR ISP Setup
-			ram.isp.error = 0;
-			ram.isp.pmode = 0;
-			//avrisp();
-
-			// check if baud is okay, if not reenable tx buffer
-		}
-		else
-			ram.mode = MODE_DEFAULT;
-
-
-		// read in bytes from the CDC interface
-		int16_t ReceivedByte = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
-		if (!(ReceivedByte < 0)){
-			// Turn on RX LED
-			LEDs_TurnOnLEDs(LEDMASK_RX);
-			ram.PulseMSRemaining.RxLEDPulse = TX_RX_LED_PULSE_MS;
-
-			// Send byte directly
-			Serial_SendByte(ReceivedByte);
-		}
-
-		// read in bytes from the Serial buffer
-		uint16_t BufferCount = RingBuffer_GetCount(&ram.USARTtoUSB_Buffer);
-		if (BufferCount)
-		{
-			// Turn on TX LED
-			LEDs_TurnOnLEDs(LEDMASK_TX);
-			ram.PulseMSRemaining.TxLEDPulse = TX_RX_LED_PULSE_MS;
-
-
-
-			Endpoint_SelectEndpoint(VirtualSerial_CDC_Interface.Config.DataINEndpoint.Address);
-
-			// Check if a packet is already enqueued to the host - if so, we shouldn't try to send more data
-			// until it completes as there is a chance nothing is listening and a lengthy timeout could occur
-			if (Endpoint_IsINReady())
+			// read in bytes from the Serial buffer
+			uint16_t BufferCount = RingBuffer_GetCount(&ram.USARTtoUSB_Buffer);
+			if (BufferCount)
 			{
-				// Never send more than one bank size less one byte to the host at a time, so that we don't block
-				// while a Zero Length Packet (ZLP) to terminate the transfer is sent if the host isn't listening
-				uint8_t BytesToSend = MIN(BufferCount, (CDC_TXRX_EPSIZE - 1));
+				// Turn on TX LED
+				LEDs_TurnOnLEDs(LEDMASK_TX);
+				ram.PulseMSRemaining.TxLEDPulse = TX_RX_LED_PULSE_MS;
 
-				/// Read bytes from the USART receive buffer into the USB IN endpoint */
-				while (BytesToSend--)
+
+
+				Endpoint_SelectEndpoint(VirtualSerial_CDC_Interface.Config.DataINEndpoint.Address);
+
+				// Check if a packet is already enqueued to the host - if so, we shouldn't try to send more data
+				// until it completes as there is a chance nothing is listening and a lengthy timeout could occur
+				if (Endpoint_IsINReady())
 				{
-					if (ram.mode == MODE_DEFAULT){
-						// Try to send the next byte of data to the host, abort if there is an error without dequeuing
-						if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
-							RingBuffer_Peek(&ram.USARTtoUSB_Buffer)) != ENDPOINT_READYWAIT_NoError)
-						{
-							break;
+					// Never send more than one bank size less one byte to the host at a time, so that we don't block
+					// while a Zero Length Packet (ZLP) to terminate the transfer is sent if the host isn't listening
+					uint8_t BytesToSend = MIN(BufferCount, (CDC_TXRX_EPSIZE - 1));
+
+					/// Read bytes from the USART receive buffer into the USB IN endpoint */
+					while (BytesToSend--)
+					{
+						if (ram.mode == MODE_DEFAULT){
+							// Try to send the next byte of data to the host, abort if there is an error without dequeuing
+							if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
+								RingBuffer_Peek(&ram.USARTtoUSB_Buffer)) != ENDPOINT_READYWAIT_NoError)
+							{
+								break;
+							}
 						}
+
+						// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
+						uint8_t b = RingBuffer_Remove(&ram.USARTtoUSB_Buffer);
+
+						// main function to proceed HID input checks
+						if (ram.mode == MODE_HID)
+							checkNHPProtocol(b);
+					}
+				}
+
+
+			}
+
+			// Check if the led flush timer has expired
+			if (TIFR0 & (1 << TOV0)){
+				// reset the timer
+				TIFR0 |= (1 << TOV0);
+
+				// Turn off TX LED(s) once the TX pulse period has elapsed
+				if (ram.PulseMSRemaining.TxLEDPulse && !(--ram.PulseMSRemaining.TxLEDPulse)){
+
+					// if reading has timed out write the buffers down the serial
+					if (ram.mode == MODE_HID){
+						// check if previous reading was a valid Control Address and write it down
+						checkNHPControlAddressError();
+
+						// write the rest of the cached NHP buffer down
+						writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
+						resetNHPbuffer();
 					}
 
-					// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
-					uint8_t b = RingBuffer_Remove(&ram.USARTtoUSB_Buffer);
-
-					// main function to proceed HID input checks
-					if (ram.mode == MODE_HID)
-						checkNHPProtocol(b);
-				}
-			}
-
-
-		}
-
-		// Check if the led flush timer has expired
-		if (TIFR0 & (1 << TOV0)){
-			// reset the timer
-			TIFR0 |= (1 << TOV0);
-
-			// Turn off TX LED(s) once the TX pulse period has elapsed
-			if (ram.PulseMSRemaining.TxLEDPulse && !(--ram.PulseMSRemaining.TxLEDPulse)){
-
-				// if reading has timed out write the buffers down the serial
-				if (ram.mode == MODE_HID){
-					// check if previous reading was a valid Control Address and write it down
-					checkNHPControlAddressError();
-
-					// write the rest of the cached NHP buffer down
-					writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
-					resetNHPbuffer();
+					LEDs_TurnOffLEDs(LEDMASK_TX);
 				}
 
-				LEDs_TurnOffLEDs(LEDMASK_TX);
+				// Turn off RX LED(s) once the RX pulse period has elapsed
+				if (ram.PulseMSRemaining.RxLEDPulse && !(--ram.PulseMSRemaining.RxLEDPulse))
+					LEDs_TurnOffLEDs(LEDMASK_RX);
 			}
 
-			// Turn off RX LED(s) once the RX pulse period has elapsed
-			if (ram.PulseMSRemaining.RxLEDPulse && !(--ram.PulseMSRemaining.RxLEDPulse))
-				LEDs_TurnOffLEDs(LEDMASK_RX);
+			// get new reports from the PC side and try to send pending reports
+			if (ram.mode == MODE_HID)
+				HID_Device_USBTask(&Device_HID_Interface);
 		}
-
-		// get new reports from the PC side and try to send pending reports
-		if (ram.mode == MODE_HID)
-			HID_Device_USBTask(&Device_HID_Interface);
 
 		CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
 		USB_USBTask();
@@ -343,12 +303,62 @@ void SetupHardware(void)
 	AVR_RESET_LINE_PORT |= AVR_RESET_LINE_MASK;
 	AVR_RESET_LINE_DDR |= AVR_RESET_LINE_MASK;
 
-	// set hardware SS to output so we can SPI use master mode
-	AVR_SPI_DDR |= AVR_HARDWARE_SS;
+	// set hardware SS to output so we can use SPI master mode
+	AVR_SPI_DDR |= (1 << AVR_HARDWARE_SS);
 
 	// Hardwaresetup to turn off the HID function with shorting the MOSI pin with GND next to it
+	// do not short this pin in AVRISP mode!!!
 	AVR_NO_HID_DDR &= ~AVR_NO_HID_MASK; // Input
 	AVR_NO_HID_PORT |= AVR_NO_HID_MASK; // Pullup
+}
+
+
+//================================================================================
+// Mode selection
+//================================================================================
+
+void selectMode(void){
+	// check what mode should run
+	uint8_t oldMode = ram.mode;
+	uint32_t currentBaud = VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS;
+
+	// HID only works for baud 115200 or not configured (startup, no host connection) to work at maximum speed and after reprogramming
+	if (currentBaud == 0 || currentBaud == 115200)
+		ram.mode = MODE_HID;
+	else if (currentBaud == AVRISP_BAUD)
+		ram.mode = MODE_AVRISP;
+	else ram.mode = MODE_DEFAULT;
+
+	// check if mode has changed
+	if (oldMode != ram.mode){
+		// coming from AVR ISP, setup ram properly
+		if (oldMode == MODE_AVRISP || oldMode == MODE_NONE){
+			// Serial tx buffers Setup
+			RingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, sizeof(ram.USARTtoUSB_Buffer_Data));
+			// reset LEDs
+			ram.PulseMSRemaining.TxLEDPulse = 0;
+			ram.PulseMSRemaining.RxLEDPulse = 0;
+			LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
+		}
+		if (ram.mode == MODE_HID){
+			// HID Setup
+			resetNHPbuffer();
+			ram.HID.ID = 0;
+		}
+		else if (ram.mode == MODE_AVRISP){
+			// AVR ISP Setup
+			ram.isp.error = 0;
+			ram.isp.pmode = 0;
+			ram.isp._addr = 0; // just to be sure
+			LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
+
+			// Hardwaresetup to turn off the HID function with shorting the MOSI pin with GND next to it
+			// do not short this pin in AVRISP mode!!!
+			// moved here so the pin is INPUT to not damage anything
+			AVR_NO_HID_DDR &= ~AVR_NO_HID_MASK; // Input
+			AVR_NO_HID_PORT |= AVR_NO_HID_MASK; // Pullup
+		}
+	}
 }
 
 //================================================================================
@@ -447,7 +457,7 @@ ISR(USART1_RX_vect, ISR_BLOCK)
 	uint8_t ReceivedByte = UDR1;
 
 	// only save the byte if AVRISP is off and if usb device is ready
-	if (ram.mode != MODE_AVRISP && ram.mode != MODE_AVRISP && USB_DeviceState == DEVICE_STATE_Configured)
+	if (ram.mode != MODE_AVRISP && USB_DeviceState == DEVICE_STATE_Configured)
 		RingBuffer_Insert(&ram.USARTtoUSB_Buffer, ReceivedByte);
 }
 
@@ -822,504 +832,501 @@ uint8_t NHPwriteChecksum(uint8_t address, uint16_t indata, uint8_t* buff){
 	// return the length
 	return blocks;
 }
-/*
+
 //================================================================================
 // AVRISP
 //================================================================================
 
 void avrisp(void){
-uint8_t ch = getch();
-switch (ch) {
-case '0': // signon
-isp.error = 0;
-empty_reply();
-break;
-case '1':
-if (getch() == CRC_EOP) {
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_INSYNC);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, 'A');
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, 'V');
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, 'R');
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, ' ');
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, 'I');
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, 'S');
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, 'P');
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_OK);
-}
-break;
-case 'A':
-//get_version
-switch (getch()) {
-case 0x80:
-breply(HWVER);
-break;
-case 0x81:
-breply(SWMAJ);
-break;
-case 0x82:
-breply(SWMIN);
-break;
-case 0x93:
-breply('S'); // serial programmer
-break;
-default:
-breply(0);
-break;
-}
-break;
-case 'B':{
-//set_parameters
-// discard this information to save ram. its not needed
-for (int i = 0; i < 12; i++)
-getch();
+	// is pmode active?
+	if (ram.isp.pmode) LEDs_TurnOnLEDs(LEDS_PMODE);
+	else LEDs_TurnOffLEDs(LEDS_PMODE);
 
-uint8_t temp[2];
-temp[0] = getch();
-temp[1] = getch();
-isp.pagesize = beget16(&temp[0]);
-temp[0] = getch();
-temp[1] = getch();
-isp.eepromsize = beget16(&temp[0]);
+	// is there an error?
+	if (ram.isp.error) LEDs_TurnOnLEDs(LEDS_ERR);
+	else LEDs_TurnOffLEDs(LEDS_ERR);
 
-// discard this information to save ram. its not needed
-for (int i = 0; i < 4; i++)
-getch();
-empty_reply();
-}
-break;
-case 'E': // extended parameters - ignore for now
-//fill(5);
-for (int i = 0; i < 5; i++)
-getch();
-empty_reply();
-break;
+	// read in bytes from the CDC interface
+	int16_t ReceivedByte = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
+	if (!(ReceivedByte < 0)){
+		switch (ReceivedByte) {
+		case STK_GET_SYNC:
+			ram.isp.error = 0;
+			replyOK();
+			break;
+		case STK_GET_SIGNON:
+			if (getch() == CRC_EOP) {
+				sendCDCbyte(STK_INSYNC);
+				sendCDCbyte('A');
+				sendCDCbyte('V');
+				sendCDCbyte('R');
+				sendCDCbyte(' ');
+				sendCDCbyte('I');
+				sendCDCbyte('S');
+				sendCDCbyte('P');
+				sendCDCbyte(STK_OK);
+			}
+			break;
+		case STK_GET_PARM:
+			get_parameters(getch());
+			break;
+		case STK_SET_PARM:
+			fill(20);
+			set_parameters();
+			replyOK();
+			break;
+		case STK_SET_PARM_EXT: // extended parameters - ignore for now
+			fill(5);
+			replyOK();
+			break;
 
-case 'P':
-{
-// spi_init
-SPCR = 0x53;
-SPSR;
-SPDR;
-// following delays may not work on all targets...
-DDRB |= (1 << AVR_SS); // OUTPUT
-PORTB |= (1 << AVR_SS); // HIGH
-DDRB |= (1 << AVR_SCK); // OUTPUT
-PORTB &= ~(1 << AVR_SCK); // LOW
-delayMicroseconds(50000);
-PORTB &= ~(1 << AVR_SS); // LOW
-delayMicroseconds(50000);
-DDRB &= ~(1 << AVR_MISO); // INPUT
-DDRB |= (1 << AVR_MOSI); // OUTPUT
-spi_transaction(0xAC, 0x53, 0x00, 0x00);
-isp.pmode = 1;
-empty_reply();
-}
-break;
-case 'U': // set address (word)
-isp.here = getch();
-isp.here += 256 * getch();
-empty_reply();
-break;
+		case STK_PMODE_START:
+			start_pmode();
+			replyOK();
+			break;
+		case STK_SET_ADDR:
+			ram.isp._addr = getch();
+			ram.isp._addr += 256 * getch();
+			replyOK();
+			break;
 
-case 0x60: //STK_PROG_FLASH
-//low = getch();
-//high = getch();
-getch();
-getch();
-empty_reply();
-break;
-case 0x61: //STK_PROG_DATA
-//data = getch();
-getch();
-empty_reply();
-break;
+		case STK_PROG_FLASH:
+			//uint8_t low = getch();
+			getch();
+			//uint8_t high = getch();
+			getch();
+			replyOK();
+			break;
+		case STK_PROG_DATA:
+			//uint8_t data = getch();
+			getch();
+			replyOK();
+			break;
 
-case 0x64: //STK_PROG_PAGE
-{
-// program_page
-char result = (char)STK_FAILED;
-int length = 256 * getch();
-//Serial1.println(length);
-length += getch();
-//Serial1.println(length);
-char memtype = getch();
-// flash memory @here, (length) bytes
-if (memtype == 'F') {
-write_flash(length);
-return;
-}
-if (memtype == 'E') {
-result = (char)write_eeprom(length);
-if (CRC_EOP == getch()) {
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_INSYNC);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, result);
-}
-else {
-isp.error++;
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_NOSYNC);
-}
-break;
-}
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_FAILED);
-}
-break;
+		case STK_PROG_PAGE:
+			program_page();
+			break;
 
-case 0x74: //STK_READ_PAGE 't'
-{
-// read_page
-char result = (char)STK_FAILED;
-int length = 256 * getch();
-length += getch();
-char memtype = getch();
-if (CRC_EOP != getch()) {
-isp.error++;
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_NOSYNC);
-return;
-}
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_INSYNC);
-if (memtype == 'F') {
-// flash_read_page
-for (int x = 0; x < length; x += 2) {
-uint8_t low = flash_read(0, isp.here);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)low);
-uint8_t high = flash_read(1, isp.here);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)high);
-isp.here++;
-}
-result = STK_OK;
-}
-if (memtype == 'E') {
-// eeprom_read_page
-// here again we have a word address
-int start = isp.here * 2;
-for (int x = 0; x < length; x++) {
-int addr = start + x;
-uint8_t ee = spi_transaction(0xA0, (addr >> 8) & 0xFF, addr & 0xFF, 0xFF);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)ee);
-}
-result = STK_OK;
-}
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, result);
-}
-break;
+		case STK_READ_PAGE:
+			read_page();
+			break;
 
-case 'V': //0x56
-{
-// universal
-uint8_t ch;
-uint8_t bytebuff[4];
-fillbuffer(bytebuff, sizeof(bytebuff));
-ch = spi_transaction(bytebuff[0], bytebuff[1], bytebuff[2], bytebuff[3]);
-breply(ch);
-}
-break;
-case 'Q': //0x51
-isp.error = 0;
-// end_pmode
-DDRB &= ~(1 << AVR_MISO); // INPUT
-DDRB &= ~(1 << AVR_MOSI); // INPUT
-DDRB &= ~(1 << AVR_SCK); // INPUT
-DDRB &= ~(1 << AVR_SS); // INPUT
-isp.pmode = 0;
-empty_reply();
-break;
+		case STK_UNIVERSAL:
+			universal();
+			break;
+		case STK_PMODE_END:
+			ram.isp.error = 0;
+			end_pmode();
+			replyOK();
+			break;
 
-case 0x75: //STK_READ_SIGN 'u'
-{
-// read_signature
-if (CRC_EOP != getch()) {
-isp.error++;
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_NOSYNC);
-break;
-}
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_INSYNC);
-uint8_t high = spi_transaction(0x30, 0x00, 0x00, 0x00);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)high);
-uint8_t middle = spi_transaction(0x30, 0x00, 0x01, 0x00);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)middle);
-uint8_t low = spi_transaction(0x30, 0x00, 0x02, 0x00);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)low);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_OK);
-}
-break;
+		case STK_READ_SIGN:
+			read_signature();
+			break;
 
-// expecting a command, not CRC_EOP
-// this is how we can get back in sync
-case CRC_EOP:
-isp.error++;
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_NOSYNC);
-break;
+			// expecting a command, not CRC_EOP
+			// this is how we can get back in sync
+		case CRC_EOP:
+			ram.isp.error++;
+			sendCDCbyte(STK_NOSYNC);
+			break;
 
-// anything else we will return STK_UNKNOWN
-default:
-isp.error++;
-if (CRC_EOP == getch())
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_UNKNOWN);
-else
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_NOSYNC);
-}
+			// anything else we will return STK_UNKNOWN
+		default:
+			ram.isp.error++;
+			if (CRC_EOP == getch())
+				sendCDCbyte(STK_UNKNOWN);
+			else
+				sendCDCbyte(STK_NOSYNC);
+		}
+	}
+
 }
 
-uint8_t getch(void) {
-// wait until there is an usb input
-while ((RingBuffer_IsEmpty(&ram.USBtoUSART_Buffer)));
-return RingBuffer_Remove(&ram.USBtoUSART_Buffer);
+void sendCDCbyte(uint8_t b){
+	// try to send until sucess
+	while (CDC_Device_SendByte(&VirtualSerial_CDC_Interface, b) != ENDPOINT_READYWAIT_NoError){
+		CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
+		USB_USBTask();
+		while (1){
+			// TODO remove this freezing loop!
+			LEDs_TurnOnLEDs(LEDS_ERR);
+			_delay_ms(100);
+			LEDs_TurnOnLEDs(LEDS_ERR);
+			_delay_ms(100);
+		}
+	}
 }
 
-void empty_reply(void) {
-if (CRC_EOP == getch()) {
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_INSYNC);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_OK);
+uint8_t getch() {
+	int16_t ReceivedByte = -1;
+	// wait until CDC sends a byte
+	while (ReceivedByte < 0)
+		ReceivedByte = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
+	return ReceivedByte;
 }
-else {
-isp.error++;
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_NOSYNC);
+
+void fill(int n) {
+	// fill the buffer with the number of bytes passed in from CDC Serial 
+	for (int x = 0; x < n; x++)
+		ram.isp.buff[x] = getch();
 }
+
+void get_parameters(uint8_t c) {
+	switch (c) {
+	case 0x80:
+		breply(HWVER);
+		break;
+	case 0x81:
+		breply(SWMAJ);
+		break;
+	case 0x82:
+		breply(SWMIN);
+		break;
+	case 0x93:
+		breply('S'); // serial programmer
+		break;
+	default:
+		breply(0);
+	}
+}
+
+void set_parameters(void) {
+	// parameters not used yet <--
+
+	// call this after reading paramter packet into buff[]
+	//param.devicecode = buff[0];
+	//param.revision = buff[1];
+	//param.progtype = buff[2];
+	//param.parmode = buff[3];
+	//param.polling = buff[4];
+	//param.selftimed = buff[5];
+	//param.lockbytes = buff[6];
+	//param.fusebytes = buff[7];
+	//param.flashpoll = buff[8];
+	// ignore buff[9] (= buff[8])
+	// following are 16 bits (big endian)
+#define beget16(addr) (*addr * 256 + *(addr+1) )
+	//param.eeprompoll = beget16(&buff[10]);
+	ram.isp.param.pagesize = beget16(&ram.isp.buff[12]);
+	ram.isp.param.eepromsize = beget16(&ram.isp.buff[14]);
+
+	// 32 bits flashsize (big endian)
+	//param.flashsize = buff[16] * 0x01000000
+	//	+ buff[17] * 0x00010000
+	//	+ buff[18] * 0x00000100
+	//	+ buff[19];
+
 }
 
 void breply(uint8_t b) {
-if (CRC_EOP == getch()) {
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_INSYNC);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)b);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_OK);
+	if (CRC_EOP == getch()) {  // EOP should be next char
+		sendCDCbyte(STK_INSYNC);
+		sendCDCbyte(b);
+		sendCDCbyte(STK_OK);
+	}
+	else {
+		sendCDCbyte(STK_NOSYNC);
+		ram.isp.error++;
+	}
 }
-else {
-isp.error++;
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_NOSYNC);
+
+void replyOK(void) {
+	//  if (EOP_SEEN == true) {
+	if (CRC_EOP == getch()) {  // EOP should be next char
+		sendCDCbyte(STK_INSYNC);
+		sendCDCbyte(STK_OK);
+	}
+	else {
+		// signalize Error
+		LEDs_TurnOnLEDs(LEDS_PMODE);
+		_delay_ms(50);
+		LEDs_TurnOffLEDs(LEDS_PMODE);
+		_delay_ms(50);
+		LEDs_TurnOnLEDs(LEDS_PMODE);
+		_delay_ms(50);
+		LEDs_TurnOffLEDs(LEDS_PMODE);
+
+		sendCDCbyte(STK_NOSYNC);
+		ram.isp.error++;
+	}
 }
+
+void start_pmode(void) {
+	spi_init();
+	// following delays may not work on all targets...
+	DDRB |= (1 << AVR_SS); // OUTPUT
+	PORTB |= (1 << AVR_SS); // HIGH
+	DDRB |= (1 << AVR_SCK); // OUTPUT
+	PORTB &= ~(1 << AVR_SCK); // LOW
+	_delay_ms(50 + EXTRA_SPI_DELAY);
+	PORTB &= ~(1 << AVR_SS); // LOW
+	_delay_ms(50 + EXTRA_SPI_DELAY); // extra delay added from adafruit <--
+	DDRB &= ~(1 << AVR_MISO); // INPUT
+	DDRB |= (1 << AVR_MOSI); // OUTPUT
+	spi_transaction(0xAC, 0x53, 0x00, 0x00);
+	ram.isp.pmode = 1;
 }
 
 void spi_init(void) {
-SPCR = 0x53;
-SPSR;
-SPDR;
+	SPCR = 0x53;
+#ifdef ISP_LOW_SPEED
+	SPCR = SPCR | B00000011;
+#endif
+	SPSR;
+	SPDR;
 }
 
 uint8_t spi_transaction(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
-//uint8_t n;
-spi_send(a);
-spi_send(b);
-//if (n != a) error = -1;
-spi_send(c);
-return spi_send(d);
+	//uint8_t n;
+	spi_send(a);
+	//n = spi_send(b);
+	spi_send(b);
+	//if (n != a) error = -1;
+	//n = spi_send(c);
+	spi_send(c);
+	return spi_send(d);
 }
 
 uint8_t spi_send(uint8_t b) {
-uint8_t reply;
-SPDR = b;
-do {
-} while (!(SPSR & (1 << SPIF)));
-reply = SPDR;
-return reply;
+	uint8_t reply;
+#ifdef ISP_LOW_SPEED
+	cli();
+	CLKPR = B10000000;
+	CLKPR = B00000011;
+	sei();
+#endif
+	SPDR = b;
+	spi_wait();
+	reply = SPDR;
+#ifdef ISP_LOW_SPEED
+	cli();
+	CLKPR = B10000000;
+	CLKPR = B00000000;
+	sei();
+#endif
+	return reply;
+}
+
+void spi_wait(void) {
+	do {
+	} while (!(SPSR & (1 << SPIF)));
 }
 
 void program_page(void) {
-char result = (char)STK_FAILED;
-int length = 256 * getch();
-length += getch();
-char memtype = getch();
-// flash memory @here, (length) bytes
-if (memtype == 'F') {
-write_flash(length);
-return;
-}
-if (memtype == 'E') {
-result = (char)write_eeprom(length);
-if (CRC_EOP == getch()) {
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_INSYNC);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, result);
-}
-else {
-isp.error++;
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_NOSYNC);
-}
-return;
-}
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_FAILED);
-return;
-}
+	char result = (char)STK_FAILED;
+	int length = 256 * getch();
+	length += getch();
 
-uint8_t write_flash_pages(uint8_t buffer[], int length) {
-int x = 0;
-int page = current_page();
-while (x < length) {
-if (page != current_page()) {
-commit(page);
-page = current_page();
-}
-flash(0, isp.here, buffer[x++]);
-flash(1, isp.here, buffer[x++]);
-isp.here++;
-}
+	// added from ada <--
+	if (length > 256) {
+		sendCDCbyte(STK_FAILED);
+		ram.isp.error++;
+		return;
+	}
 
-commit(page);
+	// todo compare with ada <--
 
-return STK_OK;
-}
-
-void commit(int addr) {
-LEDs_TurnOffLEDs(LEDMASK_TX);
-spi_transaction(0x4C, (addr >> 8) & 0xFF, addr & 0xFF, 0);
-delayMicroseconds(PTIME * 1000);
-LEDs_TurnOnLEDs(LEDMASK_TX);
-}
-
-int current_page(void) {
-if (isp.pagesize == 32)  return isp.here & 0xFFFFFFF0;
-if (isp.pagesize == 64)  return isp.here & 0xFFFFFFE0;
-if (isp.pagesize == 128) return isp.here & 0xFFFFFFC0;
-if (isp.pagesize == 256) return isp.here & 0xFFFFFF80;
-return isp.here;
-}
-
-void flash(uint8_t hilo, int addr, uint8_t data) {
-spi_transaction(0x40 + 8 * hilo,
-addr >> 8 & 0xFF,
-addr & 0xFF,
-data);
+	char memtype = getch();
+	// flash memory @here, (length) bytes
+	if (memtype == 'F') {
+		write_flash(length);
+		return;
+	}
+	if (memtype == 'E') {
+		result = (char)write_eeprom(length);
+		if (CRC_EOP == getch()) {
+			sendCDCbyte(STK_INSYNC);
+			sendCDCbyte(result);
+		}
+		else {
+			ram.isp.error++;
+			sendCDCbyte(STK_NOSYNC);
+		}
+		return;
+	}
+	sendCDCbyte(STK_FAILED);
+	return;
 }
 
 uint8_t flash_read(uint8_t hilo, int addr) {
-return spi_transaction(0x20 + hilo * 8,
-(addr >> 8) & 0xFF,
-addr & 0xFF,
-0);
-}
-
-#define EECHUNK (32)
-uint8_t write_eeprom(int length) {
-// isp.here is a word address, get the byte address
-int start = isp.here * 2;
-int remaining = length;
-if (length > isp.eepromsize) {
-isp.error++;
-return STK_FAILED;
-}
-// create new buffer for eeprom
-uint8_t eechunkbuffer[EECHUNK];
-while (remaining > EECHUNK) {
-// fill the buffer and pass it to the write function
-fillbuffer(eechunkbuffer, EECHUNK);
-write_eeprom_chunkbuffer(start, eechunkbuffer, EECHUNK);
-start += EECHUNK;
-remaining -= EECHUNK;
-}
-fillbuffer(eechunkbuffer, remaining);
-write_eeprom_chunkbuffer(start, eechunkbuffer, remaining);
-return STK_OK;
-}
-
-// write (length) bytes, (start) is a byte address
-uint8_t write_eeprom_chunkbuffer(int start, uint8_t buffer[], int length) {
-// this writes byte-by-byte,
-// page writing may be faster (4 bytes at a time)
-//fill(length);
-LEDs_TurnOffLEDs(LEDMASK_TX);
-for (int x = 0; x < length; x++) {
-int addr = start + x;
-spi_transaction(0xC0, (addr >> 8) & 0xFF, addr & 0xFF, buffer[x]);
-delayMicroseconds(45000);
-}
-LEDs_TurnOnLEDs(LEDMASK_TX);
-return STK_OK;
-}
-
-void read_signature(void) {
-if (CRC_EOP != getch()) {
-isp.error++;
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_NOSYNC);
-return;
-}
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_INSYNC);
-uint8_t high = spi_transaction(0x30, 0x00, 0x00, 0x00);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)high);
-uint8_t middle = spi_transaction(0x30, 0x00, 0x01, 0x00);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)middle);
-uint8_t low = spi_transaction(0x30, 0x00, 0x02, 0x00);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)low);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_OK);
-}
-
-void read_page(void) {
-char result = (char)STK_FAILED;
-int length = 256 * getch();
-length += getch();
-char memtype = getch();
-if (CRC_EOP != getch()) {
-isp.error++;
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_NOSYNC);
-return;
-}
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_INSYNC);
-if (memtype == 'F') result = flash_read_page(length);
-if (memtype == 'E') result = eeprom_read_page(length);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, result);
-return;
+	return spi_transaction(0x20 + hilo * 8,
+		(addr >> 8) & 0xFF,
+		addr & 0xFF,
+		0);
 }
 
 char flash_read_page(int length) {
-for (int x = 0; x < length; x += 2) {
-uint8_t low = flash_read(0, isp.here);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)low);
-uint8_t high = flash_read(1, isp.here);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)high);
-isp.here++;
-}
-return STK_OK;
-}
-
-char eeprom_read_page(int length) {
-// isp.here again we have a word address
-int start = isp.here * 2;
-for (int x = 0; x < length; x++) {
-int addr = start + x;
-uint8_t ee = spi_transaction(0xA0, (addr >> 8) & 0xFF, addr & 0xFF, 0xFF);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)ee);
-}
-return STK_OK;
+	for (int x = 0; x < length; x += 2) {
+		uint8_t low = flash_read(LOW, ram.isp._addr);
+		sendCDCbyte(low);
+		uint8_t high = flash_read(HIGH, ram.isp._addr);
+		sendCDCbyte(high);
+		ram.isp._addr++;
+	}
+	return STK_OK;
 }
 
 void universal(void) {
-uint8_t ch;
+	uint8_t ch;
 
-uint8_t bytebuff[4];
-fillbuffer(bytebuff, sizeof(bytebuff));
-ch = spi_transaction(bytebuff[0], bytebuff[1], bytebuff[2], bytebuff[3]);
-breply(ch);
+	fill(4);
+	ch = spi_transaction(ram.isp.buff[0], ram.isp.buff[1], ram.isp.buff[2], ram.isp.buff[3]);
+	breply(ch);
+}
+
+void read_signature(void) {
+	if (CRC_EOP != getch()) {
+		ram.isp.error++;
+		sendCDCbyte(STK_NOSYNC);
+		return;
+	}
+	sendCDCbyte(STK_INSYNC);
+	uint8_t high = spi_transaction(0x30, 0x00, 0x00, 0x00);
+	sendCDCbyte(high);
+	uint8_t middle = spi_transaction(0x30, 0x00, 0x01, 0x00);
+	sendCDCbyte(middle);
+	uint8_t low = spi_transaction(0x30, 0x00, 0x02, 0x00);
+	sendCDCbyte(low);
+	sendCDCbyte(STK_OK);
+}
+
+void end_pmode(void) {
+	AVR_SPI_DDR &= ~(1 << AVR_MISO); // INPUT
+	AVR_SPI_DDR &= ~(1 << AVR_MOSI); // INPUT
+
+	// Hardwaresetup to turn off the HID function with shorting the MOSI pin with GND next to it
+	// do not short this pin in AVRISP mode!!!
+	AVR_SPI_DDR |= (1 << AVR_MOSI); // PULLUP
+
+	AVR_SPI_DDR &= ~(1 << AVR_SCK); // INPUT
+	AVR_SPI_DDR &= ~(1 << AVR_SS); // INPUT
+	ram.isp.pmode = 0;
+
+	//LEDs_TurnOnLEDs(LEDS_ALL_LEDS);
+	//_delay_ms(200);
+	//LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
+}
+
+void read_page(void) {
+	char result = (char)STK_FAILED;
+	int length = 256 * getch();
+	length += getch();
+	char memtype = getch();
+	if (CRC_EOP != getch()) {
+		ram.isp.error++;
+		sendCDCbyte(STK_NOSYNC);
+		return;
+	}
+	sendCDCbyte(STK_INSYNC);
+	if (memtype == 'F') result = flash_read_page(length);
+	if (memtype == 'E') result = eeprom_read_page(length);
+	sendCDCbyte(result);
+	return;
 }
 
 void write_flash(int length) {
-// create an array of size length
-uint8_t* tempbuff;
-tempbuff = (uint8_t*)malloc(length * sizeof(*tempbuff));
-if (tempbuff) {
-// allocation succeeded
-fillbuffer(tempbuff, length);
-}
-else {
-// ram is full!
-isp.error++;
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_NOSYNC);
-return;
+	// TODO compare with ada <--
+	fill(length);
+	if (CRC_EOP == getch()) {
+		sendCDCbyte(STK_INSYNC);
+		sendCDCbyte(write_flash_pages(length));
+	}
+	else {
+		ram.isp.error++;
+		sendCDCbyte(STK_NOSYNC);
+	}
 }
 
-if (CRC_EOP == getch()) {
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_INSYNC);
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)write_flash_pages(tempbuff, length));
+
+#define EECHUNK (32)
+uint8_t write_eeprom(int length) {
+	// here is a word address, get the byte address
+	int start = ram.isp._addr * 2;
+	int remaining = length;
+	if (length > ram.isp.param.eepromsize) {
+		ram.isp.error++;
+		return STK_FAILED;
+	}
+	while (remaining > EECHUNK) {
+		write_eeprom_chunk(start, EECHUNK);
+		start += EECHUNK;
+		remaining -= EECHUNK;
+	}
+	write_eeprom_chunk(start, remaining);
+	return STK_OK;
 }
-else {
-isp.error++;
-CDC_Device_SendByte(&VirtualSerial_CDC_Interface, (char)STK_NOSYNC);
-}
-free(tempbuff); // release the memory
+// write (length) bytes, (start) is a byte address
+uint8_t write_eeprom_chunk(int start, int length) {
+	// this writes byte-by-byte,
+	// page writing may be faster (4 bytes at a time)
+	fill(length);
+	LEDs_TurnOffLEDs(LEDS_PMODE);
+	for (int x = 0; x < length; x++) {
+		int addr = start + x;
+		spi_transaction(0xC0, (addr >> 8) & 0xFF, addr & 0xFF, ram.isp.buff[x]);
+		_delay_ms(45);
+	}
+	LEDs_TurnOnLEDs(LEDS_PMODE);
+	return STK_OK;
 }
 
-void fillbuffer(uint8_t buffer[], int n) {
-for (int x = 0; x < n; x++) {
-buffer[x] = getch();
+char eeprom_read_page(int length) {
+	// TODO comapre with ada
+	// here again we have a word address
+	int start = ram.isp._addr * 2;
+	for (int x = 0; x < length; x++) {
+		int addr = start + x;
+		uint8_t ee = spi_transaction(0xA0, (addr >> 8) & 0xFF, addr & 0xFF, 0xFF);
+		sendCDCbyte(ee);
+	}
+	return STK_OK;
 }
+
+uint8_t write_flash_pages(int length) {
+	int x = 0;
+	int page = current_page();
+	while (x < length) {
+		if (page != current_page()) {
+			commit(page);
+			page = current_page();
+		}
+		flash(LOW, ram.isp._addr, ram.isp.buff[x++]);
+		flash(HIGH, ram.isp._addr, ram.isp.buff[x++]);
+		ram.isp._addr++;
+	}
+	commit(page);
+	return STK_OK;
 }
-*/
+
+void commit(int addr) {
+	LEDs_TurnOffLEDs(LEDS_PMODE);
+	spi_transaction(0x4C, (addr >> 8) & 0xFF, addr & 0xFF, 0);
+	_delay_ms(30);
+	LEDs_TurnOnLEDs(LEDS_PMODE);
+}
+
+int current_page(void) {
+	// TODO input useless??
+	if (ram.isp.param.pagesize == 32)  return ram.isp._addr & 0xFFFFFFF0;
+	if (ram.isp.param.pagesize == 64)  return ram.isp._addr & 0xFFFFFFE0;
+	if (ram.isp.param.pagesize == 128) return ram.isp._addr & 0xFFFFFFC0;
+	if (ram.isp.param.pagesize == 256) return ram.isp._addr & 0xFFFFFF80;
+	return ram.isp._addr;
+}
+
+void flash(uint8_t hilo, int addr, uint8_t data) {
+	spi_transaction(0x40 + 8 * hilo,
+		addr >> 8 & 0xFF,
+		addr & 0xFF,
+		data);
+}
+
+void delay(unsigned long ms){
+	// workaround to avoid micros() implemenation
+	for (unsigned long i = 0; i < ms; i++)
+		delayMicroseconds(1000);
+}
 
 // Delay for the given number of microseconds.  Assumes a 8 or 16 MHz clock.
 void delayMicroseconds(unsigned int us){
