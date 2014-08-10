@@ -170,8 +170,12 @@ int main(void)
 		selectMode();
 
 		// run main code, depending on the selected mode
-		if (ram.mode == MODE_AVRISP)
+		if (ram.mode == MODE_AVRISP){
+#if (PRODUCTID != HOODLOADER_LITE_PID)
+			// only run this on a 16u2 with enough flash
 			avrisp();
+#endif
+		}
 		else{
 
 			// read in bytes from the CDC interface

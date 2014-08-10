@@ -14,6 +14,7 @@ normal 16u2 usbserial Bootloader. It can still work the same but has more functi
 * HID only works at baud 115200 (Software and speed limitation, see "how it works below")
 * All other bauds work 100%. If you still try to use HID with other baud you will get weird output.
 * 16u2 as ISP has the same bugs like the normal Arduino as ISP. Use IDE 1.5.7!
+* 8u2 has no ISP function
 
 See http://nicohood.wordpress.com/ for more tutorials and projects
 
@@ -24,7 +25,7 @@ Installation on Arduino Uno/Mega R3
 **This tutorial is for Windows and R3 versions only.**
 This method is called “Device Firmware Upgrade” and also works on Linux/Mac and older versions but its not explained in this article.
 Maybe [this page](http://arduino.cc/en/Hacking/Upgrading16U2Due) can help you.
-For older versions see [this general (outdated) tutorial](http://arduino.cc/en/Hacking/DFUProgramming8U2).
+If you have a 8u2 see instructions below the DFU tutorial.
 
 **What you need: Arduino Uno/Mega, USB Cable, a normal wire, [Flip with Java](http://www.atmel.com/tools/flip.aspx)**
 
@@ -62,6 +63,15 @@ Click the USB Cable and **click open.**
 **Click run** to upload the firmware. Uncheck Reset and click Start Application to restart your Arduino. Or just **replug the cable.**
 Read further on how to install the drivers for Windows.
 
+Installation on a 8u2
+---------------------
+The 8u2 has less flash so you are not able to flash the normal Hoodloader.
+Instead there is a Lite Version in Firmwares/LegacyVersions/
+You need to flash this with an ISP because it will overwrite DFU.
+The DFU Bootloader takes 2 or 4kb (not sure) and the hex file is >6kb anyways.
+This is only for advanced useres with older chips.
+HID is fully functional, ISP wont work.
+
 CDC Driver installation
 -----------------------
 **You need to install new drivers for the new device on Windows (Linux, Mac not needed).** Actually they are not new, its just an .inf file that tells
@@ -81,6 +91,8 @@ for changelog, bugs, installing instructions and more information of the main fe
 
 Deactivate HID function
 =======================
+**This feature might be (re)moved in further releases due to the ISP usage.**
+
 Its possible to deactivate HID if you messed up something in the code and cannot return easily.
 
 **Do NOT use this shorting if you use the 16u2 as ISP! This will damage your 16u2.
@@ -174,6 +186,7 @@ This library wouldnt be possible without
 * [Athanasios Douitsis Multimedia Keys Example](https://github.com/aduitsis/ardumultimedia)
 * [The Original Arduino Sources](https://github.com/arduino/Arduino/tree/master/hardware/arduino/firmwares/atmegaxxu2/arduino-usbserial)
 * [USBlyzer](http://www.usblyzer.com/)
+* [Arduino as ISP](https://github.com/rsbohn/ArduinoISP)
 * A lot of searching through the web
 * The awesome official Arduino IRC chat!
 * [The NicoHood Protocol ^.^](https://github.com/NicoHood/NicoHoodProtocol)
@@ -190,19 +203,23 @@ Someone had problems with an Uno clone. It was a power problem.
 
 Burning Bootloader error is fixed with IDE 1.5.7 or higher (avrdude bug)!
 
-Using the Hoodloader on a 8u2 you need to use v1.6(no ISP) and DFU wont work.
+Using the Hoodloader on a 8u2 you need to use the Lite Version and DFU wont work.
 
 Feel free to open an Issue on Github if you find a bug. Or message me via my [blog](http://nicohood.wordpress.com/)!
 
 Version History
 ===============
 ```
-1.7.1 Beta Release (09.08.2014)
+1.7.2 Beta Release (10.08.2014)
+* Added Lite version for 8u2
+* Makefile and structure changes
+
+1.7.1 Beta Release (10.08.2014)
 * Fixed HID deactivation bug
 
-1.7 Beta Release (09.08.2014)
+1.7 Beta Release (10.08.2014)
 * Works as ISP now.
-* Exceeded 8kb limit. For flashing a 8u2 use v1.6 please!
+* Exceeded 8kb limit. For flashing a 8u2 use Lite Version please!
 * Changed Readme text
 
 1.6 Beta Release (09.08.2014)
@@ -249,7 +266,7 @@ For Developers
 ==============
 If you deactivate some reports it can occur that windows will cause problems and recognize it as different device.
 While developing I had that much trouble that I had to change the PID. No way to repair the broken windows driver settings.
-So be careful if you change the source on your own with important PIDs. (Therefore I made a 2nd Lite Version with a different PID and more ram)
+So be careful if you change the source on your own with important PIDs.
 Therefore reinstall the divers for any device or just dont touch the HID reports in the Bootloader.
 The Leonardo/Micro version worked fine till now.
 
@@ -258,7 +275,6 @@ https://support.microsoft.com/kb/315539
 
 The Hootloader was coded with Windows7/8.1 + Visual Studio Express and compiled with a Raspberry Pi.
 Lufa version 140302 is included!
-Another PID is included in the driver. Its called "Hoodloader Lite" and you can find it in the makefile. Use if if your PID is messed up.
 
 How to compile (on a Raspberry Pi)
 ==================================

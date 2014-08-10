@@ -56,8 +56,16 @@ THE SOFTWARE.
 
 /** Size in bytes of each of the HID reporting IN endpoint. */
 // important: only use 8,16,32,64 here!! <--
-#define HID_EPSIZE					32 //TODO get this working with 64 bytes
+// limited to 32, see https://groups.google.com/forum/#!topic/lufa-support/c37N58wffRM
+#define HID_EPSIZE					32
 
+#define ARDUINO_VID					0x2341
+#define ARDUINO_UNO_PID				0x0043 // R3 (0001 R1)
+#define ARDUINO_MEGA2560_PID		0x0042 // R3 (0010 R1)
+#define ARDUINO_MEGA_ADK_PID		0x0044 // R3 (003F R1)
+#define LUFA_VID					0x03EB
+#define HOODLOADER_PID				0x6E68
+#define HOODLOADER_LITE_PID			0x4E48
 
 /* Type Defines: */
 /** Type define for the device configuration descriptor structure. This must be defined in the

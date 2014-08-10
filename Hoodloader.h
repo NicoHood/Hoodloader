@@ -61,7 +61,7 @@ void selectMode(void);
 #define AVR_NO_HID_PORT PORTB
 #define AVR_NO_HID_DDR DDRB
 #define AVR_NO_HID_PIN PINB
-#define AVR_NO_HID 2 // 2== MOSI
+#define AVR_NO_HID 2 // 2 == MOSI
 
 //================================================================================
 // Hardware
