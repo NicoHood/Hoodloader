@@ -5,8 +5,15 @@ normal 16u2 usbserial Bootloader. It can still work the same but has more functi
 
 **Functions:**
 * Program the Arduino Uno/Mega like you are used to
+* Serial interface is still usable!
 * Use your Arduino as HID device
 * Use the 16u2 as ISP
+* One Firmware for Uno/Mega
+
+**Limitations:**
+* HID only works at baud 115200 (Software and speed limitation, see "how it works below")
+* All other bauds work 100%. If you still try to use HID with other baud you will get weird output.
+* 16u2 as ISP has the same bugs like the normal Arduino as ISP. Use IDE 1.5.7!
 
 See http://nicohood.wordpress.com/ for more tutorials and projects
 
@@ -43,7 +50,8 @@ Click the IC Button an select **Atmega16u2. (same for Uno/Mega).**
 
 ![pictures/Flip_1.png](pictures/Flip_1.png)
 
-**Click File->Load Hex File** and select the Firmware in Firmwares/Hoodloader1_x.hex.
+**Click File->Load Hex File** and select the Firmware in Firmwares/Hoodloader1_x.hex (choose newest version).
+**Its the same file for Uno and Mega.**
 
 ![pictures/Flip_2.png](pictures/Flip_2.png)
 
@@ -52,6 +60,7 @@ Click the USB Cable and **click open.**
 ![pictures/Flip_2.png](pictures/Flip_2.png)
 
 **Click run** to upload the firmware. Uncheck Reset and click Start Application to restart your Arduino. Or just **replug the cable.**
+Read further on how to install the drivers for Windows.
 
 CDC Driver installation
 -----------------------
@@ -177,6 +186,8 @@ See the [HID project](https://github.com/NicoHood/HID) for HID related bugs.
 **Programming Arduino Mega with ISP doesnt work because of fuses.**
 See this for more information: http://forum.arduino.cc/index.php?topic=126160.0
 
+Someone had problems with an Uno clone. It was a power problem.
+
 Burning Bootloader error is fixed with IDE 1.5.7 or higher (avrdude bug)!
 
 Using the Hoodloader on a 8u2 you need to use v1.6(no ISP) and DFU wont work.
@@ -186,9 +197,13 @@ Feel free to open an Issue on Github if you find a bug. Or message me via my [bl
 Version History
 ===============
 ```
+1.7.1 Beta Release (09.08.2014)
+* Fixed HID deactivation bug
+
 1.7 Beta Release (09.08.2014)
 * Works as ISP now.
 * Exceeded 8kb limit. For flashing a 8u2 use v1.6 please!
+* Changed Readme text
 
 1.6 Beta Release (09.08.2014)
 * Changed HID management (not blocking that much, faster)

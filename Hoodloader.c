@@ -308,8 +308,8 @@ void SetupHardware(void)
 
 	// Hardwaresetup to turn off the HID function with shorting the MOSI pin with GND next to it
 	// do not short this pin in AVRISP mode!!!
-	AVR_NO_HID_DDR &= ~AVR_NO_HID_MASK; // Input
-	AVR_NO_HID_PORT |= AVR_NO_HID_MASK; // Pullup
+	AVR_NO_HID_DDR &= ~(1 << AVR_NO_HID); // INPUT
+	AVR_NO_HID_PORT |= (1 << AVR_NO_HID); // PULLUP
 }
 
 
@@ -323,7 +323,7 @@ void selectMode(void){
 	uint32_t currentBaud = VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS;
 
 	// HID only works for baud 115200 or not configured (startup, no host connection) to work at maximum speed and after reprogramming
-	if (currentBaud == 0 || currentBaud == 115200)
+	if ((AVR_NO_HID_PIN & (1 << AVR_NO_HID)) && (currentBaud == 0 || currentBaud == 115200))
 		ram.mode = MODE_HID;
 	else if (currentBaud == AVRISP_BAUD)
 		ram.mode = MODE_AVRISP;
@@ -355,8 +355,8 @@ void selectMode(void){
 			// Hardwaresetup to turn off the HID function with shorting the MOSI pin with GND next to it
 			// do not short this pin in AVRISP mode!!!
 			// moved here so the pin is INPUT to not damage anything
-			AVR_NO_HID_DDR &= ~AVR_NO_HID_MASK; // Input
-			AVR_NO_HID_PORT |= AVR_NO_HID_MASK; // Pullup
+			AVR_NO_HID_DDR &= ~(1 << AVR_NO_HID); // INPUT
+			AVR_NO_HID_PORT |= (1 << AVR_NO_HID); // PULLUP
 		}
 	}
 }

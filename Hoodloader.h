@@ -58,6 +58,11 @@ void selectMode(void);
 #define MODE_HID 2
 #define MODE_AVRISP 3
 
+#define AVR_NO_HID_PORT PORTB
+#define AVR_NO_HID_DDR DDRB
+#define AVR_NO_HID_PIN PINB
+#define AVR_NO_HID 2 // 2== MOSI
+
 //================================================================================
 // Hardware
 //================================================================================
@@ -68,11 +73,6 @@ void selectMode(void);
 #define AVR_RESET_LINE_PORT PORTD
 #define AVR_RESET_LINE_DDR DDRD
 #define AVR_RESET_LINE_MASK (1 << 7)
-
-#define AVR_NO_HID_PORT PORTB
-#define AVR_NO_HID_DDR DDRB
-#define AVR_NO_HID_PIN PINB
-#define AVR_NO_HID_MASK (1 << 2)
 
 // LED mask for the library LED driver, to indicate TX activity.
 #define LEDMASK_TX               LEDS_LED1
@@ -86,11 +86,7 @@ void selectMode(void);
 // LED mask for the library LED driver, to indicate that the USB interface is busy.
 #define LEDMASK_BUSY             (LEDS_LED1 | LEDS_LED2)	
 
-#define LEDMASK_AVRISP_ERR		LEDS_LED2
-#define LEDMASL_AVRISP_PMODE	LEDS_LED1
-
 void SetupHardware(void);
-
 
 //================================================================================
 // Lufa USB functions
@@ -213,6 +209,7 @@ uint8_t NHPwriteChecksum(uint8_t address, uint16_t indata, uint8_t* buff);
 #define STK_READ_SIGN 0x75
 
 // hardware configuration
+#define AVR_SPI_PIN PINB
 #define AVR_SPI_PORT PORTB
 #define AVR_SPI_DDR DDRB
 #define AVR_MOSI 2
