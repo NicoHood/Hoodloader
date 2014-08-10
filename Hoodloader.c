@@ -37,7 +37,12 @@ THE SOFTWARE.
 // because we only have 500 bytes we have to free some memory for different modes
 static struct{
 	// indicates what mode we are in
-	uint8_t mode;
+	enum{
+		MODE_NONE,
+		MODE_DEFAULT,
+		MODE_HID,
+		MODE_AVRISP,
+	}mode;
 
 	union{
 		// normal mode if HID is on
@@ -64,8 +69,11 @@ static struct{
 				uint8_t recvlength;
 				// Buffer for the incoming HID report
 				uint8_t buffer[sizeof(HID_HIDReport_Data_t)];
+				// array to check if a report is cleared or not
+				bool isEmpty[HID_REPORTID_LastNotAReport];
 			}HID;
 
+			// NHP needed as Serial Protocol to receive HID data
 			struct{
 				// in progress reading data
 				uint8_t mBlocks;
@@ -76,7 +84,6 @@ static struct{
 				uint8_t readbuffer[6];
 				uint8_t readlength;
 			}NHP;
-
 		};
 
 		// if baud == 19200 AVRISP mode
@@ -91,7 +98,6 @@ static struct{
 
 			uint8_t buff[256];
 		} isp;
-
 	};
 }ram;
 
@@ -160,6 +166,9 @@ int main(void)
 {
 	ram.mode = MODE_NONE;
 
+	// all reports are empty by default
+	memset(&ram.HID.isEmpty, 0, sizeof(ram.HID.isEmpty));
+
 	SetupHardware();
 
 	GlobalInterruptEnable();
@@ -169,6 +178,10 @@ int main(void)
 		// change ram.mode depending on the selected CDC baud rate
 		selectMode();
 
+		// clear HID reports if chip gets restarted
+		if (!ram.HID.isEmpty[HID_REPORTID_NotAReport] && !(AVR_RESET_LINE_PIN & AVR_RESET_LINE_MASK))
+			clearHIDReports();
+
 		// run main code, depending on the selected mode
 		if (ram.mode == MODE_AVRISP){
 #if (PRODUCTID != HOODLOADER_LITE_PID)
@@ -177,7 +190,6 @@ int main(void)
 #endif
 		}
 		else{
-
 			// read in bytes from the CDC interface
 			int16_t ReceivedByte = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
 			if (!(ReceivedByte < 0)){
@@ -262,6 +274,7 @@ int main(void)
 			// get new reports from the PC side and try to send pending reports
 			if (ram.mode == MODE_HID)
 				HID_Device_USBTask(&Device_HID_Interface);
+
 		}
 
 		CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
@@ -327,7 +340,7 @@ void selectMode(void){
 	uint32_t currentBaud = VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS;
 
 	// HID only works for baud 115200 or not configured (startup, no host connection) to work at maximum speed and after reprogramming
-	if ((AVR_NO_HID_PIN & (1 << AVR_NO_HID)) && (currentBaud == 0 || currentBaud == 115200))
+	if ((currentBaud == 0 || currentBaud == 115200) && (AVR_NO_HID_PIN & (1 << AVR_NO_HID)))
 		ram.mode = MODE_HID;
 	else if (currentBaud == AVRISP_BAUD)
 		ram.mode = MODE_AVRISP;
@@ -344,23 +357,30 @@ void selectMode(void){
 			ram.PulseMSRemaining.RxLEDPulse = 0;
 			LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
 		}
+		// setup for HID and AVRISP mode
 		if (ram.mode == MODE_HID){
 			// HID Setup
 			resetNHPbuffer();
 			ram.HID.ID = 0;
 		}
-		else if (ram.mode == MODE_AVRISP){
-			// AVR ISP Setup
-			ram.isp.error = 0;
-			ram.isp.pmode = 0;
-			ram.isp._addr = 0; // just to be sure
-			LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
+		else{
+			// we have a pending HID report, flush it first
+			while (ram.HID.ID && ram.HID.length == ram.HID.recvlength)
+				HID_Device_USBTask(&Device_HID_Interface);
 
-			// Hardwaresetup to turn off the HID function with shorting the MOSI pin with GND next to it
-			// do not short this pin in AVRISP mode!!!
-			// moved here so the pin is INPUT to not damage anything
-			AVR_NO_HID_DDR &= ~(1 << AVR_NO_HID); // INPUT
-			AVR_NO_HID_PORT |= (1 << AVR_NO_HID); // PULLUP
+			if (ram.mode == MODE_AVRISP){
+				// AVR ISP Setup
+				ram.isp.error = 0;
+				ram.isp.pmode = 0;
+				ram.isp._addr = 0; // just to be sure
+				LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
+
+				// Hardwaresetup to turn off the HID function with shorting the MOSI pin with GND next to it
+				// do not short this pin in AVRISP mode!!!
+				// moved here so the pin is INPUT to not damage anything
+				AVR_NO_HID_DDR &= ~(1 << AVR_NO_HID); // INPUT
+				AVR_NO_HID_PORT |= (1 << AVR_NO_HID); // PULLUP
+			}
 		}
 	}
 }
@@ -396,11 +416,24 @@ void EVENT_USB_Device_ConfigurationChanged(void) //<--new
 	//LEDs_SetAllLEDs(ConfigSuccess ? LEDS_NO_LEDS : LEDS_ALL_LEDS);
 }
 
-/** Event handler for the library USB Unhandled Control Request event. */
-void EVENT_USB_Device_UnhandledControlRequest(void)
-{
-	CDC_Device_ProcessControlRequest(&VirtualSerial_CDC_Interface);
-}
+///** Event handler for the library USB Unhandled Control Request event. */
+//void EVENT_USB_Device_UnhandledControlRequest(void)
+//{
+//  // removed, relict from older version?? TODO <-- help
+//	CDC_Device_ProcessControlRequest(&VirtualSerial_CDC_Interface);
+//}
+
+//
+//void EVENT_CDC_Device_BreakSent(USB_ClassInfo_CDC_Device_t *const CDCInterfaceInfo, const uint8_t Duration){
+//	// TODO remove this <--
+//	//LEDs_TurnOnLEDs(LEDS_ALL_LEDS);
+//	//_delay_ms(200);
+//	//LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
+//	//_delay_ms(200);
+//	//LEDs_TurnOnLEDs(LEDS_ALL_LEDS);
+//	//_delay_ms(200);
+//	//LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
+//}
 
 /** Event handler for the CDC Class driver Line Encoding Changed event.
 *
@@ -513,6 +546,10 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 {
 	// only send report if there is actually a new report
 	if (ram.HID.ID && ram.HID.length == ram.HID.recvlength){
+		// set a general and specific flag that a report was made
+		ram.HID.isEmpty[HID_REPORTID_NotAReport] = true;
+		ram.HID.isEmpty[ram.HID.ID] = true;
+
 		//write report and reset ID
 		memcpy(ReportData, ram.HID.buffer, ram.HID.length);
 		*ReportID = ram.HID.ID;
@@ -558,6 +595,18 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 	}
 }
 
+void clearHIDReports(void){
+	for (int i = 1; i < HID_REPORTID_LastNotAReport; i++){
+		// check if report is empty or not
+		if (!ram.HID.isEmpty[i])
+			clearHIDReport(i);
+	}
+}
+
+void clearHIDReport(uint8_t ID){
+
+}
+
 // Checks for a valid protocol input and writes HID report
 void checkNHPProtocol(uint8_t input){
 	uint8_t address = NHPreadChecksum(input);
@@ -568,11 +617,9 @@ void checkNHPProtocol(uint8_t input){
 		return;
 
 	// we have a pending HID report, flush it first
-	if (ram.HID.ID && ram.HID.length == ram.HID.recvlength){
-		// TODO timeout? <--
-		while (ram.HID.ID)
-			HID_Device_USBTask(&Device_HID_Interface);
-	}
+	// TODO timeout? <--
+	while (ram.HID.ID && ram.HID.length == ram.HID.recvlength)
+		HID_Device_USBTask(&Device_HID_Interface);
 
 	// nearly the same priciple like the Protocol itself: check for control address
 	if ((address == NHP_ADDRESS_CONTROL) && (((ram.NHP.mWorkData >> 8) & 0xFF) == NHP_USAGE_ARDUINOHID)){
@@ -680,12 +727,20 @@ void checkNHPControlAddressError(void){
 		// If host is not listening it will discard all bytes to not block any HID reading
 		writeToCDC(buff, length);
 	}
+	// bug in 1.6 - 1.7.2 found
+	while (ram.HID.ID && ram.HID.length == ram.HID.recvlength)
+		HID_Device_USBTask(&Device_HID_Interface);
 
 	// reset any pending HID reports
 	ram.HID.ID = 0;
+	ram.HID.recvlength = 0; // just to be sure
+	ram.HID.length = 0; // just to be sure
 }
 
 void writeToCDC(uint8_t buffer[], uint8_t length){
+	// refresh DTR state
+	CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
+
 	// Check if a packet is already enqueued to the host - if so, we shouldn't try to send more data
 	// until it completes as there is a chance nothing is listening and a lengthy timeout could occur
 	Endpoint_SelectEndpoint(VirtualSerial_CDC_Interface.Config.DataINEndpoint.Address);

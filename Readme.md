@@ -7,14 +7,20 @@ normal 16u2 usbserial Bootloader. It can still work the same but has more functi
 * Program the Arduino Uno/Mega like you are used to
 * Serial interface is still usable!
 * Use your Arduino as HID device
-* Use the 16u2 as ISP
+* Use the 16u2 as ISP to reprogram your 328 and others
 * One Firmware for Uno/Mega
 
 **Limitations:**
 * HID only works at baud 115200 (Software and speed limitation, see "how it works below")
 * All other bauds work 100%. If you still try to use HID with other baud you will get weird output.
-* 16u2 as ISP has the same bugs like the normal Arduino as ISP. Use IDE 1.5.7!
-* 8u2 has no ISP function
+* 16u2 as ISP has the same functions/bugs like the normal Arduino as ISP. Use IDE 1.5.7!
+* 8u2 has no ISP function (use Lite version)
+* No more Midi/other stuff is possible due to DRAM, RAM and endpoint limitation
+
+**Things that might change in the future:**
+* HID deactivation function (re)move to other pin?
+* SS Pin for ISP
+* Programming baud for ISP
 
 See http://nicohood.wordpress.com/ for more tutorials and projects
 
@@ -199,19 +205,30 @@ See the [HID project](https://github.com/NicoHood/HID) for HID related bugs.
 **Programming Arduino Mega with ISP doesnt work because of fuses.**
 See this for more information: http://forum.arduino.cc/index.php?topic=126160.0
 
-Someone had problems with an Uno clone. It was a power problem.
-
 Burning Bootloader error is fixed with IDE 1.5.7 or higher (avrdude bug)!
 
 Using the Hoodloader on a 8u2 you need to use the Lite Version and DFU wont work.
 
 Feel free to open an Issue on Github if you find a bug. Or message me via my [blog](http://nicohood.wordpress.com/)!
 
+Ideas for the future:
+=====================
+* Save if HID report!=0 and release after every restart
+* Design new Arduino with I2C and SPI connection
+* Pmode timeout!
+* general timeout function for hid and other
+* Different h/c files for better overview!
+* remove older debug/TODO stuff
+
 Version History
 ===============
 ```
+1.7.3 Beta Release (10.08.2014)
+* Fixed HID flush bug (1.6 - 1.7.2)
+
 1.7.2 Beta Release (10.08.2014)
 * Added Lite version for 8u2
+* Added Versions that show up as Uno/Mega (not recommended)
 * Makefile and structure changes
 
 1.7.1 Beta Release (10.08.2014)
@@ -275,6 +292,24 @@ https://support.microsoft.com/kb/315539
 
 The Hootloader was coded with Windows7/8.1 + Visual Studio Express and compiled with a Raspberry Pi.
 Lufa version 140302 is included!
+
+```
+#Vendor ID from lufa         0x03EB
+#Product ID created my own
+#HOODLOADER                  0x6E68
+#HOODLOADER-Lite             0x4E48
+
+#You can also use the native Arduino VID and PID
+#VendorID  Arduino           0x2341
+#ProductID Arduino Uno       0x0001, 0x0043 R3
+#ProductID Arduino Mega2560  0x0010, 0x0042 R3
+#ProductID Arduino Mega ADK  0x003F, 0x0044 R3
+
+#define RAWHID_USAGE_PAGE	0xFFC0 // recommended: 0xFF00 to 0xFFFF
+#define RAWHID_USAGE		0x0C00 // recommended: 0x0100 to 0xFFFF
+#define RAWHID_TX_SIZE 63 // 1 byte for report ID
+#define RAWHID_RX_SIZE 63 // 1 byte for report ID
+```
 
 How to compile (on a Raspberry Pi)
 ==================================

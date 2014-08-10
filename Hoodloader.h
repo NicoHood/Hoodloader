@@ -53,10 +53,6 @@ THE SOFTWARE.
 //================================================================================
 
 void selectMode(void);
-#define MODE_NONE 0
-#define MODE_DEFAULT 1
-#define MODE_HID 2
-#define MODE_AVRISP 3
 
 #define AVR_NO_HID_PORT PORTB
 #define AVR_NO_HID_DDR DDRB
@@ -72,6 +68,7 @@ void selectMode(void);
 
 #define AVR_RESET_LINE_PORT PORTD
 #define AVR_RESET_LINE_DDR DDRD
+#define AVR_RESET_LINE_PIN PIND
 #define AVR_RESET_LINE_MASK (1 << 7)
 
 // LED mask for the library LED driver, to indicate TX activity.
@@ -96,11 +93,12 @@ void SetupHardware(void);
 void EVENT_USB_Device_Connect(void);
 void EVENT_USB_Device_Disconnect(void);
 void EVENT_USB_Device_ConfigurationChanged(void);
-void EVENT_USB_Device_UnhandledControlRequest(void);
+//void EVENT_USB_Device_UnhandledControlRequest(void);
 
 // CDC Serial
 void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo);
 void EVENT_CDC_Device_ControLineStateChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo);
+//void EVENT_CDC_Device_BreakSent(USB_ClassInfo_CDC_Device_t *const CDCInterfaceInfo, const uint8_t Duration);
 
 // HID
 void EVENT_USB_Device_ControlRequest(void);
@@ -120,6 +118,8 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 // HID
 //================================================================================
 
+void clearHIDReports(void);
+void clearHIDReport(uint8_t ID);
 void checkNHPProtocol(uint8_t input);
 void checkNHPControlAddressError(void);
 void writeToCDC(uint8_t buffer[], uint8_t length);
