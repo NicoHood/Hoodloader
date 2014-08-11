@@ -1,5 +1,8 @@
 Arduino Hoodloader BETA
 ==================
+
+**There might be some problems with uploading on some computers or other errors. Try v1.5 instead!***
+
 This is the source page of the Hoodloader. The Hoodloader is a fully compatible replacement of the
 normal 16u2 usbserial Bootloader. It can still work the same but has more functions.
 
