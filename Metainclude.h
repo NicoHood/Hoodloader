@@ -21,21 +21,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef HOODLOADER_H
-#define HOODLOADER_H
+#ifndef METAINCLUDE_H
+#define METAINCLUDE_H
 
-/* Includes: */
-#include "Metainclude.h"
+// system libraries
+#include <avr/io.h>
+#include <avr/wdt.h>
+#include <avr/power.h>
+#include <avr/interrupt.h>
+#include <avr/pgmspace.h>
+#include <string.h>
+#include <util/delay.h> // _delay_ms()
 
-void selectMode(void);
-void SetupHardware(void);
+// lufa libraries
+#include <LUFA/Drivers/Board/Board.h>
+#include <LUFA/Drivers/Board/LEDs.h>
+#include <LUFA/Drivers/USB/USB.h>
+#include <LUFA/Platform/Platform.h>
 
-//================================================================================
-// Lufa USB functions
-//================================================================================
+#include <LUFA/Version.h>
+#include <LUFA/Drivers/Peripheral/Serial.h>
+#include <LUFA/Drivers/Misc/RingBuffer.h>
 
-void EVENT_USB_Device_Connect(void);
-void EVENT_USB_Device_Disconnect(void);
-void EVENT_USB_Device_ConfigurationChanged(void);
+#include "Descriptors.h"
+
+// own libraries
+#include "Lib/HID.h"
+#include "Lib/HID_Reports.h"
+#include "Lib/Ram.h"
+#include "Lib/ISP.h"
+#include "Lib/NHP.h"
+#include "Lib/CDC.h"
+
 
 #endif
+

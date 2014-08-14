@@ -30,9 +30,7 @@ THE SOFTWARE.
 #define _DESCRIPTORS_H_
 
 /* Includes: */
-#include <avr/pgmspace.h>
-#include <LUFA/Drivers/USB/USB.h>
-#include <HID_Reports.h>
+#include "Metainclude.h"
 
 /* Macros: */
 /** Endpoint address of the CDC device-to-host notification IN endpoint. */

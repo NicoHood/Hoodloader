@@ -21,21 +21,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef HOODLOADER_H
-#define HOODLOADER_H
 
-/* Includes: */
+#ifndef CDC_H
+#define CDC_H
+
 #include "Metainclude.h"
 
-void selectMode(void);
-void SetupHardware(void);
+// CDC Serial
+extern USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface;
 
-//================================================================================
-// Lufa USB functions
-//================================================================================
+void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo);
+void EVENT_CDC_Device_ControLineStateChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo);
 
-void EVENT_USB_Device_Connect(void);
-void EVENT_USB_Device_Disconnect(void);
-void EVENT_USB_Device_ConfigurationChanged(void);
 
 #endif
+

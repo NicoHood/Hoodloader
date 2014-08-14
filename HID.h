@@ -21,21 +21,40 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef HOODLOADER_H
-#define HOODLOADER_H
 
-/* Includes: */
+#ifndef HID_H
+#define HID_H
+
 #include "Metainclude.h"
 
-void selectMode(void);
-void SetupHardware(void);
-
 //================================================================================
-// Lufa USB functions
+// HID
 //================================================================================
 
-void EVENT_USB_Device_Connect(void);
-void EVENT_USB_Device_Disconnect(void);
-void EVENT_USB_Device_ConfigurationChanged(void);
+extern USB_ClassInfo_HID_Device_t Device_HID_Interface;
+
+void clearHIDReports(void);
+void clearHIDReport(uint8_t ID);
+uint8_t getHIDReportLength(uint8_t ID);
+void flushHID(void);
+void checkNHPProtocol(uint8_t input);
+void checkNHPControlAddressError(void);
+void resetNHPbuffer(void);
+void writeToCDC(uint8_t buffer[], uint8_t length);
+
+// HID
+void EVENT_USB_Device_ControlRequest(void);
+void EVENT_USB_Device_StartOfFrame(void);
+bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
+	uint8_t* const ReportID,
+	const uint8_t ReportType,
+	void* ReportData,
+	uint16_t* const ReportSize);
+void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
+	const uint8_t ReportID,
+	const uint8_t ReportType,
+	const void* ReportData,
+	const uint16_t ReportSize);
 
 #endif
+

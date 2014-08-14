@@ -21,21 +21,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#ifndef HOODLOADER_H
-#define HOODLOADER_H
+#include "Ram.h"
 
-/* Includes: */
-#include "Metainclude.h"
-
-void selectMode(void);
-void SetupHardware(void);
-
-//================================================================================
-// Lufa USB functions
-//================================================================================
-
-void EVENT_USB_Device_Connect(void);
-void EVENT_USB_Device_Disconnect(void);
-void EVENT_USB_Device_ConfigurationChanged(void);
-
-#endif
+ram_t ram;
