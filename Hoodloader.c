@@ -403,19 +403,3 @@ void checkNHPControlAddressError(void){
 	ram.HID.recvlength = 0; // just to be sure
 	ram.HID.length = 0; // just to be sure
 }
-
-
-void writeToCDC(uint8_t buffer[], uint8_t length){
-	// refresh DTR state
-	CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
-
-	// Check if a packet is already enqueued to the host - if so, we shouldn't try to send more data
-	// until it completes as there is a chance nothing is listening and a lengthy timeout could occur
-	Endpoint_SelectEndpoint(VirtualSerial_CDC_Interface.Config.DataINEndpoint.Address);
-	while (!Endpoint_IsINReady());
-
-	// Try to send the next bytes to the host, abort if DTR isnt set to not block serial reading
-	bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
-	if (CurrentDTRState)
-		CDC_Device_SendData(&VirtualSerial_CDC_Interface, buffer, length);
-}
