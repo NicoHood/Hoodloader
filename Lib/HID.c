@@ -44,12 +44,6 @@ USB_ClassInfo_HID_Device_t Device_HID_Interface =
 };
 
 
-void resetNHPbuffer(void){
-	ram.NHP.readlength = 0;
-	ram.NHP.mBlocks = 0;
-}
-
-
 void clearHIDReports(void){
 	// dont do anything if the main flag is empty
 	if (ram.HID.isEmpty[HID_REPORTID_NotAReport]) return;

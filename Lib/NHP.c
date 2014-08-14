@@ -163,3 +163,9 @@ uint8_t NHPwriteChecksum(uint8_t address, uint16_t indata, uint8_t* buff){
 	// return the length
 	return blocks;
 }
+
+
+void resetNHPbuffer(void){
+	ram.NHP.readlength = 0;
+	ram.NHP.mBlocks = 0;
+}

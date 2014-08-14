@@ -72,15 +72,7 @@ typedef struct{
 			}HID;
 
 			// NHP needed as Serial Protocol to receive HID data
-			struct{
-				// in progress reading data
-				uint8_t mBlocks;
-				uint32_t mWorkData;
-
-				// buffer for read operations
-				uint8_t readbuffer[6];
-				uint8_t readlength;
-			}NHP;
+			NHP_Data_t NHP;
 		};
 
 		// if baud == AVRISP_BAUD AVRISP mode

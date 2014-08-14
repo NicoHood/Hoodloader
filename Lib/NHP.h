@@ -32,6 +32,17 @@ THE SOFTWARE.
 // NHP Definitions/Prototypes
 //================================================================================
 
+typedef struct{
+	// in progress reading data
+	uint8_t mBlocks;
+	uint32_t mWorkData;
+
+	// buffer for read operations
+	uint8_t readbuffer[6];
+	uint8_t readlength;
+}NHP_Data_t;
+
+
 // ErrorLevel
 #define NHP_MASK_INPUT		0x0F
 #define NHP_INPUT_NO		0x00
@@ -70,6 +81,7 @@ THE SOFTWARE.
 // general multifunctional read/write functions for NHP
 uint8_t NHPreadChecksum(uint8_t input);
 uint8_t NHPwriteChecksum(uint8_t address, uint16_t indata, uint8_t* buff);
+void resetNHPbuffer(void);
 
 #endif
 

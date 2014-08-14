@@ -17,19 +17,19 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   6 .debug_aranges 00000898  00000000  00000000  00003d91  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_info   0000e10a  00000000  00000000  00004629  2**0
+  7 .debug_info   0000e141  00000000  00000000  00004629  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_abbrev 000039fe  00000000  00000000  00012733  2**0
+  8 .debug_abbrev 000039fa  00000000  00000000  0001276a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_line   0000586d  00000000  00000000  00016131  2**0
+  9 .debug_line   00005880  00000000  00000000  00016164  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_frame  0000155c  00000000  00000000  0001b9a0  2**2
+ 10 .debug_frame  0000155c  00000000  00000000  0001b9e4  2**2
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_str    00004881  00000000  00000000  0001cefc  2**0
+ 11 .debug_str    0000488c  00000000  00000000  0001cf40  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_loc    000084ea  00000000  00000000  0002177d  2**0
+ 12 .debug_loc    000084ea  00000000  00000000  000217cc  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_ranges 00000a78  00000000  00000000  00029c67  2**0
+ 13 .debug_ranges 00000a78  00000000  00000000  00029cb6  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -728,11 +728,11 @@ uint8_t USB_ProcessHIDReport(const uint8_t* ReportData,
      42a:	80 91 36 01 	lds	r24, 0x0136
      42e:	82 30       	cpi	r24, 0x02	; 2
      430:	21 f4       	brne	.+8      	; 0x43a <selectMode+0xa2>
-     432:	79 d1       	rcall	.+754    	; 0x726 <resetNHPbuffer>
+     432:	16 d7       	rcall	.+3628   	; 0x1260 <resetNHPbuffer>
      434:	10 92 c5 01 	sts	0x01C5, r1
      438:	08 95       	ret
-     43a:	7a d1       	rcall	.+756    	; 0x730 <flushHID>
-     43c:	ff d1       	rcall	.+1022   	; 0x83c <clearHIDReports>
+     43a:	75 d1       	rcall	.+746    	; 0x726 <flushHID>
+     43c:	fa d1       	rcall	.+1012   	; 0x832 <clearHIDReports>
 						  return HID_PARSE_InsufficientCollectionPaths;
 
 						CurrCollectionPath++;
@@ -798,14 +798,14 @@ uint8_t USB_ProcessHIDReport(const uint8_t* ReportData,
 
 					for (uint8_t i = 1; i < UsageListSize; i++)
      48c:	4f 9b       	sbis	0x09, 7	; 9
-     48e:	d6 d1       	rcall	.+940    	; 0x83c <clearHIDReports>
+     48e:	d1 d1       	rcall	.+930    	; 0x832 <clearHIDReports>
      490:	80 91 36 01 	lds	r24, 0x0136
      494:	83 30       	cpi	r24, 0x03	; 3
      496:	11 f4       	brne	.+4      	; 0x49c <main+0x32>
 					  UsageList[i - 1] = UsageList[i];
 
 					UsageListSize--;
-     498:	b5 d5       	rcall	.+2922   	; 0x1004 <avrisp>
+     498:	b0 d5       	rcall	.+2912   	; 0xffa <avrisp>
      49a:	8a c0       	rjmp	.+276    	; 0x5b0 <main+0x146>
      49c:	80 e1       	ldi	r24, 0x10	; 16
      49e:	91 e0       	ldi	r25, 0x01	; 1
@@ -929,7 +929,7 @@ uint8_t USB_ProcessHIDReport(const uint8_t* ReportData,
      54e:	90 91 36 01 	lds	r25, 0x0136
      552:	92 30       	cpi	r25, 0x02	; 2
      554:	09 f4       	brne	.+2      	; 0x558 <main+0xee>
-     556:	e1 d1       	rcall	.+962    	; 0x91a <checkNHPProtocol>
+     556:	dc d1       	rcall	.+952    	; 0x910 <checkNHPProtocol>
      558:	21 96       	adiw	r28, 0x01	; 1
      55a:	ec 12       	cpse	r14, r28
      55c:	cf cf       	rjmp	.-98     	; 0x4fc <main+0x92>
@@ -955,7 +955,7 @@ uint8_t USB_ProcessHIDReport(const uint8_t* ReportData,
      578:	82 30       	cpi	r24, 0x02	; 2
      57a:	39 f4       	brne	.+14     	; 0x58a <main+0x120>
 					  NewReportItem.ItemType = HID_REPORT_ITEM_Out;
-     57c:	a4 d1       	rcall	.+840    	; 0x8c6 <checkNHPControlAddressError>
+     57c:	9f d1       	rcall	.+830    	; 0x8bc <checkNHPControlAddressError>
      57e:	60 91 1c 02 	lds	r22, 0x021C
 					else
 					  NewReportItem.ItemType = HID_REPORT_ITEM_Feature;
@@ -963,8 +963,8 @@ uint8_t USB_ProcessHIDReport(const uint8_t* ReportData,
      584:	92 e0       	ldi	r25, 0x02	; 2
 
 					NewReportItem.BitOffset = CurrReportIDInfo->ReportSizeBits[NewReportItem.ItemType];
-     586:	73 d1       	rcall	.+742    	; 0x86e <writeToCDC>
-     588:	ce d0       	rcall	.+412    	; 0x726 <resetNHPbuffer>
+     586:	6e d1       	rcall	.+732    	; 0x864 <writeToCDC>
+     588:	6b d6       	rcall	.+3286   	; 0x1260 <resetNHPbuffer>
      58a:	5d 9a       	sbi	0x0b, 5	; 11
      58c:	80 91 c4 01 	lds	r24, 0x01C4
      590:	88 23       	and	r24, r24
@@ -1302,2697 +1302,2691 @@ uint8_t USB_ProcessHIDReport(const uint8_t* ReportData,
      722:	cf 01       	movw	r24, r30
      724:	08 95       	ret
 
-00000726 <resetNHPbuffer>:
-     726:	10 92 1c 02 	sts	0x021C, r1
-     72a:	10 92 11 02 	sts	0x0211, r1
-     72e:	08 95       	ret
+00000726 <flushHID>:
+     726:	04 c0       	rjmp	.+8      	; 0x730 <flushHID+0xa>
+     728:	80 e0       	ldi	r24, 0x00	; 0
+     72a:	91 e0       	ldi	r25, 0x01	; 1
+     72c:	0e 94 f1 11 	call	0x23e2	; 0x23e2 <HID_Device_USBTask>
+     730:	80 91 c5 01 	lds	r24, 0x01C5
+     734:	88 23       	and	r24, r24
+     736:	31 f0       	breq	.+12     	; 0x744 <flushHID+0x1e>
+     738:	90 91 c6 01 	lds	r25, 0x01C6
+     73c:	80 91 c7 01 	lds	r24, 0x01C7
+     740:	98 17       	cp	r25, r24
+     742:	91 f3       	breq	.-28     	; 0x728 <flushHID+0x2>
+     744:	08 95       	ret
 
-00000730 <flushHID>:
-     730:	04 c0       	rjmp	.+8      	; 0x73a <flushHID+0xa>
-     732:	80 e0       	ldi	r24, 0x00	; 0
-     734:	91 e0       	ldi	r25, 0x01	; 1
-     736:	0e 94 f1 11 	call	0x23e2	; 0x23e2 <HID_Device_USBTask>
-     73a:	80 91 c5 01 	lds	r24, 0x01C5
-     73e:	88 23       	and	r24, r24
-     740:	31 f0       	breq	.+12     	; 0x74e <flushHID+0x1e>
-     742:	90 91 c6 01 	lds	r25, 0x01C6
-     746:	80 91 c7 01 	lds	r24, 0x01C7
-     74a:	98 17       	cp	r25, r24
-     74c:	91 f3       	breq	.-28     	; 0x732 <flushHID+0x2>
-     74e:	08 95       	ret
-
-00000750 <CALLBACK_HID_Device_CreateHIDReport>:
+00000746 <CALLBACK_HID_Device_CreateHIDReport>:
+     746:	ef 92       	push	r14
+     748:	ff 92       	push	r15
+     74a:	0f 93       	push	r16
+     74c:	1f 93       	push	r17
+     74e:	cf 93       	push	r28
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
 	uint8_t* const ReportID,
 	const uint8_t ReportType,
 	void* ReportData,
 	uint16_t* const ReportSize)
 {
-     750:	ef 92       	push	r14
-     752:	ff 92       	push	r15
-     754:	0f 93       	push	r16
-     756:	1f 93       	push	r17
-     758:	cf 93       	push	r28
-     75a:	df 93       	push	r29
-     75c:	7b 01       	movw	r14, r22
-     75e:	c9 01       	movw	r24, r18
-     760:	e8 01       	movw	r28, r16
+     750:	df 93       	push	r29
+     752:	7b 01       	movw	r14, r22
+     754:	c9 01       	movw	r24, r18
+     756:	e8 01       	movw	r28, r16
 	// only send report if there is actually a new report
 	if (ram.HID.ID && ram.HID.length == ram.HID.recvlength){
-     762:	e0 91 c5 01 	lds	r30, 0x01C5
-     766:	ee 23       	and	r30, r30
-     768:	29 f1       	breq	.+74     	; 0x7b4 <CALLBACK_HID_Device_CreateHIDReport+0x64>
-     76a:	40 91 c6 01 	lds	r20, 0x01C6
-     76e:	20 91 c7 01 	lds	r18, 0x01C7
-     772:	42 13       	cpse	r20, r18
-     774:	1f c0       	rjmp	.+62     	; 0x7b4 <CALLBACK_HID_Device_CreateHIDReport+0x64>
+     758:	e0 91 c5 01 	lds	r30, 0x01C5
+     75c:	ee 23       	and	r30, r30
+     75e:	29 f1       	breq	.+74     	; 0x7aa <CALLBACK_HID_Device_CreateHIDReport+0x64>
+     760:	40 91 c6 01 	lds	r20, 0x01C6
+     764:	20 91 c7 01 	lds	r18, 0x01C7
+     768:	42 13       	cpse	r20, r18
+     76a:	1f c0       	rjmp	.+62     	; 0x7aa <CALLBACK_HID_Device_CreateHIDReport+0x64>
 		// set a general and specific flag that a report was made, ignore rawHID
 		if (ram.HID.ID != HID_REPORTID_RawKeyboardReport){
-     776:	e3 30       	cpi	r30, 0x03	; 3
-     778:	39 f0       	breq	.+14     	; 0x788 <CALLBACK_HID_Device_CreateHIDReport+0x38>
+     76c:	e3 30       	cpi	r30, 0x03	; 3
+     76e:	39 f0       	breq	.+14     	; 0x77e <CALLBACK_HID_Device_CreateHIDReport+0x38>
 			ram.HID.isEmpty[HID_REPORTID_NotAReport] = true;
-     77a:	51 e0       	ldi	r21, 0x01	; 1
-     77c:	50 93 07 02 	sts	0x0207, r21
+     770:	51 e0       	ldi	r21, 0x01	; 1
+     772:	50 93 07 02 	sts	0x0207, r21
 			ram.HID.isEmpty[ram.HID.ID] = true;
-     780:	f0 e0       	ldi	r31, 0x00	; 0
-     782:	e9 5f       	subi	r30, 0xF9	; 249
-     784:	fd 4f       	sbci	r31, 0xFD	; 253
-     786:	50 83       	st	Z, r21
+     776:	f0 e0       	ldi	r31, 0x00	; 0
+     778:	e9 5f       	subi	r30, 0xF9	; 249
+     77a:	fd 4f       	sbci	r31, 0xFD	; 253
+     77c:	50 83       	st	Z, r21
 		}
 
 		//write report and reset ID
 		memcpy(ReportData, ram.HID.buffer, ram.HID.length);
-     788:	e8 ec       	ldi	r30, 0xC8	; 200
-     78a:	f1 e0       	ldi	r31, 0x01	; 1
-     78c:	50 e0       	ldi	r21, 0x00	; 0
-     78e:	bf 01       	movw	r22, r30
-     790:	0e 94 e4 12 	call	0x25c8	; 0x25c8 <memcpy>
+     77e:	e8 ec       	ldi	r30, 0xC8	; 200
+     780:	f1 e0       	ldi	r31, 0x01	; 1
+     782:	50 e0       	ldi	r21, 0x00	; 0
+     784:	bf 01       	movw	r22, r30
+     786:	0e 94 e4 12 	call	0x25c8	; 0x25c8 <memcpy>
 		*ReportID = ram.HID.ID;
-     794:	80 91 c5 01 	lds	r24, 0x01C5
-     798:	f7 01       	movw	r30, r14
-     79a:	80 83       	st	Z, r24
+     78a:	80 91 c5 01 	lds	r24, 0x01C5
+     78e:	f7 01       	movw	r30, r14
+     790:	80 83       	st	Z, r24
 		*ReportSize = ram.HID.length;
-     79c:	80 91 c6 01 	lds	r24, 0x01C6
-     7a0:	88 83       	st	Y, r24
-     7a2:	19 82       	std	Y+1, r1	; 0x01
+     792:	80 91 c6 01 	lds	r24, 0x01C6
+     796:	88 83       	st	Y, r24
+     798:	19 82       	std	Y+1, r1	; 0x01
 		ram.HID.ID = 0;
-     7a4:	10 92 c5 01 	sts	0x01C5, r1
+     79a:	10 92 c5 01 	sts	0x01C5, r1
 		ram.HID.recvlength = 0; //just to be sure if you call HID_Task by accident again
-     7a8:	10 92 c7 01 	sts	0x01C7, r1
+     79e:	10 92 c7 01 	sts	0x01C7, r1
 		ram.HID.length = 0; //just to be sure if you call HID_Task by accident again
-     7ac:	10 92 c6 01 	sts	0x01C6, r1
+     7a2:	10 92 c6 01 	sts	0x01C6, r1
 
 		// always return true, because we cannot compare with >1 report due to ram limit
 		// this will forcewrite the report every time
 		return true;
-     7b0:	81 e0       	ldi	r24, 0x01	; 1
-     7b2:	01 c0       	rjmp	.+2      	; 0x7b6 <CALLBACK_HID_Device_CreateHIDReport+0x66>
+     7a6:	81 e0       	ldi	r24, 0x01	; 1
+     7a8:	01 c0       	rjmp	.+2      	; 0x7ac <CALLBACK_HID_Device_CreateHIDReport+0x66>
 	}
 	else return false;
-     7b4:	80 e0       	ldi	r24, 0x00	; 0
+     7aa:	80 e0       	ldi	r24, 0x00	; 0
 }
-     7b6:	df 91       	pop	r29
-     7b8:	cf 91       	pop	r28
-     7ba:	1f 91       	pop	r17
-     7bc:	0f 91       	pop	r16
-     7be:	ff 90       	pop	r15
-     7c0:	ef 90       	pop	r14
-     7c2:	08 95       	ret
+     7ac:	df 91       	pop	r29
+     7ae:	cf 91       	pop	r28
+     7b0:	1f 91       	pop	r17
+     7b2:	0f 91       	pop	r16
+     7b4:	ff 90       	pop	r15
+     7b6:	ef 90       	pop	r14
+     7b8:	08 95       	ret
 
-000007c4 <CALLBACK_HID_Device_ProcessHIDReport>:
+000007ba <CALLBACK_HID_Device_ProcessHIDReport>:
 void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
 	const uint8_t ReportID,
 	const uint8_t ReportType,
 	const void* ReportData,
 	const uint16_t ReportSize)
 {
-     7c4:	0f 93       	push	r16
-     7c6:	1f 93       	push	r17
-     7c8:	c9 01       	movw	r24, r18
+     7ba:	0f 93       	push	r16
+     7bc:	1f 93       	push	r17
+     7be:	c9 01       	movw	r24, r18
 	// Unused in this demo, since there are no Host->Device reports
 	//	uint8_t* LEDReport = (uint8_t*)ReportData;
 
 	if (ReportID == HID_REPORTID_RawKeyboardReport){
-     7ca:	63 30       	cpi	r22, 0x03	; 3
-     7cc:	39 f4       	brne	.+14     	; 0x7dc <CALLBACK_HID_Device_ProcessHIDReport+0x18>
+     7c0:	63 30       	cpi	r22, 0x03	; 3
+     7c2:	39 f4       	brne	.+14     	; 0x7d2 <CALLBACK_HID_Device_ProcessHIDReport+0x18>
 		PORTD |= LEDS_ALL_LEDS;
 	}
 
 	static inline void LEDs_TurnOnLEDs(const uint8_t LEDMask)
 	{
 		PORTD &= ~LEDMask;
-     7ce:	5c 98       	cbi	0x0b, 4	; 11
+     7c4:	5c 98       	cbi	0x0b, 4	; 11
 		//LEDs_SetAllLEDs(LEDS_ALL_LEDS);
 		//while (1); //TODO remove <--
 
 		// Turn on RX LED
 		LEDs_TurnOnLEDs(LEDMASK_RX);
 		ram.PulseMSRemaining.RxLEDPulse = TX_RX_LED_PULSE_MS;
-     7d0:	60 93 c4 01 	sts	0x01C4, r22
+     7c6:	60 93 c4 01 	sts	0x01C4, r22
 
 		// Send bytes
 		Serial_SendData(ReportData, ReportSize);
-     7d4:	b8 01       	movw	r22, r16
+     7ca:	b8 01       	movw	r22, r16
 	}
 }
-     7d6:	1f 91       	pop	r17
-     7d8:	0f 91       	pop	r16
+     7cc:	1f 91       	pop	r17
+     7ce:	0f 91       	pop	r16
 		// Turn on RX LED
 		LEDs_TurnOnLEDs(LEDMASK_RX);
 		ram.PulseMSRemaining.RxLEDPulse = TX_RX_LED_PULSE_MS;
 
 		// Send bytes
 		Serial_SendData(ReportData, ReportSize);
-     7da:	4f c6       	rjmp	.+3230   	; 0x147a <Serial_SendData>
-     7dc:	1f 91       	pop	r17
+     7d0:	54 c6       	rjmp	.+3240   	; 0x147a <Serial_SendData>
+     7d2:	1f 91       	pop	r17
 	}
 }
-     7de:	0f 91       	pop	r16
-     7e0:	08 95       	ret
+     7d4:	0f 91       	pop	r16
+     7d6:	08 95       	ret
 
-000007e2 <getHIDReportLength>:
+000007d8 <getHIDReportLength>:
 
 	// save new empty state
 	ram.HID.isEmpty[ID] = true;
 }
 
 uint8_t getHIDReportLength(uint8_t ID){
-     7e2:	e0 91 c5 01 	lds	r30, 0x01C5
-     7e6:	e1 50       	subi	r30, 0x01	; 1
-     7e8:	e9 30       	cpi	r30, 0x09	; 9
-     7ea:	28 f4       	brcc	.+10     	; 0x7f6 <getHIDReportLength+0x14>
-     7ec:	f0 e0       	ldi	r31, 0x00	; 0
-     7ee:	e5 5d       	subi	r30, 0xD5	; 213
-     7f0:	fe 4f       	sbci	r31, 0xFE	; 254
-     7f2:	80 81       	ld	r24, Z
-     7f4:	08 95       	ret
+     7d8:	e0 91 c5 01 	lds	r30, 0x01C5
+     7dc:	e1 50       	subi	r30, 0x01	; 1
+     7de:	e9 30       	cpi	r30, 0x09	; 9
+     7e0:	28 f4       	brcc	.+10     	; 0x7ec <getHIDReportLength+0x14>
+     7e2:	f0 e0       	ldi	r31, 0x00	; 0
+     7e4:	e5 5d       	subi	r30, 0xD5	; 213
+     7e6:	fe 4f       	sbci	r31, 0xFE	; 254
+     7e8:	80 81       	ld	r24, Z
+     7ea:	08 95       	ret
 	// Get the length of the report
 	switch (ram.HID.ID){
-     7f6:	80 e0       	ldi	r24, 0x00	; 0
+     7ec:	80 e0       	ldi	r24, 0x00	; 0
 		// error, write down this wrong ID report
 		return 0;
 		break;
 	} //end switch
 	return 0;
 }
-     7f8:	08 95       	ret
+     7ee:	08 95       	ret
 
-000007fa <clearHIDReport>:
+000007f0 <clearHIDReport>:
 		Serial_SendData(ReportData, ReportSize);
 	}
 }
 
 
 void clearHIDReport(uint8_t ID){
-     7fa:	cf 93       	push	r28
-     7fc:	c8 2f       	mov	r28, r24
+     7f0:	cf 93       	push	r28
+     7f2:	c8 2f       	mov	r28, r24
 	// RAW HID cannot be cleared
 	if (ID == HID_REPORTID_RawKeyboardReport) return;
-     7fe:	83 30       	cpi	r24, 0x03	; 3
-     800:	d9 f0       	breq	.+54     	; 0x838 <clearHIDReport+0x3e>
+     7f4:	83 30       	cpi	r24, 0x03	; 3
+     7f6:	d9 f0       	breq	.+54     	; 0x82e <clearHIDReport+0x3e>
 
 	// we have a pending HID report, flush it first
 	flushHID();
-     802:	96 df       	rcall	.-212    	; 0x730 <flushHID>
-     804:	8c 2f       	mov	r24, r28
+     7f8:	96 df       	rcall	.-212    	; 0x726 <flushHID>
+     7fa:	8c 2f       	mov	r24, r28
 
 	// get length of the report if its a valid report
 	uint8_t length = getHIDReportLength(ID);
-     806:	ed df       	rcall	.-38     	; 0x7e2 <getHIDReportLength>
-     808:	88 23       	and	r24, r24
-     80a:	b1 f0       	breq	.+44     	; 0x838 <clearHIDReport+0x3e>
+     7fc:	ed df       	rcall	.-38     	; 0x7d8 <getHIDReportLength>
+     7fe:	88 23       	and	r24, r24
+     800:	b1 f0       	breq	.+44     	; 0x82e <clearHIDReport+0x3e>
 	if (!length) return;
-     80c:	80 93 c7 01 	sts	0x01C7, r24
+     802:	80 93 c7 01 	sts	0x01C7, r24
 
 	// save new values and prepare for sending
 	ram.HID.length = ram.HID.recvlength = length;
-     810:	80 93 c6 01 	sts	0x01C6, r24
-     814:	c0 93 c5 01 	sts	0x01C5, r28
+     806:	80 93 c6 01 	sts	0x01C6, r24
+     80a:	c0 93 c5 01 	sts	0x01C5, r28
 	ram.HID.ID = ID;
-     818:	28 ec       	ldi	r18, 0xC8	; 200
-     81a:	31 e0       	ldi	r19, 0x01	; 1
+     80e:	28 ec       	ldi	r18, 0xC8	; 200
+     810:	31 e0       	ldi	r19, 0x01	; 1
 	memset(&ram.HID.buffer, 0x00, length);
-     81c:	48 2f       	mov	r20, r24
-     81e:	50 e0       	ldi	r21, 0x00	; 0
-     820:	60 e0       	ldi	r22, 0x00	; 0
-     822:	70 e0       	ldi	r23, 0x00	; 0
-     824:	c9 01       	movw	r24, r18
-     826:	0e 94 ed 12 	call	0x25da	; 0x25da <memset>
-     82a:	82 df       	rcall	.-252    	; 0x730 <flushHID>
-     82c:	ec 2f       	mov	r30, r28
+     812:	48 2f       	mov	r20, r24
+     814:	50 e0       	ldi	r21, 0x00	; 0
+     816:	60 e0       	ldi	r22, 0x00	; 0
+     818:	70 e0       	ldi	r23, 0x00	; 0
+     81a:	c9 01       	movw	r24, r18
+     81c:	0e 94 ed 12 	call	0x25da	; 0x25da <memset>
+     820:	82 df       	rcall	.-252    	; 0x726 <flushHID>
+     822:	ec 2f       	mov	r30, r28
 
 	// flush HID
 	flushHID();
-     82e:	f0 e0       	ldi	r31, 0x00	; 0
-     830:	e9 5f       	subi	r30, 0xF9	; 249
+     824:	f0 e0       	ldi	r31, 0x00	; 0
+     826:	e9 5f       	subi	r30, 0xF9	; 249
 
 	// save new empty state
 	ram.HID.isEmpty[ID] = true;
-     832:	fd 4f       	sbci	r31, 0xFD	; 253
-     834:	81 e0       	ldi	r24, 0x01	; 1
-     836:	80 83       	st	Z, r24
-     838:	cf 91       	pop	r28
-     83a:	08 95       	ret
+     828:	fd 4f       	sbci	r31, 0xFD	; 253
+     82a:	81 e0       	ldi	r24, 0x01	; 1
+     82c:	80 83       	st	Z, r24
+     82e:	cf 91       	pop	r28
+     830:	08 95       	ret
 
-0000083c <clearHIDReports>:
-	ram.NHP.readlength = 0;
-	ram.NHP.mBlocks = 0;
-}
+00000832 <clearHIDReports>:
+		.PrevReportINBufferSize = sizeof(HID_HIDReport_Data_t),
+	},
+};
 
 
 void clearHIDReports(void){
-     83c:	1f 93       	push	r17
+     832:	1f 93       	push	r17
 	// flush HID
 	flushHID();
 
 	// save new empty state
 	ram.HID.isEmpty[ID] = true;
 }
-     83e:	cf 93       	push	r28
-     840:	df 93       	push	r29
-}
+     834:	cf 93       	push	r28
+     836:	df 93       	push	r29
+};
 
 
 void clearHIDReports(void){
 	// dont do anything if the main flag is empty
 	if (ram.HID.isEmpty[HID_REPORTID_NotAReport]) return;
-     842:	80 91 07 02 	lds	r24, 0x0207
-     846:	81 11       	cpse	r24, r1
-     848:	0e c0       	rjmp	.+28     	; 0x866 <clearHIDReports+0x2a>
-     84a:	c8 e0       	ldi	r28, 0x08	; 8
-     84c:	d2 e0       	ldi	r29, 0x02	; 2
-     84e:	11 e0       	ldi	r17, 0x01	; 1
+     838:	80 91 07 02 	lds	r24, 0x0207
+     83c:	81 11       	cpse	r24, r1
+     83e:	0e c0       	rjmp	.+28     	; 0x85c <clearHIDReports+0x2a>
+     840:	c8 e0       	ldi	r28, 0x08	; 8
+     842:	d2 e0       	ldi	r29, 0x02	; 2
+     844:	11 e0       	ldi	r17, 0x01	; 1
 
 	// check if every report is empty or not
 	for (int i = 1; i < HID_REPORTID_LastNotAReport; i++){
 
 		if (!ram.HID.isEmpty[i])
-     850:	89 91       	ld	r24, Y+
-     852:	81 11       	cpse	r24, r1
-     854:	02 c0       	rjmp	.+4      	; 0x85a <clearHIDReports+0x1e>
+     846:	89 91       	ld	r24, Y+
+     848:	81 11       	cpse	r24, r1
+     84a:	02 c0       	rjmp	.+4      	; 0x850 <clearHIDReports+0x1e>
 			clearHIDReport(i);
-     856:	81 2f       	mov	r24, r17
-     858:	d0 df       	rcall	.-96     	; 0x7fa <clearHIDReport>
-     85a:	1f 5f       	subi	r17, 0xFF	; 255
-     85c:	1a 30       	cpi	r17, 0x0A	; 10
+     84c:	81 2f       	mov	r24, r17
+     84e:	d0 df       	rcall	.-96     	; 0x7f0 <clearHIDReport>
+     850:	1f 5f       	subi	r17, 0xFF	; 255
+     852:	1a 30       	cpi	r17, 0x0A	; 10
 void clearHIDReports(void){
 	// dont do anything if the main flag is empty
 	if (ram.HID.isEmpty[HID_REPORTID_NotAReport]) return;
 
 	// check if every report is empty or not
 	for (int i = 1; i < HID_REPORTID_LastNotAReport; i++){
-     85e:	c1 f7       	brne	.-16     	; 0x850 <clearHIDReports+0x14>
-     860:	81 e0       	ldi	r24, 0x01	; 1
+     854:	c1 f7       	brne	.-16     	; 0x846 <clearHIDReports+0x14>
+     856:	81 e0       	ldi	r24, 0x01	; 1
 
 		if (!ram.HID.isEmpty[i])
 			clearHIDReport(i);
 	}
 	// clear the flag that >0 reports were set
 	ram.HID.isEmpty[HID_REPORTID_NotAReport] = true;
-     862:	80 93 07 02 	sts	0x0207, r24
-     866:	df 91       	pop	r29
+     858:	80 93 07 02 	sts	0x0207, r24
+     85c:	df 91       	pop	r29
 }
-     868:	cf 91       	pop	r28
-     86a:	1f 91       	pop	r17
-     86c:	08 95       	ret
+     85e:	cf 91       	pop	r28
+     860:	1f 91       	pop	r17
+     862:	08 95       	ret
 
-0000086e <writeToCDC>:
+00000864 <writeToCDC>:
 	} //end switch
 	return 0;
 }
 
 
 void writeToCDC(uint8_t buffer[], uint8_t length){
-     86e:	0f 93       	push	r16
-     870:	1f 93       	push	r17
-     872:	cf 93       	push	r28
-     874:	df 93       	push	r29
-     876:	1f 92       	push	r1
-     878:	cd b7       	in	r28, 0x3d	; 61
-     87a:	de b7       	in	r29, 0x3e	; 62
-     87c:	8c 01       	movw	r16, r24
+     864:	0f 93       	push	r16
+     866:	1f 93       	push	r17
+     868:	cf 93       	push	r28
+     86a:	df 93       	push	r29
+     86c:	1f 92       	push	r1
+     86e:	cd b7       	in	r28, 0x3d	; 61
+     870:	de b7       	in	r29, 0x3e	; 62
+     872:	8c 01       	movw	r16, r24
 	// refresh DTR state
 	CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
-     87e:	80 e1       	ldi	r24, 0x10	; 16
-     880:	91 e0       	ldi	r25, 0x01	; 1
-     882:	69 83       	std	Y+1, r22	; 0x01
-     884:	0e 94 b0 0f 	call	0x1f60	; 0x1f60 <CDC_Device_USBTask>
+     874:	80 e1       	ldi	r24, 0x10	; 16
+     876:	91 e0       	ldi	r25, 0x01	; 1
+     878:	69 83       	std	Y+1, r22	; 0x01
+     87a:	0e 94 b0 0f 	call	0x1f60	; 0x1f60 <CDC_Device_USBTask>
 			 */
 			static inline void Endpoint_SelectEndpoint(const uint8_t Address) ATTR_ALWAYS_INLINE;
 			static inline void Endpoint_SelectEndpoint(const uint8_t Address)
 			{
 				#if !defined(CONTROL_ONLY_DEVICE)
 					UENUM = (Address & ENDPOINT_EPNUM_MASK);
-     888:	80 91 11 01 	lds	r24, 0x0111
-     88c:	8f 70       	andi	r24, 0x0F	; 15
-     88e:	80 93 e9 00 	sts	0x00E9, r24
-     892:	49 81       	ldd	r20, Y+1	; 0x01
+     87e:	80 91 11 01 	lds	r24, 0x0111
+     882:	8f 70       	andi	r24, 0x0F	; 15
+     884:	80 93 e9 00 	sts	0x00E9, r24
+     888:	49 81       	ldd	r20, Y+1	; 0x01
 			 *  \return Boolean \c true if the current endpoint is ready for an IN packet, \c false otherwise.
 			 */
 			static inline bool Endpoint_IsINReady(void) ATTR_WARN_UNUSED_RESULT ATTR_ALWAYS_INLINE;
 			static inline bool Endpoint_IsINReady(void)
 			{
 				return ((UEINTX & (1 << TXINI)) ? true : false);
-     894:	80 91 e8 00 	lds	r24, 0x00E8
+     88a:	80 91 e8 00 	lds	r24, 0x00E8
 
 	// Check if a packet is already enqueued to the host - if so, we shouldn't try to send more data
 	// until it completes as there is a chance nothing is listening and a lengthy timeout could occur
 	Endpoint_SelectEndpoint(VirtualSerial_CDC_Interface.Config.DataINEndpoint.Address);
 	while (!Endpoint_IsINReady());
-     898:	80 ff       	sbrs	r24, 0
-     89a:	fc cf       	rjmp	.-8      	; 0x894 <writeToCDC+0x26>
+     88e:	80 ff       	sbrs	r24, 0
+     890:	fc cf       	rjmp	.-8      	; 0x88a <writeToCDC+0x26>
 
 	// Try to send the next bytes to the host, abort if DTR isnt set to not block serial reading
 	bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
-     89c:	80 91 20 01 	lds	r24, 0x0120
+     892:	80 91 20 01 	lds	r24, 0x0120
 	if (CurrentDTRState)
-     8a0:	80 ff       	sbrs	r24, 0
-     8a2:	0b c0       	rjmp	.+22     	; 0x8ba <writeToCDC+0x4c>
+     896:	80 ff       	sbrs	r24, 0
+     898:	0b c0       	rjmp	.+22     	; 0x8b0 <writeToCDC+0x4c>
 		CDC_Device_SendData(&VirtualSerial_CDC_Interface, buffer, length);
-     8a4:	50 e0       	ldi	r21, 0x00	; 0
-     8a6:	b8 01       	movw	r22, r16
-     8a8:	80 e1       	ldi	r24, 0x10	; 16
-     8aa:	91 e0       	ldi	r25, 0x01	; 1
+     89a:	50 e0       	ldi	r21, 0x00	; 0
+     89c:	b8 01       	movw	r22, r16
+     89e:	80 e1       	ldi	r24, 0x10	; 16
+     8a0:	91 e0       	ldi	r25, 0x01	; 1
 }
-     8ac:	0f 90       	pop	r0
-     8ae:	df 91       	pop	r29
-     8b0:	cf 91       	pop	r28
-     8b2:	1f 91       	pop	r17
-     8b4:	0f 91       	pop	r16
+     8a2:	0f 90       	pop	r0
+     8a4:	df 91       	pop	r29
+     8a6:	cf 91       	pop	r28
+     8a8:	1f 91       	pop	r17
+     8aa:	0f 91       	pop	r16
 	while (!Endpoint_IsINReady());
 
 	// Try to send the next bytes to the host, abort if DTR isnt set to not block serial reading
 	bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
 	if (CurrentDTRState)
 		CDC_Device_SendData(&VirtualSerial_CDC_Interface, buffer, length);
-     8b6:	0c 94 40 0f 	jmp	0x1e80	; 0x1e80 <CDC_Device_SendData>
+     8ac:	0c 94 40 0f 	jmp	0x1e80	; 0x1e80 <CDC_Device_SendData>
 }
-     8ba:	0f 90       	pop	r0
-     8bc:	df 91       	pop	r29
-     8be:	cf 91       	pop	r28
-     8c0:	1f 91       	pop	r17
-     8c2:	0f 91       	pop	r16
-     8c4:	08 95       	ret
+     8b0:	0f 90       	pop	r0
+     8b2:	df 91       	pop	r29
+     8b4:	cf 91       	pop	r28
+     8b6:	1f 91       	pop	r17
+     8b8:	0f 91       	pop	r16
+     8ba:	08 95       	ret
 
-000008c6 <checkNHPControlAddressError>:
+000008bc <checkNHPControlAddressError>:
 
 	// in any case: clear NHP buffer now and start a new reading
 	resetNHPbuffer();
 }
 
 void checkNHPControlAddressError(void){
-     8c6:	cf 93       	push	r28
-     8c8:	df 93       	push	r29
-     8ca:	00 d0       	rcall	.+0      	; 0x8cc <checkNHPControlAddressError+0x6>
-     8cc:	00 d0       	rcall	.+0      	; 0x8ce <checkNHPControlAddressError+0x8>
-     8ce:	00 d0       	rcall	.+0      	; 0x8d0 <checkNHPControlAddressError+0xa>
-     8d0:	cd b7       	in	r28, 0x3d	; 61
-     8d2:	de b7       	in	r29, 0x3e	; 62
+     8bc:	cf 93       	push	r28
+     8be:	df 93       	push	r29
+     8c0:	00 d0       	rcall	.+0      	; 0x8c2 <checkNHPControlAddressError+0x6>
+     8c2:	00 d0       	rcall	.+0      	; 0x8c4 <checkNHPControlAddressError+0x8>
+     8c4:	00 d0       	rcall	.+0      	; 0x8c6 <checkNHPControlAddressError+0xa>
+     8c6:	cd b7       	in	r28, 0x3d	; 61
+     8c8:	de b7       	in	r29, 0x3e	; 62
 	// only write if a control address was just before, maybe it was a random valid address
 	// but if we already received some data we handle this as corrupted data and just
 	// discard all the bytes
 	if (ram.HID.ID && !ram.HID.recvlength){
-     8d4:	60 91 c5 01 	lds	r22, 0x01C5
-     8d8:	66 23       	and	r22, r22
-     8da:	79 f0       	breq	.+30     	; 0x8fa <checkNHPControlAddressError+0x34>
-     8dc:	80 91 c7 01 	lds	r24, 0x01C7
-     8e0:	81 11       	cpse	r24, r1
-     8e2:	0b c0       	rjmp	.+22     	; 0x8fa <checkNHPControlAddressError+0x34>
+     8ca:	60 91 c5 01 	lds	r22, 0x01C5
+     8ce:	66 23       	and	r22, r22
+     8d0:	79 f0       	breq	.+30     	; 0x8f0 <checkNHPControlAddressError+0x34>
+     8d2:	80 91 c7 01 	lds	r24, 0x01C7
+     8d6:	81 11       	cpse	r24, r1
+     8d8:	0b c0       	rjmp	.+22     	; 0x8f0 <checkNHPControlAddressError+0x34>
 		// write the cached buffer (recreate protocol)
 		uint8_t buff[6];
 		uint8_t length = NHPwriteChecksum(NHP_ADDRESS_CONTROL, (NHP_USAGE_ARDUINOHID << 8) | ram.HID.ID, buff);
-     8e4:	70 e0       	ldi	r23, 0x00	; 0
-     8e6:	71 60       	ori	r23, 0x01	; 1
-     8e8:	ae 01       	movw	r20, r28
-     8ea:	4f 5f       	subi	r20, 0xFF	; 255
-     8ec:	5f 4f       	sbci	r21, 0xFF	; 255
-     8ee:	81 e0       	ldi	r24, 0x01	; 1
-     8f0:	f6 d4       	rcall	.+2540   	; 0x12de <NHPwriteChecksum>
-     8f2:	68 2f       	mov	r22, r24
+     8da:	70 e0       	ldi	r23, 0x00	; 0
+     8dc:	71 60       	ori	r23, 0x01	; 1
+     8de:	ae 01       	movw	r20, r28
+     8e0:	4f 5f       	subi	r20, 0xFF	; 255
+     8e2:	5f 4f       	sbci	r21, 0xFF	; 255
+     8e4:	81 e0       	ldi	r24, 0x01	; 1
+     8e6:	55 d4       	rcall	.+2218   	; 0x1192 <NHPwriteChecksum>
+     8e8:	68 2f       	mov	r22, r24
 
 		// Writes the NHP read buffer with the given length
 		// If host is not listening it will discard all bytes to not block any HID reading
 		writeToCDC(buff, length);
-     8f4:	ce 01       	movw	r24, r28
-     8f6:	01 96       	adiw	r24, 0x01	; 1
-     8f8:	ba df       	rcall	.-140    	; 0x86e <writeToCDC>
-     8fa:	1a df       	rcall	.-460    	; 0x730 <flushHID>
-     8fc:	10 92 c5 01 	sts	0x01C5, r1
+     8ea:	ce 01       	movw	r24, r28
+     8ec:	01 96       	adiw	r24, 0x01	; 1
+     8ee:	ba df       	rcall	.-140    	; 0x864 <writeToCDC>
+     8f0:	1a df       	rcall	.-460    	; 0x726 <flushHID>
+     8f2:	10 92 c5 01 	sts	0x01C5, r1
 	}
 	// bug in 1.6 - 1.7.2 found
 	flushHID();
-     900:	10 92 c7 01 	sts	0x01C7, r1
+     8f6:	10 92 c7 01 	sts	0x01C7, r1
 
 	// reset any pending HID reports
 	ram.HID.ID = 0;
-     904:	10 92 c6 01 	sts	0x01C6, r1
+     8fa:	10 92 c6 01 	sts	0x01C6, r1
 	ram.HID.recvlength = 0; // just to be sure
-     908:	26 96       	adiw	r28, 0x06	; 6
+     8fe:	26 96       	adiw	r28, 0x06	; 6
 	ram.HID.length = 0; // just to be sure
-     90a:	0f b6       	in	r0, 0x3f	; 63
-     90c:	f8 94       	cli
+     900:	0f b6       	in	r0, 0x3f	; 63
+     902:	f8 94       	cli
 }
-     90e:	de bf       	out	0x3e, r29	; 62
-     910:	0f be       	out	0x3f, r0	; 63
-     912:	cd bf       	out	0x3d, r28	; 61
-     914:	df 91       	pop	r29
-     916:	cf 91       	pop	r28
-     918:	08 95       	ret
+     904:	de bf       	out	0x3e, r29	; 62
+     906:	0f be       	out	0x3f, r0	; 63
+     908:	cd bf       	out	0x3d, r28	; 61
+     90a:	df 91       	pop	r29
+     90c:	cf 91       	pop	r28
+     90e:	08 95       	ret
 
-0000091a <checkNHPProtocol>:
+00000910 <checkNHPProtocol>:
 
 
 
 
 // Checks for a valid protocol input and writes HID report
 void checkNHPProtocol(uint8_t input){
-     91a:	cf 93       	push	r28
-     91c:	df 93       	push	r29
-     91e:	1f 92       	push	r1
-     920:	cd b7       	in	r28, 0x3d	; 61
-     922:	de b7       	in	r29, 0x3e	; 62
+     910:	cf 93       	push	r28
+     912:	df 93       	push	r29
+     914:	1f 92       	push	r1
+     916:	cd b7       	in	r28, 0x3d	; 61
+     918:	de b7       	in	r29, 0x3e	; 62
 	uint8_t address = NHPreadChecksum(input);
-     924:	3b d4       	rcall	.+2166   	; 0x119c <NHPreadChecksum>
-     926:	88 23       	and	r24, r24
+     91a:	a7 d4       	rcall	.+2382   	; 0x126a <NHPreadChecksum>
+     91c:	88 23       	and	r24, r24
 
 	// if we have got an address this also means the checksum is correct!
 	// if not the buff is automatically written down
 	if (!address)
-     928:	09 f4       	brne	.+2      	; 0x92c <checkNHPProtocol+0x12>
-     92a:	5b c0       	rjmp	.+182    	; 0x9e2 <checkNHPProtocol+0xc8>
-     92c:	89 83       	std	Y+1, r24	; 0x01
+     91e:	09 f4       	brne	.+2      	; 0x922 <checkNHPProtocol+0x12>
+     920:	5b c0       	rjmp	.+182    	; 0x9d8 <checkNHPProtocol+0xc8>
+     922:	89 83       	std	Y+1, r24	; 0x01
 		return;
 
 	// we have a pending HID report, flush it first
 	// TODO timeout? <--
 	flushHID();
-     92e:	00 df       	rcall	.-512    	; 0x730 <flushHID>
-     930:	89 81       	ldd	r24, Y+1	; 0x01
-     932:	81 30       	cpi	r24, 0x01	; 1
+     924:	00 df       	rcall	.-512    	; 0x726 <flushHID>
+     926:	89 81       	ldd	r24, Y+1	; 0x01
+     928:	81 30       	cpi	r24, 0x01	; 1
 
 	// nearly the same priciple like the Protocol itself: check for control address
 	if ((address == NHP_ADDRESS_CONTROL) && (((ram.NHP.mWorkData >> 8) & 0xFF) == NHP_USAGE_ARDUINOHID)){
-     934:	c9 f4       	brne	.+50     	; 0x968 <checkNHPProtocol+0x4e>
-     936:	90 91 13 02 	lds	r25, 0x0213
-     93a:	91 30       	cpi	r25, 0x01	; 1
-     93c:	a9 f4       	brne	.+42     	; 0x968 <checkNHPProtocol+0x4e>
-     93e:	c3 df       	rcall	.-122    	; 0x8c6 <checkNHPControlAddressError>
-     940:	80 91 12 02 	lds	r24, 0x0212
+     92a:	c9 f4       	brne	.+50     	; 0x95e <checkNHPProtocol+0x4e>
+     92c:	90 91 13 02 	lds	r25, 0x0213
+     930:	91 30       	cpi	r25, 0x01	; 1
+     932:	a9 f4       	brne	.+42     	; 0x95e <checkNHPProtocol+0x4e>
+     934:	c3 df       	rcall	.-122    	; 0x8bc <checkNHPControlAddressError>
+     936:	80 91 12 02 	lds	r24, 0x0212
 		// check if previous reading was a valid Control Address and write it down
 		checkNHPControlAddressError();
-     944:	80 93 c5 01 	sts	0x01C5, r24
+     93a:	80 93 c5 01 	sts	0x01C5, r24
 
 		// get the new report ID and reset the buffer
 		ram.HID.ID = ram.NHP.mWorkData & 0xFF;
-     948:	10 92 c7 01 	sts	0x01C7, r1
-     94c:	9f e3       	ldi	r25, 0x3F	; 63
+     93e:	10 92 c7 01 	sts	0x01C7, r1
+     942:	9f e3       	ldi	r25, 0x3F	; 63
 		ram.HID.recvlength = 0;
-     94e:	e8 ec       	ldi	r30, 0xC8	; 200
-     950:	f1 e0       	ldi	r31, 0x01	; 1
+     944:	e8 ec       	ldi	r30, 0xC8	; 200
+     946:	f1 e0       	ldi	r31, 0x01	; 1
 		memset(ram.HID.buffer, 0, sizeof(ram.HID.buffer));
-     952:	df 01       	movw	r26, r30
-     954:	1d 92       	st	X+, r1
-     956:	9a 95       	dec	r25
-     958:	e9 f7       	brne	.-6      	; 0x954 <checkNHPProtocol+0x3a>
-     95a:	43 df       	rcall	.-378    	; 0x7e2 <getHIDReportLength>
-     95c:	80 93 c6 01 	sts	0x01C6, r24
+     948:	df 01       	movw	r26, r30
+     94a:	1d 92       	st	X+, r1
+     94c:	9a 95       	dec	r25
+     94e:	e9 f7       	brne	.-6      	; 0x94a <checkNHPProtocol+0x3a>
+     950:	43 df       	rcall	.-378    	; 0x7d8 <getHIDReportLength>
+     952:	80 93 c6 01 	sts	0x01C6, r24
 
 		// Determine which interface must have its report generated
 		ram.HID.length = getHIDReportLength(ram.HID.ID);
-     960:	81 11       	cpse	r24, r1
-     962:	3b c0       	rjmp	.+118    	; 0x9da <checkNHPProtocol+0xc0>
-     964:	b0 df       	rcall	.-160    	; 0x8c6 <checkNHPControlAddressError>
-     966:	39 c0       	rjmp	.+114    	; 0x9da <checkNHPProtocol+0xc0>
+     956:	81 11       	cpse	r24, r1
+     958:	3b c0       	rjmp	.+118    	; 0x9d0 <checkNHPProtocol+0xc0>
+     95a:	b0 df       	rcall	.-160    	; 0x8bc <checkNHPControlAddressError>
+     95c:	39 c0       	rjmp	.+114    	; 0x9d0 <checkNHPProtocol+0xc0>
 
 		// error, write down this wrong ID report
 		if (!ram.HID.length)
-     968:	90 91 c5 01 	lds	r25, 0x01C5
+     95e:	90 91 c5 01 	lds	r25, 0x01C5
 			checkNHPControlAddressError();
-     96c:	99 23       	and	r25, r25
-     96e:	79 f1       	breq	.+94     	; 0x9ce <checkNHPProtocol+0xb4>
-     970:	60 91 c7 01 	lds	r22, 0x01C7
+     962:	99 23       	and	r25, r25
+     964:	79 f1       	breq	.+94     	; 0x9c4 <checkNHPProtocol+0xb4>
+     966:	60 91 c7 01 	lds	r22, 0x01C7
 		// The Protocol received a valid signal with inverse checksum
 		// Do not write the buff in the loop above or below, filter it out at the end
 	}
 
 	// we already got a pending report
 	else if (ram.HID.ID && (address == (((ram.HID.recvlength + 2) / 2) + 1))){
-     974:	46 2f       	mov	r20, r22
-     976:	50 e0       	ldi	r21, 0x00	; 0
-     978:	90 e0       	ldi	r25, 0x00	; 0
-     97a:	9a 01       	movw	r18, r20
-     97c:	2e 5f       	subi	r18, 0xFE	; 254
-     97e:	3f 4f       	sbci	r19, 0xFF	; 255
-     980:	35 95       	asr	r19
-     982:	27 95       	ror	r18
-     984:	2f 5f       	subi	r18, 0xFF	; 255
-     986:	3f 4f       	sbci	r19, 0xFF	; 255
-     988:	82 17       	cp	r24, r18
-     98a:	93 07       	cpc	r25, r19
-     98c:	01 f5       	brne	.+64     	; 0x9ce <checkNHPProtocol+0xb4>
-     98e:	fa 01       	movw	r30, r20
-     990:	e8 53       	subi	r30, 0x38	; 56
-     992:	fe 4f       	sbci	r31, 0xFE	; 254
-     994:	80 91 12 02 	lds	r24, 0x0212
+     96a:	46 2f       	mov	r20, r22
+     96c:	50 e0       	ldi	r21, 0x00	; 0
+     96e:	90 e0       	ldi	r25, 0x00	; 0
+     970:	9a 01       	movw	r18, r20
+     972:	2e 5f       	subi	r18, 0xFE	; 254
+     974:	3f 4f       	sbci	r19, 0xFF	; 255
+     976:	35 95       	asr	r19
+     978:	27 95       	ror	r18
+     97a:	2f 5f       	subi	r18, 0xFF	; 255
+     97c:	3f 4f       	sbci	r19, 0xFF	; 255
+     97e:	82 17       	cp	r24, r18
+     980:	93 07       	cpc	r25, r19
+     982:	01 f5       	brne	.+64     	; 0x9c4 <checkNHPProtocol+0xb4>
+     984:	fa 01       	movw	r30, r20
+     986:	e8 53       	subi	r30, 0x38	; 56
+     988:	fe 4f       	sbci	r31, 0xFE	; 254
+     98a:	80 91 12 02 	lds	r24, 0x0212
 		// check if the new Address is in correct order of HID reports.
 		// the first 2 bytes are sent with Address 2 and so on.
 
 		// save the first byte
 		ram.HID.buffer[ram.HID.recvlength++] = (ram.NHP.mWorkData & 0xFF);
-     998:	80 83       	st	Z, r24
-     99a:	e6 2f       	mov	r30, r22
-     99c:	ef 5f       	subi	r30, 0xFF	; 255
-     99e:	e0 93 c7 01 	sts	0x01C7, r30
-     9a2:	80 91 c6 01 	lds	r24, 0x01C6
-     9a6:	8e 17       	cp	r24, r30
-     9a8:	49 f0       	breq	.+18     	; 0x9bc <checkNHPProtocol+0xa2>
-     9aa:	f0 e0       	ldi	r31, 0x00	; 0
+     98e:	80 83       	st	Z, r24
+     990:	e6 2f       	mov	r30, r22
+     992:	ef 5f       	subi	r30, 0xFF	; 255
+     994:	e0 93 c7 01 	sts	0x01C7, r30
+     998:	80 91 c6 01 	lds	r24, 0x01C6
+     99c:	8e 17       	cp	r24, r30
+     99e:	49 f0       	breq	.+18     	; 0x9b2 <checkNHPProtocol+0xa2>
+     9a0:	f0 e0       	ldi	r31, 0x00	; 0
 
 		// if there is another byte we need (for odd max HID reports important
 		// to not write over the buff array)
 		if (ram.HID.length != ram.HID.recvlength)
-     9ac:	e8 53       	subi	r30, 0x38	; 56
-     9ae:	fe 4f       	sbci	r31, 0xFE	; 254
-     9b0:	90 91 13 02 	lds	r25, 0x0213
+     9a2:	e8 53       	subi	r30, 0x38	; 56
+     9a4:	fe 4f       	sbci	r31, 0xFE	; 254
+     9a6:	90 91 13 02 	lds	r25, 0x0213
 			ram.HID.buffer[ram.HID.recvlength++] = (ram.NHP.mWorkData >> 8);
-     9b4:	90 83       	st	Z, r25
-     9b6:	6e 5f       	subi	r22, 0xFE	; 254
-     9b8:	60 93 c7 01 	sts	0x01C7, r22
-     9bc:	90 91 c7 01 	lds	r25, 0x01C7
-     9c0:	89 13       	cpse	r24, r25
-     9c2:	0b c0       	rjmp	.+22     	; 0x9da <checkNHPProtocol+0xc0>
-     9c4:	80 e0       	ldi	r24, 0x00	; 0
+     9aa:	90 83       	st	Z, r25
+     9ac:	6e 5f       	subi	r22, 0xFE	; 254
+     9ae:	60 93 c7 01 	sts	0x01C7, r22
+     9b2:	90 91 c7 01 	lds	r25, 0x01C7
+     9b6:	89 13       	cpse	r24, r25
+     9b8:	0b c0       	rjmp	.+22     	; 0x9d0 <checkNHPProtocol+0xc0>
+     9ba:	80 e0       	ldi	r24, 0x00	; 0
 
 		// we are ready try to submit the new report to the usb host
 		// dont block here, we flush the report on the next reading if needed
 		if (ram.HID.length == ram.HID.recvlength)
-     9c6:	91 e0       	ldi	r25, 0x01	; 1
-     9c8:	0e 94 f1 11 	call	0x23e2	; 0x23e2 <HID_Device_USBTask>
-     9cc:	06 c0       	rjmp	.+12     	; 0x9da <checkNHPProtocol+0xc0>
+     9bc:	91 e0       	ldi	r25, 0x01	; 1
+     9be:	0e 94 f1 11 	call	0x23e2	; 0x23e2 <HID_Device_USBTask>
+     9c2:	06 c0       	rjmp	.+12     	; 0x9d0 <checkNHPProtocol+0xc0>
 			HID_Device_USBTask(&Device_HID_Interface);
-     9ce:	7b df       	rcall	.-266    	; 0x8c6 <checkNHPControlAddressError>
-     9d0:	60 91 1c 02 	lds	r22, 0x021C
-     9d4:	86 e1       	ldi	r24, 0x16	; 22
-     9d6:	92 e0       	ldi	r25, 0x02	; 2
+     9c4:	7b df       	rcall	.-266    	; 0x8bc <checkNHPControlAddressError>
+     9c6:	60 91 1c 02 	lds	r22, 0x021C
+     9ca:	86 e1       	ldi	r24, 0x16	; 22
+     9cc:	92 e0       	ldi	r25, 0x02	; 2
 
 	// we received a corrupt data packet
 	else{
 		// check if previous reading was a valid Control Address and write it down
 		// if not discard the bytes because we assume it is corrupted data
 		checkNHPControlAddressError();
-     9d8:	4a df       	rcall	.-364    	; 0x86e <writeToCDC>
-     9da:	0f 90       	pop	r0
+     9ce:	4a df       	rcall	.-364    	; 0x864 <writeToCDC>
+     9d0:	0f 90       	pop	r0
 
 		// just a normal Protocol outside our control address (or corrupted packet), write it down
 		writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
-     9dc:	df 91       	pop	r29
-     9de:	cf 91       	pop	r28
-     9e0:	a2 ce       	rjmp	.-700    	; 0x726 <resetNHPbuffer>
-     9e2:	0f 90       	pop	r0
-     9e4:	df 91       	pop	r29
-     9e6:	cf 91       	pop	r28
+     9d2:	df 91       	pop	r29
+     9d4:	cf 91       	pop	r28
+     9d6:	44 c4       	rjmp	.+2184   	; 0x1260 <resetNHPbuffer>
+     9d8:	0f 90       	pop	r0
+     9da:	df 91       	pop	r29
+     9dc:	cf 91       	pop	r28
 	}
 
 	// in any case: clear NHP buffer now and start a new reading
 	resetNHPbuffer();
 }
+     9de:	08 95       	ret
+
+000009e0 <LEDs_TurnOnLEDs>:
+     9e0:	9b b1       	in	r25, 0x0b	; 11
+     9e2:	80 95       	com	r24
+     9e4:	89 23       	and	r24, r25
+     9e6:	8b b9       	out	0x0b, r24	; 11
      9e8:	08 95       	ret
 
-000009ea <LEDs_TurnOnLEDs>:
-     9ea:	9b b1       	in	r25, 0x0b	; 11
-     9ec:	80 95       	com	r24
-     9ee:	89 23       	and	r24, r25
-     9f0:	8b b9       	out	0x0b, r24	; 11
-     9f2:	08 95       	ret
-
-000009f4 <sendCDCbyte>:
+000009ea <sendCDCbyte>:
 
 }
 
 void sendCDCbyte(uint8_t b){
 	// try to send until sucess
 	while (CDC_Device_SendByte(&VirtualSerial_CDC_Interface, b) != ENDPOINT_READYWAIT_NoError){
-     9f4:	68 2f       	mov	r22, r24
-     9f6:	80 e1       	ldi	r24, 0x10	; 16
-     9f8:	91 e0       	ldi	r25, 0x01	; 1
-     9fa:	0e 94 5e 0f 	call	0x1ebc	; 0x1ebc <CDC_Device_SendByte>
-     9fe:	88 23       	and	r24, r24
-     a00:	e9 f0       	breq	.+58     	; 0xa3c <sendCDCbyte+0x48>
+     9ea:	68 2f       	mov	r22, r24
+     9ec:	80 e1       	ldi	r24, 0x10	; 16
+     9ee:	91 e0       	ldi	r25, 0x01	; 1
+     9f0:	0e 94 5e 0f 	call	0x1ebc	; 0x1ebc <CDC_Device_SendByte>
+     9f4:	88 23       	and	r24, r24
+     9f6:	e9 f0       	breq	.+58     	; 0xa32 <sendCDCbyte+0x48>
 		CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
-     a02:	80 e1       	ldi	r24, 0x10	; 16
-     a04:	91 e0       	ldi	r25, 0x01	; 1
-     a06:	0e 94 b0 0f 	call	0x1f60	; 0x1f60 <CDC_Device_USBTask>
+     9f8:	80 e1       	ldi	r24, 0x10	; 16
+     9fa:	91 e0       	ldi	r25, 0x01	; 1
+     9fc:	0e 94 b0 0f 	call	0x1f60	; 0x1f60 <CDC_Device_USBTask>
 		USB_USBTask();
-     a0a:	0e 94 ff 0e 	call	0x1dfe	; 0x1dfe <USB_USBTask>
+     a00:	0e 94 ff 0e 	call	0x1dfe	; 0x1dfe <USB_USBTask>
 		while (1){
 			// TODO remove this freezing loop!
 			LEDs_TurnOnLEDs(LEDS_ERR);
-     a0e:	80 e1       	ldi	r24, 0x10	; 16
-     a10:	ec df       	rcall	.-40     	; 0x9ea <LEDs_TurnOnLEDs>
-     a12:	2f ef       	ldi	r18, 0xFF	; 255
+     a04:	80 e1       	ldi	r24, 0x10	; 16
+     a06:	ec df       	rcall	.-40     	; 0x9e0 <LEDs_TurnOnLEDs>
+     a08:	2f ef       	ldi	r18, 0xFF	; 255
 	#else
 		//round up by default
 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
 	#endif
 
 	__builtin_avr_delay_cycles(__ticks_dc);
-     a14:	81 ee       	ldi	r24, 0xE1	; 225
-     a16:	94 e0       	ldi	r25, 0x04	; 4
-     a18:	21 50       	subi	r18, 0x01	; 1
-     a1a:	80 40       	sbci	r24, 0x00	; 0
-     a1c:	90 40       	sbci	r25, 0x00	; 0
-     a1e:	e1 f7       	brne	.-8      	; 0xa18 <sendCDCbyte+0x24>
-     a20:	00 c0       	rjmp	.+0      	; 0xa22 <sendCDCbyte+0x2e>
-     a22:	00 00       	nop
-     a24:	80 e1       	ldi	r24, 0x10	; 16
+     a0a:	81 ee       	ldi	r24, 0xE1	; 225
+     a0c:	94 e0       	ldi	r25, 0x04	; 4
+     a0e:	21 50       	subi	r18, 0x01	; 1
+     a10:	80 40       	sbci	r24, 0x00	; 0
+     a12:	90 40       	sbci	r25, 0x00	; 0
+     a14:	e1 f7       	brne	.-8      	; 0xa0e <sendCDCbyte+0x24>
+     a16:	00 c0       	rjmp	.+0      	; 0xa18 <sendCDCbyte+0x2e>
+     a18:	00 00       	nop
+     a1a:	80 e1       	ldi	r24, 0x10	; 16
 			_delay_ms(100);
 			LEDs_TurnOnLEDs(LEDS_ERR);
-     a26:	e1 df       	rcall	.-62     	; 0x9ea <LEDs_TurnOnLEDs>
-     a28:	2f ef       	ldi	r18, 0xFF	; 255
-     a2a:	81 ee       	ldi	r24, 0xE1	; 225
-     a2c:	94 e0       	ldi	r25, 0x04	; 4
-     a2e:	21 50       	subi	r18, 0x01	; 1
-     a30:	80 40       	sbci	r24, 0x00	; 0
-     a32:	90 40       	sbci	r25, 0x00	; 0
-     a34:	e1 f7       	brne	.-8      	; 0xa2e <sendCDCbyte+0x3a>
-     a36:	00 c0       	rjmp	.+0      	; 0xa38 <sendCDCbyte+0x44>
-     a38:	00 00       	nop
-     a3a:	e9 cf       	rjmp	.-46     	; 0xa0e <sendCDCbyte+0x1a>
-     a3c:	08 95       	ret
+     a1c:	e1 df       	rcall	.-62     	; 0x9e0 <LEDs_TurnOnLEDs>
+     a1e:	2f ef       	ldi	r18, 0xFF	; 255
+     a20:	81 ee       	ldi	r24, 0xE1	; 225
+     a22:	94 e0       	ldi	r25, 0x04	; 4
+     a24:	21 50       	subi	r18, 0x01	; 1
+     a26:	80 40       	sbci	r24, 0x00	; 0
+     a28:	90 40       	sbci	r25, 0x00	; 0
+     a2a:	e1 f7       	brne	.-8      	; 0xa24 <sendCDCbyte+0x3a>
+     a2c:	00 c0       	rjmp	.+0      	; 0xa2e <sendCDCbyte+0x44>
+     a2e:	00 00       	nop
+     a30:	e9 cf       	rjmp	.-46     	; 0xa04 <sendCDCbyte+0x1a>
+     a32:	08 95       	ret
 
-00000a3e <getch>:
+00000a34 <getch>:
 			_delay_ms(100);
 		}
 	}
 }
 
 uint8_t getch() {
-     a3e:	80 e1       	ldi	r24, 0x10	; 16
-     a40:	91 e0       	ldi	r25, 0x01	; 1
-     a42:	0e 94 c6 0f 	call	0x1f8c	; 0x1f8c <CDC_Device_ReceiveByte>
+     a34:	80 e1       	ldi	r24, 0x10	; 16
+     a36:	91 e0       	ldi	r25, 0x01	; 1
+     a38:	0e 94 c6 0f 	call	0x1f8c	; 0x1f8c <CDC_Device_ReceiveByte>
 	int16_t ReceivedByte = -1;
 	// wait until CDC sends a byte
 	while (ReceivedByte < 0)
-     a46:	97 fd       	sbrc	r25, 7
-     a48:	fa cf       	rjmp	.-12     	; 0xa3e <getch>
+     a3c:	97 fd       	sbrc	r25, 7
+     a3e:	fa cf       	rjmp	.-12     	; 0xa34 <getch>
 		ReceivedByte = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
 	return ReceivedByte;
 }
-     a4a:	08 95       	ret
+     a40:	08 95       	ret
 
-00000a4c <fill>:
+00000a42 <fill>:
 
 void fill(int n) {
-     a4c:	ef 92       	push	r14
-     a4e:	ff 92       	push	r15
-     a50:	0f 93       	push	r16
-     a52:	1f 93       	push	r17
-     a54:	cf 93       	push	r28
-     a56:	df 93       	push	r29
-     a58:	7c 01       	movw	r14, r24
-     a5a:	01 e4       	ldi	r16, 0x41	; 65
-     a5c:	11 e0       	ldi	r17, 0x01	; 1
+     a42:	ef 92       	push	r14
+     a44:	ff 92       	push	r15
+     a46:	0f 93       	push	r16
+     a48:	1f 93       	push	r17
+     a4a:	cf 93       	push	r28
+     a4c:	df 93       	push	r29
+     a4e:	7c 01       	movw	r14, r24
+     a50:	01 e4       	ldi	r16, 0x41	; 65
+     a52:	11 e0       	ldi	r17, 0x01	; 1
 	// fill the buffer with the number of bytes passed in from CDC Serial 
 	for (int x = 0; x < n; x++)
-     a5e:	c0 e0       	ldi	r28, 0x00	; 0
-     a60:	d0 e0       	ldi	r29, 0x00	; 0
-     a62:	05 c0       	rjmp	.+10     	; 0xa6e <fill+0x22>
+     a54:	c0 e0       	ldi	r28, 0x00	; 0
+     a56:	d0 e0       	ldi	r29, 0x00	; 0
+     a58:	05 c0       	rjmp	.+10     	; 0xa64 <fill+0x22>
 		ram.isp.buff[x] = getch();
-     a64:	ec df       	rcall	.-40     	; 0xa3e <getch>
-     a66:	f8 01       	movw	r30, r16
-     a68:	81 93       	st	Z+, r24
-     a6a:	8f 01       	movw	r16, r30
-     a6c:	21 96       	adiw	r28, 0x01	; 1
+     a5a:	ec df       	rcall	.-40     	; 0xa34 <getch>
+     a5c:	f8 01       	movw	r30, r16
+     a5e:	81 93       	st	Z+, r24
+     a60:	8f 01       	movw	r16, r30
+     a62:	21 96       	adiw	r28, 0x01	; 1
 	return ReceivedByte;
 }
 
 void fill(int n) {
 	// fill the buffer with the number of bytes passed in from CDC Serial 
 	for (int x = 0; x < n; x++)
-     a6e:	ce 15       	cp	r28, r14
-     a70:	df 05       	cpc	r29, r15
-     a72:	c4 f3       	brlt	.-16     	; 0xa64 <fill+0x18>
-     a74:	df 91       	pop	r29
+     a64:	ce 15       	cp	r28, r14
+     a66:	df 05       	cpc	r29, r15
+     a68:	c4 f3       	brlt	.-16     	; 0xa5a <fill+0x18>
+     a6a:	df 91       	pop	r29
 		ram.isp.buff[x] = getch();
 }
-     a76:	cf 91       	pop	r28
-     a78:	1f 91       	pop	r17
-     a7a:	0f 91       	pop	r16
-     a7c:	ff 90       	pop	r15
-     a7e:	ef 90       	pop	r14
-     a80:	08 95       	ret
+     a6c:	cf 91       	pop	r28
+     a6e:	1f 91       	pop	r17
+     a70:	0f 91       	pop	r16
+     a72:	ff 90       	pop	r15
+     a74:	ef 90       	pop	r14
+     a76:	08 95       	ret
 
-00000a82 <set_parameters>:
+00000a78 <set_parameters>:
 	default:
 		breply(0);
 	}
 }
 
 void set_parameters(void) {
-     a82:	90 91 4d 01 	lds	r25, 0x014D
-     a86:	80 e0       	ldi	r24, 0x00	; 0
-     a88:	20 91 4e 01 	lds	r18, 0x014E
-     a8c:	82 0f       	add	r24, r18
-     a8e:	91 1d       	adc	r25, r1
-     a90:	90 93 3e 01 	sts	0x013E, r25
-     a94:	80 93 3d 01 	sts	0x013D, r24
+     a78:	90 91 4d 01 	lds	r25, 0x014D
+     a7c:	80 e0       	ldi	r24, 0x00	; 0
+     a7e:	20 91 4e 01 	lds	r18, 0x014E
+     a82:	82 0f       	add	r24, r18
+     a84:	91 1d       	adc	r25, r1
+     a86:	90 93 3e 01 	sts	0x013E, r25
+     a8a:	80 93 3d 01 	sts	0x013D, r24
 	// ignore buff[9] (= buff[8])
 	// following are 16 bits (big endian)
 #define beget16(addr) (*addr * 256 + *(addr+1) )
 	//param.eeprompoll = beget16(&buff[10]);
 	ram.isp.param.pagesize = beget16(&ram.isp.buff[12]);
 	ram.isp.param.eepromsize = beget16(&ram.isp.buff[14]);
-     a98:	90 91 4f 01 	lds	r25, 0x014F
-     a9c:	80 e0       	ldi	r24, 0x00	; 0
-     a9e:	20 91 50 01 	lds	r18, 0x0150
-     aa2:	82 0f       	add	r24, r18
-     aa4:	91 1d       	adc	r25, r1
-     aa6:	90 93 40 01 	sts	0x0140, r25
-     aaa:	80 93 3f 01 	sts	0x013F, r24
-     aae:	08 95       	ret
+     a8e:	90 91 4f 01 	lds	r25, 0x014F
+     a92:	80 e0       	ldi	r24, 0x00	; 0
+     a94:	20 91 50 01 	lds	r18, 0x0150
+     a98:	82 0f       	add	r24, r18
+     a9a:	91 1d       	adc	r25, r1
+     a9c:	90 93 40 01 	sts	0x0140, r25
+     aa0:	80 93 3f 01 	sts	0x013F, r24
+     aa4:	08 95       	ret
 
-00000ab0 <breply>:
+00000aa6 <breply>:
 	//	+ buff[18] * 0x00000100
 	//	+ buff[19];
 
 }
 
 void breply(uint8_t b) {
-     ab0:	cf 93       	push	r28
-     ab2:	c8 2f       	mov	r28, r24
+     aa6:	cf 93       	push	r28
+     aa8:	c8 2f       	mov	r28, r24
 	if (CRC_EOP == getch()) {  // EOP should be next char
-     ab4:	c4 df       	rcall	.-120    	; 0xa3e <getch>
-     ab6:	80 32       	cpi	r24, 0x20	; 32
-     ab8:	39 f4       	brne	.+14     	; 0xac8 <breply+0x18>
-     aba:	84 e1       	ldi	r24, 0x14	; 20
+     aaa:	c4 df       	rcall	.-120    	; 0xa34 <getch>
+     aac:	80 32       	cpi	r24, 0x20	; 32
+     aae:	39 f4       	brne	.+14     	; 0xabe <breply+0x18>
+     ab0:	84 e1       	ldi	r24, 0x14	; 20
 		sendCDCbyte(STK_INSYNC);
-     abc:	9b df       	rcall	.-202    	; 0x9f4 <sendCDCbyte>
-     abe:	8c 2f       	mov	r24, r28
-     ac0:	99 df       	rcall	.-206    	; 0x9f4 <sendCDCbyte>
+     ab2:	9b df       	rcall	.-202    	; 0x9ea <sendCDCbyte>
+     ab4:	8c 2f       	mov	r24, r28
+     ab6:	99 df       	rcall	.-206    	; 0x9ea <sendCDCbyte>
 		sendCDCbyte(b);
-     ac2:	80 e1       	ldi	r24, 0x10	; 16
-     ac4:	cf 91       	pop	r28
-     ac6:	96 cf       	rjmp	.-212    	; 0x9f4 <sendCDCbyte>
+     ab8:	80 e1       	ldi	r24, 0x10	; 16
+     aba:	cf 91       	pop	r28
+     abc:	96 cf       	rjmp	.-212    	; 0x9ea <sendCDCbyte>
 		sendCDCbyte(STK_OK);
-     ac8:	85 e1       	ldi	r24, 0x15	; 21
+     abe:	85 e1       	ldi	r24, 0x15	; 21
 	}
 	else {
 		sendCDCbyte(STK_NOSYNC);
 		ram.isp.error++;
 	}
 }
-     aca:	94 df       	rcall	.-216    	; 0x9f4 <sendCDCbyte>
+     ac0:	94 df       	rcall	.-216    	; 0x9ea <sendCDCbyte>
 
 void breply(uint8_t b) {
 	if (CRC_EOP == getch()) {  // EOP should be next char
 		sendCDCbyte(STK_INSYNC);
 		sendCDCbyte(b);
 		sendCDCbyte(STK_OK);
-     acc:	80 91 37 01 	lds	r24, 0x0137
+     ac2:	80 91 37 01 	lds	r24, 0x0137
 	}
 	else {
 		sendCDCbyte(STK_NOSYNC);
-     ad0:	90 91 38 01 	lds	r25, 0x0138
-     ad4:	01 96       	adiw	r24, 0x01	; 1
+     ac6:	90 91 38 01 	lds	r25, 0x0138
+     aca:	01 96       	adiw	r24, 0x01	; 1
 		ram.isp.error++;
-     ad6:	90 93 38 01 	sts	0x0138, r25
-     ada:	80 93 37 01 	sts	0x0137, r24
-     ade:	cf 91       	pop	r28
-     ae0:	08 95       	ret
+     acc:	90 93 38 01 	sts	0x0138, r25
+     ad0:	80 93 37 01 	sts	0x0137, r24
+     ad4:	cf 91       	pop	r28
+     ad6:	08 95       	ret
 
-00000ae2 <get_parameters>:
+00000ad8 <get_parameters>:
 	// fill the buffer with the number of bytes passed in from CDC Serial 
 	for (int x = 0; x < n; x++)
 		ram.isp.buff[x] = getch();
 }
 
 void get_parameters(uint8_t c) {
-     ae2:	81 38       	cpi	r24, 0x81	; 129
-     ae4:	59 f0       	breq	.+22     	; 0xafc <get_parameters+0x1a>
-     ae6:	18 f4       	brcc	.+6      	; 0xaee <get_parameters+0xc>
+     ad8:	81 38       	cpi	r24, 0x81	; 129
+     ada:	59 f0       	breq	.+22     	; 0xaf2 <get_parameters+0x1a>
+     adc:	18 f4       	brcc	.+6      	; 0xae4 <get_parameters+0xc>
 	}
 	else {
 		sendCDCbyte(STK_NOSYNC);
 		ram.isp.error++;
 	}
 }
-     ae8:	80 38       	cpi	r24, 0x80	; 128
-     aea:	71 f4       	brne	.+28     	; 0xb08 <get_parameters+0x26>
-     aec:	05 c0       	rjmp	.+10     	; 0xaf8 <get_parameters+0x16>
-     aee:	82 38       	cpi	r24, 0x82	; 130
-     af0:	39 f0       	breq	.+14     	; 0xb00 <get_parameters+0x1e>
-     af2:	83 39       	cpi	r24, 0x93	; 147
-     af4:	49 f4       	brne	.+18     	; 0xb08 <get_parameters+0x26>
-     af6:	06 c0       	rjmp	.+12     	; 0xb04 <get_parameters+0x22>
+     ade:	80 38       	cpi	r24, 0x80	; 128
+     ae0:	71 f4       	brne	.+28     	; 0xafe <get_parameters+0x26>
+     ae2:	05 c0       	rjmp	.+10     	; 0xaee <get_parameters+0x16>
+     ae4:	82 38       	cpi	r24, 0x82	; 130
+     ae6:	39 f0       	breq	.+14     	; 0xaf6 <get_parameters+0x1e>
+     ae8:	83 39       	cpi	r24, 0x93	; 147
+     aea:	49 f4       	brne	.+18     	; 0xafe <get_parameters+0x26>
+     aec:	06 c0       	rjmp	.+12     	; 0xafa <get_parameters+0x22>
 }
 
 void get_parameters(uint8_t c) {
 	switch (c) {
 	case 0x80:
 		breply(HWVER);
-     af8:	82 e0       	ldi	r24, 0x02	; 2
-     afa:	07 c0       	rjmp	.+14     	; 0xb0a <get_parameters+0x28>
+     aee:	82 e0       	ldi	r24, 0x02	; 2
+     af0:	07 c0       	rjmp	.+14     	; 0xb00 <get_parameters+0x28>
 		break;
 	case 0x81:
 		breply(SWMAJ);
-     afc:	81 e0       	ldi	r24, 0x01	; 1
-     afe:	05 c0       	rjmp	.+10     	; 0xb0a <get_parameters+0x28>
+     af2:	81 e0       	ldi	r24, 0x01	; 1
+     af4:	05 c0       	rjmp	.+10     	; 0xb00 <get_parameters+0x28>
 		break;
 	case 0x82:
 		breply(SWMIN);
-     b00:	82 e1       	ldi	r24, 0x12	; 18
-     b02:	03 c0       	rjmp	.+6      	; 0xb0a <get_parameters+0x28>
+     af6:	82 e1       	ldi	r24, 0x12	; 18
+     af8:	03 c0       	rjmp	.+6      	; 0xb00 <get_parameters+0x28>
 		break;
 	case 0x93:
 		breply('S'); // serial programmer
-     b04:	83 e5       	ldi	r24, 0x53	; 83
-     b06:	01 c0       	rjmp	.+2      	; 0xb0a <get_parameters+0x28>
+     afa:	83 e5       	ldi	r24, 0x53	; 83
+     afc:	01 c0       	rjmp	.+2      	; 0xb00 <get_parameters+0x28>
 		break;
 	default:
 		breply(0);
-     b08:	80 e0       	ldi	r24, 0x00	; 0
-     b0a:	d2 cf       	rjmp	.-92     	; 0xab0 <breply>
+     afe:	80 e0       	ldi	r24, 0x00	; 0
+     b00:	d2 cf       	rjmp	.-92     	; 0xaa6 <breply>
 
-00000b0c <replyOK>:
+00000b02 <replyOK>:
 		sendCDCbyte(STK_NOSYNC);
 		ram.isp.error++;
 	}
 }
 
 void replyOK(void) {
-     b0c:	98 df       	rcall	.-208    	; 0xa3e <getch>
-     b0e:	80 32       	cpi	r24, 0x20	; 32
-     b10:	21 f4       	brne	.+8      	; 0xb1a <replyOK+0xe>
-     b12:	84 e1       	ldi	r24, 0x14	; 20
+     b02:	98 df       	rcall	.-208    	; 0xa34 <getch>
+     b04:	80 32       	cpi	r24, 0x20	; 32
+     b06:	21 f4       	brne	.+8      	; 0xb10 <replyOK+0xe>
+     b08:	84 e1       	ldi	r24, 0x14	; 20
 	//  if (EOP_SEEN == true) {
 	if (CRC_EOP == getch()) {  // EOP should be next char
 		sendCDCbyte(STK_INSYNC);
-     b14:	6f df       	rcall	.-290    	; 0x9f4 <sendCDCbyte>
-     b16:	80 e1       	ldi	r24, 0x10	; 16
-     b18:	6d cf       	rjmp	.-294    	; 0x9f4 <sendCDCbyte>
+     b0a:	6f df       	rcall	.-290    	; 0x9ea <sendCDCbyte>
+     b0c:	80 e1       	ldi	r24, 0x10	; 16
+     b0e:	6d cf       	rjmp	.-294    	; 0x9ea <sendCDCbyte>
 		sendCDCbyte(STK_OK);
-     b1a:	80 e2       	ldi	r24, 0x20	; 32
-     b1c:	66 df       	rcall	.-308    	; 0x9ea <LEDs_TurnOnLEDs>
-     b1e:	2f ef       	ldi	r18, 0xFF	; 255
+     b10:	80 e2       	ldi	r24, 0x20	; 32
+     b12:	66 df       	rcall	.-308    	; 0x9e0 <LEDs_TurnOnLEDs>
+     b14:	2f ef       	ldi	r18, 0xFF	; 255
 	}
 	else {
 		// signalize Error
 		LEDs_TurnOnLEDs(LEDS_PMODE);
-     b20:	80 e7       	ldi	r24, 0x70	; 112
-     b22:	92 e0       	ldi	r25, 0x02	; 2
-     b24:	21 50       	subi	r18, 0x01	; 1
-     b26:	80 40       	sbci	r24, 0x00	; 0
-     b28:	90 40       	sbci	r25, 0x00	; 0
-     b2a:	e1 f7       	brne	.-8      	; 0xb24 <replyOK+0x18>
-     b2c:	00 c0       	rjmp	.+0      	; 0xb2e <replyOK+0x22>
-     b2e:	00 00       	nop
-     b30:	5d 9a       	sbi	0x0b, 5	; 11
-     b32:	2f ef       	ldi	r18, 0xFF	; 255
-     b34:	80 e7       	ldi	r24, 0x70	; 112
-     b36:	92 e0       	ldi	r25, 0x02	; 2
+     b16:	80 e7       	ldi	r24, 0x70	; 112
+     b18:	92 e0       	ldi	r25, 0x02	; 2
+     b1a:	21 50       	subi	r18, 0x01	; 1
+     b1c:	80 40       	sbci	r24, 0x00	; 0
+     b1e:	90 40       	sbci	r25, 0x00	; 0
+     b20:	e1 f7       	brne	.-8      	; 0xb1a <replyOK+0x18>
+     b22:	00 c0       	rjmp	.+0      	; 0xb24 <replyOK+0x22>
+     b24:	00 00       	nop
+     b26:	5d 9a       	sbi	0x0b, 5	; 11
+     b28:	2f ef       	ldi	r18, 0xFF	; 255
+     b2a:	80 e7       	ldi	r24, 0x70	; 112
+     b2c:	92 e0       	ldi	r25, 0x02	; 2
 	}
 
 	static inline void LEDs_TurnOffLEDs(const uint8_t LEDMask)
 	{
 		PORTD |= LEDMask;
-     b38:	21 50       	subi	r18, 0x01	; 1
-     b3a:	80 40       	sbci	r24, 0x00	; 0
-     b3c:	90 40       	sbci	r25, 0x00	; 0
-     b3e:	e1 f7       	brne	.-8      	; 0xb38 <replyOK+0x2c>
-     b40:	00 c0       	rjmp	.+0      	; 0xb42 <replyOK+0x36>
-     b42:	00 00       	nop
-     b44:	80 e2       	ldi	r24, 0x20	; 32
-     b46:	51 df       	rcall	.-350    	; 0x9ea <LEDs_TurnOnLEDs>
-     b48:	2f ef       	ldi	r18, 0xFF	; 255
-     b4a:	80 e7       	ldi	r24, 0x70	; 112
+     b2e:	21 50       	subi	r18, 0x01	; 1
+     b30:	80 40       	sbci	r24, 0x00	; 0
+     b32:	90 40       	sbci	r25, 0x00	; 0
+     b34:	e1 f7       	brne	.-8      	; 0xb2e <replyOK+0x2c>
+     b36:	00 c0       	rjmp	.+0      	; 0xb38 <replyOK+0x36>
+     b38:	00 00       	nop
+     b3a:	80 e2       	ldi	r24, 0x20	; 32
+     b3c:	51 df       	rcall	.-350    	; 0x9e0 <LEDs_TurnOnLEDs>
+     b3e:	2f ef       	ldi	r18, 0xFF	; 255
+     b40:	80 e7       	ldi	r24, 0x70	; 112
 		_delay_ms(50);
 		LEDs_TurnOffLEDs(LEDS_PMODE);
 		_delay_ms(50);
 		LEDs_TurnOnLEDs(LEDS_PMODE);
-     b4c:	92 e0       	ldi	r25, 0x02	; 2
-     b4e:	21 50       	subi	r18, 0x01	; 1
-     b50:	80 40       	sbci	r24, 0x00	; 0
-     b52:	90 40       	sbci	r25, 0x00	; 0
-     b54:	e1 f7       	brne	.-8      	; 0xb4e <replyOK+0x42>
-     b56:	00 c0       	rjmp	.+0      	; 0xb58 <replyOK+0x4c>
-     b58:	00 00       	nop
-     b5a:	5d 9a       	sbi	0x0b, 5	; 11
-     b5c:	85 e1       	ldi	r24, 0x15	; 21
-     b5e:	4a df       	rcall	.-364    	; 0x9f4 <sendCDCbyte>
-     b60:	80 91 37 01 	lds	r24, 0x0137
-     b64:	90 91 38 01 	lds	r25, 0x0138
+     b42:	92 e0       	ldi	r25, 0x02	; 2
+     b44:	21 50       	subi	r18, 0x01	; 1
+     b46:	80 40       	sbci	r24, 0x00	; 0
+     b48:	90 40       	sbci	r25, 0x00	; 0
+     b4a:	e1 f7       	brne	.-8      	; 0xb44 <replyOK+0x42>
+     b4c:	00 c0       	rjmp	.+0      	; 0xb4e <replyOK+0x4c>
+     b4e:	00 00       	nop
+     b50:	5d 9a       	sbi	0x0b, 5	; 11
+     b52:	85 e1       	ldi	r24, 0x15	; 21
+     b54:	4a df       	rcall	.-364    	; 0x9ea <sendCDCbyte>
+     b56:	80 91 37 01 	lds	r24, 0x0137
+     b5a:	90 91 38 01 	lds	r25, 0x0138
 		_delay_ms(50);
 		LEDs_TurnOffLEDs(LEDS_PMODE);
 
 		sendCDCbyte(STK_NOSYNC);
-     b68:	01 96       	adiw	r24, 0x01	; 1
-     b6a:	90 93 38 01 	sts	0x0138, r25
+     b5e:	01 96       	adiw	r24, 0x01	; 1
+     b60:	90 93 38 01 	sts	0x0138, r25
 		ram.isp.error++;
-     b6e:	80 93 37 01 	sts	0x0137, r24
-     b72:	08 95       	ret
+     b64:	80 93 37 01 	sts	0x0137, r24
+     b68:	08 95       	ret
 
-00000b74 <spi_init>:
+00000b6a <spi_init>:
 	DDRB |= (1 << AVR_MOSI); // OUTPUT
 	spi_transaction(0xAC, 0x53, 0x00, 0x00);
 	ram.isp.pmode = 1;
 }
 
 void spi_init(void) {
-     b74:	83 e5       	ldi	r24, 0x53	; 83
-     b76:	8c bd       	out	0x2c, r24	; 44
+     b6a:	83 e5       	ldi	r24, 0x53	; 83
+     b6c:	8c bd       	out	0x2c, r24	; 44
 	SPCR = 0x53;
 #ifdef ISP_LOW_SPEED
 	SPCR = SPCR | B00000011;
 #endif
 	SPSR;
-     b78:	8d b5       	in	r24, 0x2d	; 45
+     b6e:	8d b5       	in	r24, 0x2d	; 45
 	SPDR;
-     b7a:	8e b5       	in	r24, 0x2e	; 46
-     b7c:	08 95       	ret
+     b70:	8e b5       	in	r24, 0x2e	; 46
+     b72:	08 95       	ret
 
-00000b7e <spi_wait>:
+00000b74 <spi_wait>:
 	sei();
 #endif
 	return reply;
 }
 
 void spi_wait(void) {
-     b7e:	0d b4       	in	r0, 0x2d	; 45
-     b80:	07 fe       	sbrs	r0, 7
-     b82:	fd cf       	rjmp	.-6      	; 0xb7e <spi_wait>
+     b74:	0d b4       	in	r0, 0x2d	; 45
+     b76:	07 fe       	sbrs	r0, 7
+     b78:	fd cf       	rjmp	.-6      	; 0xb74 <spi_wait>
 	do {
 	} while (!(SPSR & (1 << SPIF)));
 }
-     b84:	08 95       	ret
+     b7a:	08 95       	ret
 
-00000b86 <spi_send>:
+00000b7c <spi_send>:
 	cli();
 	CLKPR = B10000000;
 	CLKPR = B00000011;
 	sei();
 #endif
 	SPDR = b;
-     b86:	8e bd       	out	0x2e, r24	; 46
+     b7c:	8e bd       	out	0x2e, r24	; 46
 	spi_wait();
-     b88:	fa df       	rcall	.-12     	; 0xb7e <spi_wait>
-     b8a:	8e b5       	in	r24, 0x2e	; 46
+     b7e:	fa df       	rcall	.-12     	; 0xb74 <spi_wait>
+     b80:	8e b5       	in	r24, 0x2e	; 46
 	reply = SPDR;
-     b8c:	08 95       	ret
+     b82:	08 95       	ret
 
-00000b8e <spi_transaction>:
+00000b84 <spi_transaction>:
 	CLKPR = B10000000;
 	CLKPR = B00000000;
 	sei();
 #endif
 	return reply;
 }
-     b8e:	cf 93       	push	r28
-     b90:	df 93       	push	r29
-     b92:	00 d0       	rcall	.+0      	; 0xb94 <spi_transaction+0x6>
-     b94:	1f 92       	push	r1
-     b96:	cd b7       	in	r28, 0x3d	; 61
-     b98:	de b7       	in	r29, 0x3e	; 62
+     b84:	cf 93       	push	r28
+     b86:	df 93       	push	r29
+     b88:	00 d0       	rcall	.+0      	; 0xb8a <spi_transaction+0x6>
+     b8a:	1f 92       	push	r1
+     b8c:	cd b7       	in	r28, 0x3d	; 61
+     b8e:	de b7       	in	r29, 0x3e	; 62
 	SPDR;
 }
 
 uint8_t spi_transaction(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
 	//uint8_t n;
 	spi_send(a);
-     b9a:	2b 83       	std	Y+3, r18	; 0x03
-     b9c:	4a 83       	std	Y+2, r20	; 0x02
-     b9e:	69 83       	std	Y+1, r22	; 0x01
-     ba0:	f2 df       	rcall	.-28     	; 0xb86 <spi_send>
-     ba2:	69 81       	ldd	r22, Y+1	; 0x01
+     b90:	2b 83       	std	Y+3, r18	; 0x03
+     b92:	4a 83       	std	Y+2, r20	; 0x02
+     b94:	69 83       	std	Y+1, r22	; 0x01
+     b96:	f2 df       	rcall	.-28     	; 0xb7c <spi_send>
+     b98:	69 81       	ldd	r22, Y+1	; 0x01
 	//n = spi_send(b);
 	spi_send(b);
-     ba4:	86 2f       	mov	r24, r22
-     ba6:	ef df       	rcall	.-34     	; 0xb86 <spi_send>
-     ba8:	4a 81       	ldd	r20, Y+2	; 0x02
-     baa:	84 2f       	mov	r24, r20
+     b9a:	86 2f       	mov	r24, r22
+     b9c:	ef df       	rcall	.-34     	; 0xb7c <spi_send>
+     b9e:	4a 81       	ldd	r20, Y+2	; 0x02
+     ba0:	84 2f       	mov	r24, r20
 	//if (n != a) error = -1;
 	//n = spi_send(c);
 	spi_send(c);
-     bac:	ec df       	rcall	.-40     	; 0xb86 <spi_send>
-     bae:	2b 81       	ldd	r18, Y+3	; 0x03
-     bb0:	82 2f       	mov	r24, r18
-     bb2:	0f 90       	pop	r0
+     ba2:	ec df       	rcall	.-40     	; 0xb7c <spi_send>
+     ba4:	2b 81       	ldd	r18, Y+3	; 0x03
+     ba6:	82 2f       	mov	r24, r18
+     ba8:	0f 90       	pop	r0
 	return spi_send(d);
-     bb4:	0f 90       	pop	r0
-     bb6:	0f 90       	pop	r0
+     baa:	0f 90       	pop	r0
+     bac:	0f 90       	pop	r0
 }
-     bb8:	df 91       	pop	r29
-     bba:	cf 91       	pop	r28
-     bbc:	e4 cf       	rjmp	.-56     	; 0xb86 <spi_send>
+     bae:	df 91       	pop	r29
+     bb0:	cf 91       	pop	r28
+     bb2:	e4 cf       	rjmp	.-56     	; 0xb7c <spi_send>
 
-00000bbe <start_pmode>:
+00000bb4 <start_pmode>:
 		sendCDCbyte(STK_NOSYNC);
 		ram.isp.error++;
 	}
 }
 
 void start_pmode(void) {
-     bbe:	da df       	rcall	.-76     	; 0xb74 <spi_init>
-     bc0:	24 9a       	sbi	0x04, 4	; 4
+     bb4:	da df       	rcall	.-76     	; 0xb6a <spi_init>
+     bb6:	24 9a       	sbi	0x04, 4	; 4
 	//n = spi_send(b);
 	spi_send(b);
 	//if (n != a) error = -1;
 	//n = spi_send(c);
 	spi_send(c);
 	return spi_send(d);
-     bc2:	2c 9a       	sbi	0x05, 4	; 5
+     bb8:	2c 9a       	sbi	0x05, 4	; 5
 
 void start_pmode(void) {
 	spi_init();
 	// following delays may not work on all targets...
 	DDRB |= (1 << AVR_SS); // OUTPUT
 	PORTB |= (1 << AVR_SS); // HIGH
-     bc4:	21 9a       	sbi	0x04, 1	; 4
+     bba:	21 9a       	sbi	0x04, 1	; 4
 	DDRB |= (1 << AVR_SCK); // OUTPUT
-     bc6:	29 98       	cbi	0x05, 1	; 5
+     bbc:	29 98       	cbi	0x05, 1	; 5
 	PORTB &= ~(1 << AVR_SCK); // LOW
-     bc8:	2f ef       	ldi	r18, 0xFF	; 255
-     bca:	80 e7       	ldi	r24, 0x70	; 112
-     bcc:	92 e0       	ldi	r25, 0x02	; 2
-     bce:	21 50       	subi	r18, 0x01	; 1
-     bd0:	80 40       	sbci	r24, 0x00	; 0
-     bd2:	90 40       	sbci	r25, 0x00	; 0
-     bd4:	e1 f7       	brne	.-8      	; 0xbce <start_pmode+0x10>
-     bd6:	00 c0       	rjmp	.+0      	; 0xbd8 <start_pmode+0x1a>
-     bd8:	00 00       	nop
-     bda:	2c 98       	cbi	0x05, 4	; 5
+     bbe:	2f ef       	ldi	r18, 0xFF	; 255
+     bc0:	80 e7       	ldi	r24, 0x70	; 112
+     bc2:	92 e0       	ldi	r25, 0x02	; 2
+     bc4:	21 50       	subi	r18, 0x01	; 1
+     bc6:	80 40       	sbci	r24, 0x00	; 0
+     bc8:	90 40       	sbci	r25, 0x00	; 0
+     bca:	e1 f7       	brne	.-8      	; 0xbc4 <start_pmode+0x10>
+     bcc:	00 c0       	rjmp	.+0      	; 0xbce <start_pmode+0x1a>
+     bce:	00 00       	nop
+     bd0:	2c 98       	cbi	0x05, 4	; 5
 	_delay_ms(50 + EXTRA_SPI_DELAY);
 	PORTB &= ~(1 << AVR_SS); // LOW
-     bdc:	2f ef       	ldi	r18, 0xFF	; 255
-     bde:	80 e7       	ldi	r24, 0x70	; 112
-     be0:	92 e0       	ldi	r25, 0x02	; 2
-     be2:	21 50       	subi	r18, 0x01	; 1
-     be4:	80 40       	sbci	r24, 0x00	; 0
-     be6:	90 40       	sbci	r25, 0x00	; 0
-     be8:	e1 f7       	brne	.-8      	; 0xbe2 <start_pmode+0x24>
-     bea:	00 c0       	rjmp	.+0      	; 0xbec <start_pmode+0x2e>
-     bec:	00 00       	nop
-     bee:	23 98       	cbi	0x04, 3	; 4
+     bd2:	2f ef       	ldi	r18, 0xFF	; 255
+     bd4:	80 e7       	ldi	r24, 0x70	; 112
+     bd6:	92 e0       	ldi	r25, 0x02	; 2
+     bd8:	21 50       	subi	r18, 0x01	; 1
+     bda:	80 40       	sbci	r24, 0x00	; 0
+     bdc:	90 40       	sbci	r25, 0x00	; 0
+     bde:	e1 f7       	brne	.-8      	; 0xbd8 <start_pmode+0x24>
+     be0:	00 c0       	rjmp	.+0      	; 0xbe2 <start_pmode+0x2e>
+     be2:	00 00       	nop
+     be4:	23 98       	cbi	0x04, 3	; 4
 	_delay_ms(50 + EXTRA_SPI_DELAY); // extra delay added from adafruit <--
 	DDRB &= ~(1 << AVR_MISO); // INPUT
-     bf0:	22 9a       	sbi	0x04, 2	; 4
+     be6:	22 9a       	sbi	0x04, 2	; 4
 	DDRB |= (1 << AVR_MOSI); // OUTPUT
-     bf2:	20 e0       	ldi	r18, 0x00	; 0
+     be8:	20 e0       	ldi	r18, 0x00	; 0
 	spi_transaction(0xAC, 0x53, 0x00, 0x00);
-     bf4:	40 e0       	ldi	r20, 0x00	; 0
-     bf6:	63 e5       	ldi	r22, 0x53	; 83
-     bf8:	8c ea       	ldi	r24, 0xAC	; 172
-     bfa:	c9 df       	rcall	.-110    	; 0xb8e <spi_transaction>
-     bfc:	81 e0       	ldi	r24, 0x01	; 1
-     bfe:	90 e0       	ldi	r25, 0x00	; 0
+     bea:	40 e0       	ldi	r20, 0x00	; 0
+     bec:	63 e5       	ldi	r22, 0x53	; 83
+     bee:	8c ea       	ldi	r24, 0xAC	; 172
+     bf0:	c9 df       	rcall	.-110    	; 0xb84 <spi_transaction>
+     bf2:	81 e0       	ldi	r24, 0x01	; 1
+     bf4:	90 e0       	ldi	r25, 0x00	; 0
 	ram.isp.pmode = 1;
-     c00:	90 93 3a 01 	sts	0x013A, r25
-     c04:	80 93 39 01 	sts	0x0139, r24
-     c08:	08 95       	ret
+     bf6:	90 93 3a 01 	sts	0x013A, r25
+     bfa:	80 93 39 01 	sts	0x0139, r24
+     bfe:	08 95       	ret
 
-00000c0a <flash_read>:
+00000c00 <flash_read>:
 	}
 	sendCDCbyte(STK_FAILED);
 	return;
 }
 
 uint8_t flash_read(uint8_t hilo, int addr) {
-     c0a:	46 2f       	mov	r20, r22
+     c00:	46 2f       	mov	r20, r22
 	return spi_transaction(0x20 + hilo * 8,
-     c0c:	88 0f       	add	r24, r24
-     c0e:	88 0f       	add	r24, r24
-     c10:	88 0f       	add	r24, r24
-     c12:	20 e0       	ldi	r18, 0x00	; 0
-     c14:	67 2f       	mov	r22, r23
-     c16:	80 5e       	subi	r24, 0xE0	; 224
-     c18:	ba cf       	rjmp	.-140    	; 0xb8e <spi_transaction>
+     c02:	88 0f       	add	r24, r24
+     c04:	88 0f       	add	r24, r24
+     c06:	88 0f       	add	r24, r24
+     c08:	20 e0       	ldi	r18, 0x00	; 0
+     c0a:	67 2f       	mov	r22, r23
+     c0c:	80 5e       	subi	r24, 0xE0	; 224
+     c0e:	ba cf       	rjmp	.-140    	; 0xb84 <spi_transaction>
 
-00000c1a <flash_read_page>:
+00000c10 <flash_read_page>:
 		(addr >> 8) & 0xFF,
 		addr & 0xFF,
 		0);
 }
 
 char flash_read_page(int length) {
-     c1a:	0f 93       	push	r16
-     c1c:	1f 93       	push	r17
-     c1e:	cf 93       	push	r28
-     c20:	df 93       	push	r29
-     c22:	8c 01       	movw	r16, r24
+     c10:	0f 93       	push	r16
+     c12:	1f 93       	push	r17
+     c14:	cf 93       	push	r28
+     c16:	df 93       	push	r29
+     c18:	8c 01       	movw	r16, r24
 	for (int x = 0; x < length; x += 2) {
-     c24:	c0 e0       	ldi	r28, 0x00	; 0
-     c26:	d0 e0       	ldi	r29, 0x00	; 0
-     c28:	19 c0       	rjmp	.+50     	; 0xc5c <flash_read_page+0x42>
+     c1a:	c0 e0       	ldi	r28, 0x00	; 0
+     c1c:	d0 e0       	ldi	r29, 0x00	; 0
+     c1e:	19 c0       	rjmp	.+50     	; 0xc52 <flash_read_page+0x42>
 		uint8_t low = flash_read(LOW, ram.isp._addr);
-     c2a:	60 91 3b 01 	lds	r22, 0x013B
-     c2e:	70 91 3c 01 	lds	r23, 0x013C
-     c32:	80 e0       	ldi	r24, 0x00	; 0
-     c34:	ea df       	rcall	.-44     	; 0xc0a <flash_read>
-     c36:	de de       	rcall	.-580    	; 0x9f4 <sendCDCbyte>
+     c20:	60 91 3b 01 	lds	r22, 0x013B
+     c24:	70 91 3c 01 	lds	r23, 0x013C
+     c28:	80 e0       	ldi	r24, 0x00	; 0
+     c2a:	ea df       	rcall	.-44     	; 0xc00 <flash_read>
+     c2c:	de de       	rcall	.-580    	; 0x9ea <sendCDCbyte>
 		sendCDCbyte(low);
-     c38:	60 91 3b 01 	lds	r22, 0x013B
+     c2e:	60 91 3b 01 	lds	r22, 0x013B
 		uint8_t high = flash_read(HIGH, ram.isp._addr);
-     c3c:	70 91 3c 01 	lds	r23, 0x013C
-     c40:	81 e0       	ldi	r24, 0x01	; 1
-     c42:	e3 df       	rcall	.-58     	; 0xc0a <flash_read>
-     c44:	d7 de       	rcall	.-594    	; 0x9f4 <sendCDCbyte>
-     c46:	20 91 3b 01 	lds	r18, 0x013B
+     c32:	70 91 3c 01 	lds	r23, 0x013C
+     c36:	81 e0       	ldi	r24, 0x01	; 1
+     c38:	e3 df       	rcall	.-58     	; 0xc00 <flash_read>
+     c3a:	d7 de       	rcall	.-594    	; 0x9ea <sendCDCbyte>
+     c3c:	20 91 3b 01 	lds	r18, 0x013B
 		sendCDCbyte(high);
-     c4a:	30 91 3c 01 	lds	r19, 0x013C
+     c40:	30 91 3c 01 	lds	r19, 0x013C
 		ram.isp._addr++;
-     c4e:	2f 5f       	subi	r18, 0xFF	; 255
-     c50:	3f 4f       	sbci	r19, 0xFF	; 255
-     c52:	30 93 3c 01 	sts	0x013C, r19
-     c56:	20 93 3b 01 	sts	0x013B, r18
-     c5a:	22 96       	adiw	r28, 0x02	; 2
-     c5c:	c0 17       	cp	r28, r16
-     c5e:	d1 07       	cpc	r29, r17
-     c60:	24 f3       	brlt	.-56     	; 0xc2a <flash_read_page+0x10>
+     c44:	2f 5f       	subi	r18, 0xFF	; 255
+     c46:	3f 4f       	sbci	r19, 0xFF	; 255
+     c48:	30 93 3c 01 	sts	0x013C, r19
+     c4c:	20 93 3b 01 	sts	0x013B, r18
+     c50:	22 96       	adiw	r28, 0x02	; 2
+     c52:	c0 17       	cp	r28, r16
+     c54:	d1 07       	cpc	r29, r17
+     c56:	24 f3       	brlt	.-56     	; 0xc20 <flash_read_page+0x10>
 		addr & 0xFF,
 		0);
 }
 
 char flash_read_page(int length) {
 	for (int x = 0; x < length; x += 2) {
-     c62:	80 e1       	ldi	r24, 0x10	; 16
-     c64:	df 91       	pop	r29
-     c66:	cf 91       	pop	r28
-     c68:	1f 91       	pop	r17
+     c58:	80 e1       	ldi	r24, 0x10	; 16
+     c5a:	df 91       	pop	r29
+     c5c:	cf 91       	pop	r28
+     c5e:	1f 91       	pop	r17
 		uint8_t high = flash_read(HIGH, ram.isp._addr);
 		sendCDCbyte(high);
 		ram.isp._addr++;
 	}
 	return STK_OK;
 }
-     c6a:	0f 91       	pop	r16
-     c6c:	08 95       	ret
+     c60:	0f 91       	pop	r16
+     c62:	08 95       	ret
 
-00000c6e <universal>:
+00000c64 <universal>:
 
 void universal(void) {
-     c6e:	84 e0       	ldi	r24, 0x04	; 4
-     c70:	90 e0       	ldi	r25, 0x00	; 0
-     c72:	ec de       	rcall	.-552    	; 0xa4c <fill>
-     c74:	20 91 44 01 	lds	r18, 0x0144
+     c64:	84 e0       	ldi	r24, 0x04	; 4
+     c66:	90 e0       	ldi	r25, 0x00	; 0
+     c68:	ec de       	rcall	.-552    	; 0xa42 <fill>
+     c6a:	20 91 44 01 	lds	r18, 0x0144
 	uint8_t ch;
 
 	fill(4);
 	ch = spi_transaction(ram.isp.buff[0], ram.isp.buff[1], ram.isp.buff[2], ram.isp.buff[3]);
-     c78:	40 91 43 01 	lds	r20, 0x0143
-     c7c:	60 91 42 01 	lds	r22, 0x0142
-     c80:	80 91 41 01 	lds	r24, 0x0141
-     c84:	84 df       	rcall	.-248    	; 0xb8e <spi_transaction>
-     c86:	14 cf       	rjmp	.-472    	; 0xab0 <breply>
+     c6e:	40 91 43 01 	lds	r20, 0x0143
+     c72:	60 91 42 01 	lds	r22, 0x0142
+     c76:	80 91 41 01 	lds	r24, 0x0141
+     c7a:	84 df       	rcall	.-248    	; 0xb84 <spi_transaction>
+     c7c:	14 cf       	rjmp	.-472    	; 0xaa6 <breply>
 
-00000c88 <read_signature>:
+00000c7e <read_signature>:
 	breply(ch);
 }
 
 void read_signature(void) {
-     c88:	da de       	rcall	.-588    	; 0xa3e <getch>
+     c7e:	da de       	rcall	.-588    	; 0xa34 <getch>
 void universal(void) {
 	uint8_t ch;
 
 	fill(4);
 	ch = spi_transaction(ram.isp.buff[0], ram.isp.buff[1], ram.isp.buff[2], ram.isp.buff[3]);
 	breply(ch);
-     c8a:	80 32       	cpi	r24, 0x20	; 32
-     c8c:	59 f0       	breq	.+22     	; 0xca4 <read_signature+0x1c>
-     c8e:	80 91 37 01 	lds	r24, 0x0137
+     c80:	80 32       	cpi	r24, 0x20	; 32
+     c82:	59 f0       	breq	.+22     	; 0xc9a <read_signature+0x1c>
+     c84:	80 91 37 01 	lds	r24, 0x0137
 }
 
 void read_signature(void) {
 	if (CRC_EOP != getch()) {
 		ram.isp.error++;
-     c92:	90 91 38 01 	lds	r25, 0x0138
-     c96:	01 96       	adiw	r24, 0x01	; 1
-     c98:	90 93 38 01 	sts	0x0138, r25
-     c9c:	80 93 37 01 	sts	0x0137, r24
-     ca0:	85 e1       	ldi	r24, 0x15	; 21
+     c88:	90 91 38 01 	lds	r25, 0x0138
+     c8c:	01 96       	adiw	r24, 0x01	; 1
+     c8e:	90 93 38 01 	sts	0x0138, r25
+     c92:	80 93 37 01 	sts	0x0137, r24
+     c96:	85 e1       	ldi	r24, 0x15	; 21
 		sendCDCbyte(STK_NOSYNC);
-     ca2:	15 c0       	rjmp	.+42     	; 0xcce <read_signature+0x46>
-     ca4:	84 e1       	ldi	r24, 0x14	; 20
+     c98:	15 c0       	rjmp	.+42     	; 0xcc4 <read_signature+0x46>
+     c9a:	84 e1       	ldi	r24, 0x14	; 20
 		return;
 	}
 	sendCDCbyte(STK_INSYNC);
-     ca6:	a6 de       	rcall	.-692    	; 0x9f4 <sendCDCbyte>
-     ca8:	20 e0       	ldi	r18, 0x00	; 0
-     caa:	40 e0       	ldi	r20, 0x00	; 0
+     c9c:	a6 de       	rcall	.-692    	; 0x9ea <sendCDCbyte>
+     c9e:	20 e0       	ldi	r18, 0x00	; 0
+     ca0:	40 e0       	ldi	r20, 0x00	; 0
 	uint8_t high = spi_transaction(0x30, 0x00, 0x00, 0x00);
-     cac:	60 e0       	ldi	r22, 0x00	; 0
-     cae:	80 e3       	ldi	r24, 0x30	; 48
-     cb0:	6e df       	rcall	.-292    	; 0xb8e <spi_transaction>
-     cb2:	a0 de       	rcall	.-704    	; 0x9f4 <sendCDCbyte>
-     cb4:	20 e0       	ldi	r18, 0x00	; 0
-     cb6:	41 e0       	ldi	r20, 0x01	; 1
+     ca2:	60 e0       	ldi	r22, 0x00	; 0
+     ca4:	80 e3       	ldi	r24, 0x30	; 48
+     ca6:	6e df       	rcall	.-292    	; 0xb84 <spi_transaction>
+     ca8:	a0 de       	rcall	.-704    	; 0x9ea <sendCDCbyte>
+     caa:	20 e0       	ldi	r18, 0x00	; 0
+     cac:	41 e0       	ldi	r20, 0x01	; 1
 	sendCDCbyte(high);
-     cb8:	60 e0       	ldi	r22, 0x00	; 0
-     cba:	80 e3       	ldi	r24, 0x30	; 48
+     cae:	60 e0       	ldi	r22, 0x00	; 0
+     cb0:	80 e3       	ldi	r24, 0x30	; 48
 	uint8_t middle = spi_transaction(0x30, 0x00, 0x01, 0x00);
-     cbc:	68 df       	rcall	.-304    	; 0xb8e <spi_transaction>
-     cbe:	9a de       	rcall	.-716    	; 0x9f4 <sendCDCbyte>
-     cc0:	20 e0       	ldi	r18, 0x00	; 0
-     cc2:	42 e0       	ldi	r20, 0x02	; 2
-     cc4:	60 e0       	ldi	r22, 0x00	; 0
-     cc6:	80 e3       	ldi	r24, 0x30	; 48
+     cb2:	68 df       	rcall	.-304    	; 0xb84 <spi_transaction>
+     cb4:	9a de       	rcall	.-716    	; 0x9ea <sendCDCbyte>
+     cb6:	20 e0       	ldi	r18, 0x00	; 0
+     cb8:	42 e0       	ldi	r20, 0x02	; 2
+     cba:	60 e0       	ldi	r22, 0x00	; 0
+     cbc:	80 e3       	ldi	r24, 0x30	; 48
 	sendCDCbyte(middle);
-     cc8:	62 df       	rcall	.-316    	; 0xb8e <spi_transaction>
-     cca:	94 de       	rcall	.-728    	; 0x9f4 <sendCDCbyte>
+     cbe:	62 df       	rcall	.-316    	; 0xb84 <spi_transaction>
+     cc0:	94 de       	rcall	.-728    	; 0x9ea <sendCDCbyte>
 	uint8_t low = spi_transaction(0x30, 0x00, 0x02, 0x00);
-     ccc:	80 e1       	ldi	r24, 0x10	; 16
-     cce:	92 ce       	rjmp	.-732    	; 0x9f4 <sendCDCbyte>
+     cc2:	80 e1       	ldi	r24, 0x10	; 16
+     cc4:	92 ce       	rjmp	.-732    	; 0x9ea <sendCDCbyte>
 
-00000cd0 <end_pmode>:
+00000cc6 <end_pmode>:
 	sendCDCbyte(low);
 	sendCDCbyte(STK_OK);
 }
 
 void end_pmode(void) {
-     cd0:	23 98       	cbi	0x04, 3	; 4
+     cc6:	23 98       	cbi	0x04, 3	; 4
 	AVR_SPI_DDR &= ~(1 << AVR_MISO); // INPUT
 	AVR_SPI_DDR &= ~(1 << AVR_MOSI); // INPUT
-     cd2:	22 98       	cbi	0x04, 2	; 4
+     cc8:	22 98       	cbi	0x04, 2	; 4
 
 	// Hardwaresetup to turn off the HID function with shorting the MOSI pin with GND next to it
 	// do not short this pin in AVRISP mode!!!
 	AVR_SPI_DDR |= (1 << AVR_MOSI); // PULLUP
-     cd4:	22 9a       	sbi	0x04, 2	; 4
+     cca:	22 9a       	sbi	0x04, 2	; 4
 
 	AVR_SPI_DDR &= ~(1 << AVR_SCK); // INPUT
-     cd6:	21 98       	cbi	0x04, 1	; 4
+     ccc:	21 98       	cbi	0x04, 1	; 4
 	uint8_t high = spi_transaction(0x30, 0x00, 0x00, 0x00);
 	sendCDCbyte(high);
 	uint8_t middle = spi_transaction(0x30, 0x00, 0x01, 0x00);
 	sendCDCbyte(middle);
 	uint8_t low = spi_transaction(0x30, 0x00, 0x02, 0x00);
 	sendCDCbyte(low);
-     cd8:	24 98       	cbi	0x04, 4	; 4
+     cce:	24 98       	cbi	0x04, 4	; 4
 	// do not short this pin in AVRISP mode!!!
 	AVR_SPI_DDR |= (1 << AVR_MOSI); // PULLUP
 
 	AVR_SPI_DDR &= ~(1 << AVR_SCK); // INPUT
 	AVR_SPI_DDR &= ~(1 << AVR_SS); // INPUT
 	ram.isp.pmode = 0;
-     cda:	10 92 3a 01 	sts	0x013A, r1
+     cd0:	10 92 3a 01 	sts	0x013A, r1
 	sendCDCbyte(high);
 	uint8_t middle = spi_transaction(0x30, 0x00, 0x01, 0x00);
 	sendCDCbyte(middle);
 	uint8_t low = spi_transaction(0x30, 0x00, 0x02, 0x00);
 	sendCDCbyte(low);
 	sendCDCbyte(STK_OK);
-     cde:	10 92 39 01 	sts	0x0139, r1
-     ce2:	08 95       	ret
+     cd4:	10 92 39 01 	sts	0x0139, r1
+     cd8:	08 95       	ret
 
-00000ce4 <write_eeprom_chunk>:
+00000cda <write_eeprom_chunk>:
 	}
 	write_eeprom_chunk(start, remaining);
 	return STK_OK;
 }
 // write (length) bytes, (start) is a byte address
 uint8_t write_eeprom_chunk(int start, int length) {
-     ce4:	cf 92       	push	r12
-     ce6:	df 92       	push	r13
-     ce8:	ef 92       	push	r14
-     cea:	ff 92       	push	r15
-     cec:	0f 93       	push	r16
-     cee:	1f 93       	push	r17
-     cf0:	cf 93       	push	r28
-     cf2:	df 93       	push	r29
-     cf4:	d8 2f       	mov	r29, r24
-     cf6:	c9 2f       	mov	r28, r25
-     cf8:	7b 01       	movw	r14, r22
+     cda:	cf 92       	push	r12
+     cdc:	df 92       	push	r13
+     cde:	ef 92       	push	r14
+     ce0:	ff 92       	push	r15
+     ce2:	0f 93       	push	r16
+     ce4:	1f 93       	push	r17
+     ce6:	cf 93       	push	r28
+     ce8:	df 93       	push	r29
+     cea:	d8 2f       	mov	r29, r24
+     cec:	c9 2f       	mov	r28, r25
+     cee:	7b 01       	movw	r14, r22
 	// this writes byte-by-byte,
 	// page writing may be faster (4 bytes at a time)
 	fill(length);
-     cfa:	cb 01       	movw	r24, r22
-     cfc:	a7 de       	rcall	.-690    	; 0xa4c <fill>
-     cfe:	5d 9a       	sbi	0x0b, 5	; 11
-     d00:	81 e4       	ldi	r24, 0x41	; 65
-     d02:	c8 2e       	mov	r12, r24
-     d04:	81 e0       	ldi	r24, 0x01	; 1
-     d06:	d8 2e       	mov	r13, r24
-     d08:	0d 2f       	mov	r16, r29
-     d0a:	1c 2f       	mov	r17, r28
-     d0c:	e8 01       	movw	r28, r16
-     d0e:	11 c0       	rjmp	.+34     	; 0xd32 <write_eeprom_chunk+0x4e>
-     d10:	f6 01       	movw	r30, r12
+     cf0:	cb 01       	movw	r24, r22
+     cf2:	a7 de       	rcall	.-690    	; 0xa42 <fill>
+     cf4:	5d 9a       	sbi	0x0b, 5	; 11
+     cf6:	81 e4       	ldi	r24, 0x41	; 65
+     cf8:	c8 2e       	mov	r12, r24
+     cfa:	81 e0       	ldi	r24, 0x01	; 1
+     cfc:	d8 2e       	mov	r13, r24
+     cfe:	0d 2f       	mov	r16, r29
+     d00:	1c 2f       	mov	r17, r28
+     d02:	e8 01       	movw	r28, r16
+     d04:	11 c0       	rjmp	.+34     	; 0xd28 <write_eeprom_chunk+0x4e>
+     d06:	f6 01       	movw	r30, r12
 	LEDs_TurnOffLEDs(LEDS_PMODE);
 	for (int x = 0; x < length; x++) {
 		int addr = start + x;
 		spi_transaction(0xC0, (addr >> 8) & 0xFF, addr & 0xFF, ram.isp.buff[x]);
-     d12:	21 91       	ld	r18, Z+
-     d14:	6f 01       	movw	r12, r30
-     d16:	4c 2f       	mov	r20, r28
-     d18:	6d 2f       	mov	r22, r29
-     d1a:	80 ec       	ldi	r24, 0xC0	; 192
-     d1c:	38 df       	rcall	.-400    	; 0xb8e <spi_transaction>
-     d1e:	ff e7       	ldi	r31, 0x7F	; 127
-     d20:	22 e3       	ldi	r18, 0x32	; 50
-     d22:	82 e0       	ldi	r24, 0x02	; 2
-     d24:	f1 50       	subi	r31, 0x01	; 1
-     d26:	20 40       	sbci	r18, 0x00	; 0
-     d28:	80 40       	sbci	r24, 0x00	; 0
-     d2a:	e1 f7       	brne	.-8      	; 0xd24 <write_eeprom_chunk+0x40>
-     d2c:	00 c0       	rjmp	.+0      	; 0xd2e <write_eeprom_chunk+0x4a>
-     d2e:	00 00       	nop
-     d30:	21 96       	adiw	r28, 0x01	; 1
-     d32:	ce 01       	movw	r24, r28
-     d34:	80 1b       	sub	r24, r16
+     d08:	21 91       	ld	r18, Z+
+     d0a:	6f 01       	movw	r12, r30
+     d0c:	4c 2f       	mov	r20, r28
+     d0e:	6d 2f       	mov	r22, r29
+     d10:	80 ec       	ldi	r24, 0xC0	; 192
+     d12:	38 df       	rcall	.-400    	; 0xb84 <spi_transaction>
+     d14:	ff e7       	ldi	r31, 0x7F	; 127
+     d16:	22 e3       	ldi	r18, 0x32	; 50
+     d18:	82 e0       	ldi	r24, 0x02	; 2
+     d1a:	f1 50       	subi	r31, 0x01	; 1
+     d1c:	20 40       	sbci	r18, 0x00	; 0
+     d1e:	80 40       	sbci	r24, 0x00	; 0
+     d20:	e1 f7       	brne	.-8      	; 0xd1a <write_eeprom_chunk+0x40>
+     d22:	00 c0       	rjmp	.+0      	; 0xd24 <write_eeprom_chunk+0x4a>
+     d24:	00 00       	nop
+     d26:	21 96       	adiw	r28, 0x01	; 1
+     d28:	ce 01       	movw	r24, r28
+     d2a:	80 1b       	sub	r24, r16
 	}
 	write_eeprom_chunk(start, remaining);
 	return STK_OK;
 }
 // write (length) bytes, (start) is a byte address
 uint8_t write_eeprom_chunk(int start, int length) {
-     d36:	91 0b       	sbc	r25, r17
-     d38:	8e 15       	cp	r24, r14
-     d3a:	9f 05       	cpc	r25, r15
+     d2c:	91 0b       	sbc	r25, r17
+     d2e:	8e 15       	cp	r24, r14
+     d30:	9f 05       	cpc	r25, r15
 	// this writes byte-by-byte,
 	// page writing may be faster (4 bytes at a time)
 	fill(length);
 	LEDs_TurnOffLEDs(LEDS_PMODE);
 	for (int x = 0; x < length; x++) {
-     d3c:	4c f3       	brlt	.-46     	; 0xd10 <write_eeprom_chunk+0x2c>
-     d3e:	80 e2       	ldi	r24, 0x20	; 32
-     d40:	54 de       	rcall	.-856    	; 0x9ea <LEDs_TurnOnLEDs>
+     d32:	4c f3       	brlt	.-46     	; 0xd06 <write_eeprom_chunk+0x2c>
+     d34:	80 e2       	ldi	r24, 0x20	; 32
+     d36:	54 de       	rcall	.-856    	; 0x9e0 <LEDs_TurnOnLEDs>
 		int addr = start + x;
 		spi_transaction(0xC0, (addr >> 8) & 0xFF, addr & 0xFF, ram.isp.buff[x]);
 		_delay_ms(45);
 	}
 	LEDs_TurnOnLEDs(LEDS_PMODE);
-     d42:	80 e1       	ldi	r24, 0x10	; 16
-     d44:	df 91       	pop	r29
-     d46:	cf 91       	pop	r28
+     d38:	80 e1       	ldi	r24, 0x10	; 16
+     d3a:	df 91       	pop	r29
+     d3c:	cf 91       	pop	r28
 	return STK_OK;
 }
-     d48:	1f 91       	pop	r17
-     d4a:	0f 91       	pop	r16
-     d4c:	ff 90       	pop	r15
-     d4e:	ef 90       	pop	r14
-     d50:	df 90       	pop	r13
-     d52:	cf 90       	pop	r12
-     d54:	08 95       	ret
+     d3e:	1f 91       	pop	r17
+     d40:	0f 91       	pop	r16
+     d42:	ff 90       	pop	r15
+     d44:	ef 90       	pop	r14
+     d46:	df 90       	pop	r13
+     d48:	cf 90       	pop	r12
+     d4a:	08 95       	ret
 
-00000d56 <write_eeprom>:
+00000d4c <write_eeprom>:
 	}
 }
 
 
 #define EECHUNK (32)
 uint8_t write_eeprom(int length) {
-     d56:	0f 93       	push	r16
-     d58:	1f 93       	push	r17
-     d5a:	cf 93       	push	r28
-     d5c:	df 93       	push	r29
+     d4c:	0f 93       	push	r16
+     d4e:	1f 93       	push	r17
+     d50:	cf 93       	push	r28
+     d52:	df 93       	push	r29
 	// here is a word address, get the byte address
 	int start = ram.isp._addr * 2;
-     d5e:	c0 91 3b 01 	lds	r28, 0x013B
-     d62:	d0 91 3c 01 	lds	r29, 0x013C
+     d54:	c0 91 3b 01 	lds	r28, 0x013B
+     d58:	d0 91 3c 01 	lds	r29, 0x013C
 	int remaining = length;
 	if (length > ram.isp.param.eepromsize) {
-     d66:	20 91 3f 01 	lds	r18, 0x013F
-     d6a:	30 91 40 01 	lds	r19, 0x0140
-     d6e:	28 17       	cp	r18, r24
-     d70:	39 07       	cpc	r19, r25
-     d72:	24 f0       	brlt	.+8      	; 0xd7c <write_eeprom+0x26>
+     d5c:	20 91 3f 01 	lds	r18, 0x013F
+     d60:	30 91 40 01 	lds	r19, 0x0140
+     d64:	28 17       	cp	r18, r24
+     d66:	39 07       	cpc	r19, r25
+     d68:	24 f0       	brlt	.+8      	; 0xd72 <write_eeprom+0x26>
 
 
 #define EECHUNK (32)
 uint8_t write_eeprom(int length) {
 	// here is a word address, get the byte address
 	int start = ram.isp._addr * 2;
-     d74:	cc 0f       	add	r28, r28
-     d76:	dd 1f       	adc	r29, r29
-     d78:	8c 01       	movw	r16, r24
-     d7a:	12 c0       	rjmp	.+36     	; 0xda0 <write_eeprom+0x4a>
+     d6a:	cc 0f       	add	r28, r28
+     d6c:	dd 1f       	adc	r29, r29
+     d6e:	8c 01       	movw	r16, r24
+     d70:	12 c0       	rjmp	.+36     	; 0xd96 <write_eeprom+0x4a>
 	int remaining = length;
 	if (length > ram.isp.param.eepromsize) {
 		ram.isp.error++;
-     d7c:	80 91 37 01 	lds	r24, 0x0137
-     d80:	90 91 38 01 	lds	r25, 0x0138
-     d84:	01 96       	adiw	r24, 0x01	; 1
-     d86:	90 93 38 01 	sts	0x0138, r25
-     d8a:	80 93 37 01 	sts	0x0137, r24
+     d72:	80 91 37 01 	lds	r24, 0x0137
+     d76:	90 91 38 01 	lds	r25, 0x0138
+     d7a:	01 96       	adiw	r24, 0x01	; 1
+     d7c:	90 93 38 01 	sts	0x0138, r25
+     d80:	80 93 37 01 	sts	0x0137, r24
 		return STK_FAILED;
-     d8e:	81 e1       	ldi	r24, 0x11	; 17
-     d90:	0e c0       	rjmp	.+28     	; 0xdae <write_eeprom+0x58>
+     d84:	81 e1       	ldi	r24, 0x11	; 17
+     d86:	0e c0       	rjmp	.+28     	; 0xda4 <write_eeprom+0x58>
 	}
 	while (remaining > EECHUNK) {
 		write_eeprom_chunk(start, EECHUNK);
-     d92:	60 e2       	ldi	r22, 0x20	; 32
-     d94:	70 e0       	ldi	r23, 0x00	; 0
-     d96:	ce 01       	movw	r24, r28
-     d98:	a5 df       	rcall	.-182    	; 0xce4 <write_eeprom_chunk>
-     d9a:	a0 96       	adiw	r28, 0x20	; 32
+     d88:	60 e2       	ldi	r22, 0x20	; 32
+     d8a:	70 e0       	ldi	r23, 0x00	; 0
+     d8c:	ce 01       	movw	r24, r28
+     d8e:	a5 df       	rcall	.-182    	; 0xcda <write_eeprom_chunk>
+     d90:	a0 96       	adiw	r28, 0x20	; 32
 		start += EECHUNK;
-     d9c:	00 52       	subi	r16, 0x20	; 32
+     d92:	00 52       	subi	r16, 0x20	; 32
 		remaining -= EECHUNK;
-     d9e:	11 09       	sbc	r17, r1
-     da0:	01 32       	cpi	r16, 0x21	; 33
+     d94:	11 09       	sbc	r17, r1
+     d96:	01 32       	cpi	r16, 0x21	; 33
 	int remaining = length;
 	if (length > ram.isp.param.eepromsize) {
 		ram.isp.error++;
 		return STK_FAILED;
 	}
 	while (remaining > EECHUNK) {
-     da2:	11 05       	cpc	r17, r1
-     da4:	b4 f7       	brge	.-20     	; 0xd92 <write_eeprom+0x3c>
-     da6:	b8 01       	movw	r22, r16
+     d98:	11 05       	cpc	r17, r1
+     d9a:	b4 f7       	brge	.-20     	; 0xd88 <write_eeprom+0x3c>
+     d9c:	b8 01       	movw	r22, r16
 		write_eeprom_chunk(start, EECHUNK);
 		start += EECHUNK;
 		remaining -= EECHUNK;
 	}
 	write_eeprom_chunk(start, remaining);
-     da8:	ce 01       	movw	r24, r28
-     daa:	9c df       	rcall	.-200    	; 0xce4 <write_eeprom_chunk>
-     dac:	80 e1       	ldi	r24, 0x10	; 16
-     dae:	df 91       	pop	r29
+     d9e:	ce 01       	movw	r24, r28
+     da0:	9c df       	rcall	.-200    	; 0xcda <write_eeprom_chunk>
+     da2:	80 e1       	ldi	r24, 0x10	; 16
+     da4:	df 91       	pop	r29
 	return STK_OK;
-     db0:	cf 91       	pop	r28
+     da6:	cf 91       	pop	r28
 }
-     db2:	1f 91       	pop	r17
-     db4:	0f 91       	pop	r16
-     db6:	08 95       	ret
+     da8:	1f 91       	pop	r17
+     daa:	0f 91       	pop	r16
+     dac:	08 95       	ret
 
-00000db8 <eeprom_read_page>:
+00000dae <eeprom_read_page>:
 	}
 	LEDs_TurnOnLEDs(LEDS_PMODE);
 	return STK_OK;
 }
 
 char eeprom_read_page(int length) {
-     db8:	ef 92       	push	r14
-     dba:	ff 92       	push	r15
-     dbc:	0f 93       	push	r16
-     dbe:	1f 93       	push	r17
-     dc0:	cf 93       	push	r28
-     dc2:	df 93       	push	r29
-     dc4:	7c 01       	movw	r14, r24
+     dae:	ef 92       	push	r14
+     db0:	ff 92       	push	r15
+     db2:	0f 93       	push	r16
+     db4:	1f 93       	push	r17
+     db6:	cf 93       	push	r28
+     db8:	df 93       	push	r29
+     dba:	7c 01       	movw	r14, r24
 	// TODO comapre with ada
 	// here again we have a word address
 	int start = ram.isp._addr * 2;
-     dc6:	00 91 3b 01 	lds	r16, 0x013B
-     dca:	10 91 3c 01 	lds	r17, 0x013C
-     dce:	00 0f       	add	r16, r16
-     dd0:	11 1f       	adc	r17, r17
+     dbc:	00 91 3b 01 	lds	r16, 0x013B
+     dc0:	10 91 3c 01 	lds	r17, 0x013C
+     dc4:	00 0f       	add	r16, r16
+     dc6:	11 1f       	adc	r17, r17
 	for (int x = 0; x < length; x++) {
-     dd2:	e8 01       	movw	r28, r16
-     dd4:	07 c0       	rjmp	.+14     	; 0xde4 <eeprom_read_page+0x2c>
+     dc8:	e8 01       	movw	r28, r16
+     dca:	07 c0       	rjmp	.+14     	; 0xdda <eeprom_read_page+0x2c>
 		int addr = start + x;
 		uint8_t ee = spi_transaction(0xA0, (addr >> 8) & 0xFF, addr & 0xFF, 0xFF);
-     dd6:	2f ef       	ldi	r18, 0xFF	; 255
-     dd8:	4c 2f       	mov	r20, r28
-     dda:	6d 2f       	mov	r22, r29
-     ddc:	80 ea       	ldi	r24, 0xA0	; 160
-     dde:	d7 de       	rcall	.-594    	; 0xb8e <spi_transaction>
-     de0:	09 de       	rcall	.-1006   	; 0x9f4 <sendCDCbyte>
+     dcc:	2f ef       	ldi	r18, 0xFF	; 255
+     dce:	4c 2f       	mov	r20, r28
+     dd0:	6d 2f       	mov	r22, r29
+     dd2:	80 ea       	ldi	r24, 0xA0	; 160
+     dd4:	d7 de       	rcall	.-594    	; 0xb84 <spi_transaction>
+     dd6:	09 de       	rcall	.-1006   	; 0x9ea <sendCDCbyte>
 		sendCDCbyte(ee);
-     de2:	21 96       	adiw	r28, 0x01	; 1
-     de4:	ce 01       	movw	r24, r28
-     de6:	80 1b       	sub	r24, r16
+     dd8:	21 96       	adiw	r28, 0x01	; 1
+     dda:	ce 01       	movw	r24, r28
+     ddc:	80 1b       	sub	r24, r16
 	}
 	LEDs_TurnOnLEDs(LEDS_PMODE);
 	return STK_OK;
 }
 
 char eeprom_read_page(int length) {
-     de8:	91 0b       	sbc	r25, r17
-     dea:	8e 15       	cp	r24, r14
-     dec:	9f 05       	cpc	r25, r15
+     dde:	91 0b       	sbc	r25, r17
+     de0:	8e 15       	cp	r24, r14
+     de2:	9f 05       	cpc	r25, r15
 	// TODO comapre with ada
 	// here again we have a word address
 	int start = ram.isp._addr * 2;
 	for (int x = 0; x < length; x++) {
-     dee:	9c f3       	brlt	.-26     	; 0xdd6 <eeprom_read_page+0x1e>
-     df0:	80 e1       	ldi	r24, 0x10	; 16
-     df2:	df 91       	pop	r29
+     de4:	9c f3       	brlt	.-26     	; 0xdcc <eeprom_read_page+0x1e>
+     de6:	80 e1       	ldi	r24, 0x10	; 16
+     de8:	df 91       	pop	r29
 		int addr = start + x;
 		uint8_t ee = spi_transaction(0xA0, (addr >> 8) & 0xFF, addr & 0xFF, 0xFF);
 		sendCDCbyte(ee);
 	}
 	return STK_OK;
 }
-     df4:	cf 91       	pop	r28
-     df6:	1f 91       	pop	r17
-     df8:	0f 91       	pop	r16
-     dfa:	ff 90       	pop	r15
-     dfc:	ef 90       	pop	r14
-     dfe:	08 95       	ret
+     dea:	cf 91       	pop	r28
+     dec:	1f 91       	pop	r17
+     dee:	0f 91       	pop	r16
+     df0:	ff 90       	pop	r15
+     df2:	ef 90       	pop	r14
+     df4:	08 95       	ret
 
-00000e00 <read_page>:
+00000df6 <read_page>:
 	//LEDs_TurnOnLEDs(LEDS_ALL_LEDS);
 	//_delay_ms(200);
 	//LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
 }
 
 void read_page(void) {
-     e00:	1f 93       	push	r17
-     e02:	cf 93       	push	r28
-     e04:	df 93       	push	r29
+     df6:	1f 93       	push	r17
+     df8:	cf 93       	push	r28
+     dfa:	df 93       	push	r29
 	char result = (char)STK_FAILED;
 	int length = 256 * getch();
-     e06:	1b de       	rcall	.-970    	; 0xa3e <getch>
-     e08:	d8 2f       	mov	r29, r24
-     e0a:	19 de       	rcall	.-974    	; 0xa3e <getch>
+     dfc:	1b de       	rcall	.-970    	; 0xa34 <getch>
+     dfe:	d8 2f       	mov	r29, r24
+     e00:	19 de       	rcall	.-974    	; 0xa34 <getch>
 	length += getch();
-     e0c:	c8 2f       	mov	r28, r24
-     e0e:	17 de       	rcall	.-978    	; 0xa3e <getch>
-     e10:	18 2f       	mov	r17, r24
+     e02:	c8 2f       	mov	r28, r24
+     e04:	17 de       	rcall	.-978    	; 0xa34 <getch>
+     e06:	18 2f       	mov	r17, r24
 	char memtype = getch();
-     e12:	15 de       	rcall	.-982    	; 0xa3e <getch>
-     e14:	80 32       	cpi	r24, 0x20	; 32
-     e16:	59 f0       	breq	.+22     	; 0xe2e <read_page+0x2e>
+     e08:	15 de       	rcall	.-982    	; 0xa34 <getch>
+     e0a:	80 32       	cpi	r24, 0x20	; 32
+     e0c:	59 f0       	breq	.+22     	; 0xe24 <read_page+0x2e>
 	if (CRC_EOP != getch()) {
-     e18:	80 91 37 01 	lds	r24, 0x0137
-     e1c:	90 91 38 01 	lds	r25, 0x0138
+     e0e:	80 91 37 01 	lds	r24, 0x0137
+     e12:	90 91 38 01 	lds	r25, 0x0138
 		ram.isp.error++;
-     e20:	01 96       	adiw	r24, 0x01	; 1
-     e22:	90 93 38 01 	sts	0x0138, r25
-     e26:	80 93 37 01 	sts	0x0137, r24
-     e2a:	85 e1       	ldi	r24, 0x15	; 21
-     e2c:	13 c0       	rjmp	.+38     	; 0xe54 <read_page+0x54>
-     e2e:	3d 2f       	mov	r19, r29
-     e30:	20 e0       	ldi	r18, 0x00	; 0
+     e16:	01 96       	adiw	r24, 0x01	; 1
+     e18:	90 93 38 01 	sts	0x0138, r25
+     e1c:	80 93 37 01 	sts	0x0137, r24
+     e20:	85 e1       	ldi	r24, 0x15	; 21
+     e22:	13 c0       	rjmp	.+38     	; 0xe4a <read_page+0x54>
+     e24:	3d 2f       	mov	r19, r29
+     e26:	20 e0       	ldi	r18, 0x00	; 0
 		sendCDCbyte(STK_NOSYNC);
-     e32:	c9 01       	movw	r24, r18
-     e34:	8c 0f       	add	r24, r28
+     e28:	c9 01       	movw	r24, r18
+     e2a:	8c 0f       	add	r24, r28
 	//LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
 }
 
 void read_page(void) {
 	char result = (char)STK_FAILED;
 	int length = 256 * getch();
-     e36:	91 1d       	adc	r25, r1
-     e38:	ec 01       	movw	r28, r24
+     e2c:	91 1d       	adc	r25, r1
+     e2e:	ec 01       	movw	r28, r24
 	length += getch();
-     e3a:	84 e1       	ldi	r24, 0x14	; 20
-     e3c:	db dd       	rcall	.-1098   	; 0x9f4 <sendCDCbyte>
-     e3e:	16 34       	cpi	r17, 0x46	; 70
-     e40:	19 f4       	brne	.+6      	; 0xe48 <read_page+0x48>
+     e30:	84 e1       	ldi	r24, 0x14	; 20
+     e32:	db dd       	rcall	.-1098   	; 0x9ea <sendCDCbyte>
+     e34:	16 34       	cpi	r17, 0x46	; 70
+     e36:	19 f4       	brne	.+6      	; 0xe3e <read_page+0x48>
 	if (CRC_EOP != getch()) {
 		ram.isp.error++;
 		sendCDCbyte(STK_NOSYNC);
 		return;
 	}
 	sendCDCbyte(STK_INSYNC);
-     e42:	ce 01       	movw	r24, r28
-     e44:	ea de       	rcall	.-556    	; 0xc1a <flash_read_page>
-     e46:	06 c0       	rjmp	.+12     	; 0xe54 <read_page+0x54>
+     e38:	ce 01       	movw	r24, r28
+     e3a:	ea de       	rcall	.-556    	; 0xc10 <flash_read_page>
+     e3c:	06 c0       	rjmp	.+12     	; 0xe4a <read_page+0x54>
 	if (memtype == 'F') result = flash_read_page(length);
-     e48:	15 34       	cpi	r17, 0x45	; 69
-     e4a:	19 f4       	brne	.+6      	; 0xe52 <read_page+0x52>
-     e4c:	ce 01       	movw	r24, r28
-     e4e:	b4 df       	rcall	.-152    	; 0xdb8 <eeprom_read_page>
-     e50:	01 c0       	rjmp	.+2      	; 0xe54 <read_page+0x54>
-     e52:	81 e1       	ldi	r24, 0x11	; 17
+     e3e:	15 34       	cpi	r17, 0x45	; 69
+     e40:	19 f4       	brne	.+6      	; 0xe48 <read_page+0x52>
+     e42:	ce 01       	movw	r24, r28
+     e44:	b4 df       	rcall	.-152    	; 0xdae <eeprom_read_page>
+     e46:	01 c0       	rjmp	.+2      	; 0xe4a <read_page+0x54>
+     e48:	81 e1       	ldi	r24, 0x11	; 17
 	if (memtype == 'E') result = eeprom_read_page(length);
-     e54:	df 91       	pop	r29
-     e56:	cf 91       	pop	r28
-     e58:	1f 91       	pop	r17
-     e5a:	cc cd       	rjmp	.-1128   	; 0x9f4 <sendCDCbyte>
+     e4a:	df 91       	pop	r29
+     e4c:	cf 91       	pop	r28
+     e4e:	1f 91       	pop	r17
+     e50:	cc cd       	rjmp	.-1128   	; 0x9ea <sendCDCbyte>
 
-00000e5c <commit>:
+00000e52 <commit>:
 	}
 	commit(page);
 	return STK_OK;
 }
 
 void commit(int addr) {
-     e5c:	5d 9a       	sbi	0x0b, 5	; 11
+     e52:	5d 9a       	sbi	0x0b, 5	; 11
 	LEDs_TurnOffLEDs(LEDS_PMODE);
 	spi_transaction(0x4C, (addr >> 8) & 0xFF, addr & 0xFF, 0);
-     e5e:	20 e0       	ldi	r18, 0x00	; 0
+     e54:	20 e0       	ldi	r18, 0x00	; 0
 	//_delay_ms(200);
 	//LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
 }
 
 void read_page(void) {
 	char result = (char)STK_FAILED;
-     e60:	48 2f       	mov	r20, r24
+     e56:	48 2f       	mov	r20, r24
 	sendCDCbyte(STK_INSYNC);
 	if (memtype == 'F') result = flash_read_page(length);
 	if (memtype == 'E') result = eeprom_read_page(length);
 	sendCDCbyte(result);
 	return;
 }
-     e62:	69 2f       	mov	r22, r25
-     e64:	8c e4       	ldi	r24, 0x4C	; 76
-     e66:	93 de       	rcall	.-730    	; 0xb8e <spi_transaction>
+     e58:	69 2f       	mov	r22, r25
+     e5a:	8c e4       	ldi	r24, 0x4C	; 76
+     e5c:	93 de       	rcall	.-730    	; 0xb84 <spi_transaction>
 		return;
 	}
 	sendCDCbyte(STK_INSYNC);
 	if (memtype == 'F') result = flash_read_page(length);
 	if (memtype == 'E') result = eeprom_read_page(length);
 	sendCDCbyte(result);
-     e68:	2f ef       	ldi	r18, 0xFF	; 255
-     e6a:	86 e7       	ldi	r24, 0x76	; 118
-     e6c:	91 e0       	ldi	r25, 0x01	; 1
-     e6e:	21 50       	subi	r18, 0x01	; 1
-     e70:	80 40       	sbci	r24, 0x00	; 0
-     e72:	90 40       	sbci	r25, 0x00	; 0
-     e74:	e1 f7       	brne	.-8      	; 0xe6e <commit+0x12>
-     e76:	00 c0       	rjmp	.+0      	; 0xe78 <commit+0x1c>
-     e78:	00 00       	nop
-     e7a:	80 e2       	ldi	r24, 0x20	; 32
+     e5e:	2f ef       	ldi	r18, 0xFF	; 255
+     e60:	86 e7       	ldi	r24, 0x76	; 118
+     e62:	91 e0       	ldi	r25, 0x01	; 1
+     e64:	21 50       	subi	r18, 0x01	; 1
+     e66:	80 40       	sbci	r24, 0x00	; 0
+     e68:	90 40       	sbci	r25, 0x00	; 0
+     e6a:	e1 f7       	brne	.-8      	; 0xe64 <commit+0x12>
+     e6c:	00 c0       	rjmp	.+0      	; 0xe6e <commit+0x1c>
+     e6e:	00 00       	nop
+     e70:	80 e2       	ldi	r24, 0x20	; 32
 
 void commit(int addr) {
 	LEDs_TurnOffLEDs(LEDS_PMODE);
 	spi_transaction(0x4C, (addr >> 8) & 0xFF, addr & 0xFF, 0);
 	_delay_ms(30);
 	LEDs_TurnOnLEDs(LEDS_PMODE);
-     e7c:	b6 cd       	rjmp	.-1172   	; 0x9ea <LEDs_TurnOnLEDs>
+     e72:	b6 cd       	rjmp	.-1172   	; 0x9e0 <LEDs_TurnOnLEDs>
 
-00000e7e <current_page>:
+00000e74 <current_page>:
 }
 
 int current_page(void) {
-     e7e:	80 91 3d 01 	lds	r24, 0x013D
-     e82:	90 91 3e 01 	lds	r25, 0x013E
-     e86:	20 91 3b 01 	lds	r18, 0x013B
-     e8a:	30 91 3c 01 	lds	r19, 0x013C
-     e8e:	80 32       	cpi	r24, 0x20	; 32
-     e90:	91 05       	cpc	r25, r1
-     e92:	11 f4       	brne	.+4      	; 0xe98 <current_page+0x1a>
+     e74:	80 91 3d 01 	lds	r24, 0x013D
+     e78:	90 91 3e 01 	lds	r25, 0x013E
+     e7c:	20 91 3b 01 	lds	r18, 0x013B
+     e80:	30 91 3c 01 	lds	r19, 0x013C
+     e84:	80 32       	cpi	r24, 0x20	; 32
+     e86:	91 05       	cpc	r25, r1
+     e88:	11 f4       	brne	.+4      	; 0xe8e <current_page+0x1a>
 	// TODO input useless??
 	if (ram.isp.param.pagesize == 32)  return ram.isp._addr & 0xFFFFFFF0;
-     e94:	20 7f       	andi	r18, 0xF0	; 240
-     e96:	0e c0       	rjmp	.+28     	; 0xeb4 <current_page+0x36>
+     e8a:	20 7f       	andi	r18, 0xF0	; 240
+     e8c:	0e c0       	rjmp	.+28     	; 0xeaa <current_page+0x36>
 	if (ram.isp.param.pagesize == 64)  return ram.isp._addr & 0xFFFFFFE0;
-     e98:	80 34       	cpi	r24, 0x40	; 64
-     e9a:	91 05       	cpc	r25, r1
-     e9c:	11 f4       	brne	.+4      	; 0xea2 <current_page+0x24>
-     e9e:	20 7e       	andi	r18, 0xE0	; 224
-     ea0:	09 c0       	rjmp	.+18     	; 0xeb4 <current_page+0x36>
+     e8e:	80 34       	cpi	r24, 0x40	; 64
+     e90:	91 05       	cpc	r25, r1
+     e92:	11 f4       	brne	.+4      	; 0xe98 <current_page+0x24>
+     e94:	20 7e       	andi	r18, 0xE0	; 224
+     e96:	09 c0       	rjmp	.+18     	; 0xeaa <current_page+0x36>
 	if (ram.isp.param.pagesize == 128) return ram.isp._addr & 0xFFFFFFC0;
-     ea2:	80 38       	cpi	r24, 0x80	; 128
-     ea4:	91 05       	cpc	r25, r1
-     ea6:	11 f4       	brne	.+4      	; 0xeac <current_page+0x2e>
-     ea8:	20 7c       	andi	r18, 0xC0	; 192
-     eaa:	04 c0       	rjmp	.+8      	; 0xeb4 <current_page+0x36>
+     e98:	80 38       	cpi	r24, 0x80	; 128
+     e9a:	91 05       	cpc	r25, r1
+     e9c:	11 f4       	brne	.+4      	; 0xea2 <current_page+0x2e>
+     e9e:	20 7c       	andi	r18, 0xC0	; 192
+     ea0:	04 c0       	rjmp	.+8      	; 0xeaa <current_page+0x36>
 	if (ram.isp.param.pagesize == 256) return ram.isp._addr & 0xFFFFFF80;
-     eac:	81 15       	cp	r24, r1
-     eae:	91 40       	sbci	r25, 0x01	; 1
-     eb0:	09 f4       	brne	.+2      	; 0xeb4 <current_page+0x36>
-     eb2:	20 78       	andi	r18, 0x80	; 128
+     ea2:	81 15       	cp	r24, r1
+     ea4:	91 40       	sbci	r25, 0x01	; 1
+     ea6:	09 f4       	brne	.+2      	; 0xeaa <current_page+0x36>
+     ea8:	20 78       	andi	r18, 0x80	; 128
 	return ram.isp._addr;
 }
-     eb4:	c9 01       	movw	r24, r18
-     eb6:	08 95       	ret
+     eaa:	c9 01       	movw	r24, r18
+     eac:	08 95       	ret
 
-00000eb8 <flash>:
+00000eae <flash>:
 
 void flash(uint8_t hilo, int addr, uint8_t data) {
-     eb8:	96 2f       	mov	r25, r22
-     eba:	67 2f       	mov	r22, r23
-     ebc:	24 2f       	mov	r18, r20
+     eae:	96 2f       	mov	r25, r22
+     eb0:	67 2f       	mov	r22, r23
+     eb2:	24 2f       	mov	r18, r20
 	spi_transaction(0x40 + 8 * hilo,
-     ebe:	88 0f       	add	r24, r24
-     ec0:	88 0f       	add	r24, r24
-     ec2:	88 0f       	add	r24, r24
-     ec4:	49 2f       	mov	r20, r25
-     ec6:	80 5c       	subi	r24, 0xC0	; 192
-     ec8:	62 ce       	rjmp	.-828    	; 0xb8e <spi_transaction>
+     eb4:	88 0f       	add	r24, r24
+     eb6:	88 0f       	add	r24, r24
+     eb8:	88 0f       	add	r24, r24
+     eba:	49 2f       	mov	r20, r25
+     ebc:	80 5c       	subi	r24, 0xC0	; 192
+     ebe:	62 ce       	rjmp	.-828    	; 0xb84 <spi_transaction>
 
-00000eca <write_flash_pages>:
+00000ec0 <write_flash_pages>:
 		sendCDCbyte(ee);
 	}
 	return STK_OK;
 }
 
 uint8_t write_flash_pages(int length) {
-     eca:	cf 92       	push	r12
-     ecc:	df 92       	push	r13
-     ece:	ef 92       	push	r14
-     ed0:	ff 92       	push	r15
-     ed2:	0f 93       	push	r16
-     ed4:	1f 93       	push	r17
-     ed6:	cf 93       	push	r28
-     ed8:	df 93       	push	r29
-     eda:	6c 01       	movw	r12, r24
+     ec0:	cf 92       	push	r12
+     ec2:	df 92       	push	r13
+     ec4:	ef 92       	push	r14
+     ec6:	ff 92       	push	r15
+     ec8:	0f 93       	push	r16
+     eca:	1f 93       	push	r17
+     ecc:	cf 93       	push	r28
+     ece:	df 93       	push	r29
+     ed0:	6c 01       	movw	r12, r24
 	int x = 0;
 	int page = current_page();
-     edc:	d0 df       	rcall	.-96     	; 0xe7e <current_page>
-     ede:	8c 01       	movw	r16, r24
-     ee0:	c0 e0       	ldi	r28, 0x00	; 0
+     ed2:	d0 df       	rcall	.-96     	; 0xe74 <current_page>
+     ed4:	8c 01       	movw	r16, r24
+     ed6:	c0 e0       	ldi	r28, 0x00	; 0
 	}
 	return STK_OK;
 }
 
 uint8_t write_flash_pages(int length) {
 	int x = 0;
-     ee2:	d0 e0       	ldi	r29, 0x00	; 0
-     ee4:	29 c0       	rjmp	.+82     	; 0xf38 <write_flash_pages+0x6e>
+     ed8:	d0 e0       	ldi	r29, 0x00	; 0
+     eda:	29 c0       	rjmp	.+82     	; 0xf2e <write_flash_pages+0x6e>
 	int page = current_page();
 	while (x < length) {
-     ee6:	cb df       	rcall	.-106    	; 0xe7e <current_page>
+     edc:	cb df       	rcall	.-106    	; 0xe74 <current_page>
 		if (page != current_page()) {
-     ee8:	08 17       	cp	r16, r24
-     eea:	19 07       	cpc	r17, r25
-     eec:	21 f0       	breq	.+8      	; 0xef6 <write_flash_pages+0x2c>
-     eee:	c8 01       	movw	r24, r16
-     ef0:	b5 df       	rcall	.-150    	; 0xe5c <commit>
+     ede:	08 17       	cp	r16, r24
+     ee0:	19 07       	cpc	r17, r25
+     ee2:	21 f0       	breq	.+8      	; 0xeec <write_flash_pages+0x2c>
+     ee4:	c8 01       	movw	r24, r16
+     ee6:	b5 df       	rcall	.-150    	; 0xe52 <commit>
 			commit(page);
-     ef2:	c5 df       	rcall	.-118    	; 0xe7e <current_page>
-     ef4:	8c 01       	movw	r16, r24
-     ef6:	46 e3       	ldi	r20, 0x36	; 54
+     ee8:	c5 df       	rcall	.-118    	; 0xe74 <current_page>
+     eea:	8c 01       	movw	r16, r24
+     eec:	46 e3       	ldi	r20, 0x36	; 54
 			page = current_page();
-     ef8:	e4 2e       	mov	r14, r20
-     efa:	41 e0       	ldi	r20, 0x01	; 1
-     efc:	f4 2e       	mov	r15, r20
+     eee:	e4 2e       	mov	r14, r20
+     ef0:	41 e0       	ldi	r20, 0x01	; 1
+     ef2:	f4 2e       	mov	r15, r20
 		sendCDCbyte(ee);
 	}
 	return STK_OK;
 }
 
 uint8_t write_flash_pages(int length) {
-     efe:	ec 0e       	add	r14, r28
-     f00:	fd 1e       	adc	r15, r29
-     f02:	60 91 3b 01 	lds	r22, 0x013B
-     f06:	70 91 3c 01 	lds	r23, 0x013C
+     ef4:	ec 0e       	add	r14, r28
+     ef6:	fd 1e       	adc	r15, r29
+     ef8:	60 91 3b 01 	lds	r22, 0x013B
+     efc:	70 91 3c 01 	lds	r23, 0x013C
 	while (x < length) {
 		if (page != current_page()) {
 			commit(page);
 			page = current_page();
 		}
 		flash(LOW, ram.isp._addr, ram.isp.buff[x++]);
-     f0a:	f7 01       	movw	r30, r14
-     f0c:	43 85       	ldd	r20, Z+11	; 0x0b
-     f0e:	80 e0       	ldi	r24, 0x00	; 0
-     f10:	d3 df       	rcall	.-90     	; 0xeb8 <flash>
-     f12:	22 96       	adiw	r28, 0x02	; 2
-     f14:	60 91 3b 01 	lds	r22, 0x013B
-     f18:	70 91 3c 01 	lds	r23, 0x013C
+     f00:	f7 01       	movw	r30, r14
+     f02:	43 85       	ldd	r20, Z+11	; 0x0b
+     f04:	80 e0       	ldi	r24, 0x00	; 0
+     f06:	d3 df       	rcall	.-90     	; 0xeae <flash>
+     f08:	22 96       	adiw	r28, 0x02	; 2
+     f0a:	60 91 3b 01 	lds	r22, 0x013B
+     f0e:	70 91 3c 01 	lds	r23, 0x013C
 		flash(HIGH, ram.isp._addr, ram.isp.buff[x++]);
-     f1c:	f7 01       	movw	r30, r14
-     f1e:	44 85       	ldd	r20, Z+12	; 0x0c
-     f20:	81 e0       	ldi	r24, 0x01	; 1
-     f22:	ca df       	rcall	.-108    	; 0xeb8 <flash>
-     f24:	20 91 3b 01 	lds	r18, 0x013B
-     f28:	30 91 3c 01 	lds	r19, 0x013C
-     f2c:	2f 5f       	subi	r18, 0xFF	; 255
-     f2e:	3f 4f       	sbci	r19, 0xFF	; 255
+     f12:	f7 01       	movw	r30, r14
+     f14:	44 85       	ldd	r20, Z+12	; 0x0c
+     f16:	81 e0       	ldi	r24, 0x01	; 1
+     f18:	ca df       	rcall	.-108    	; 0xeae <flash>
+     f1a:	20 91 3b 01 	lds	r18, 0x013B
+     f1e:	30 91 3c 01 	lds	r19, 0x013C
+     f22:	2f 5f       	subi	r18, 0xFF	; 255
+     f24:	3f 4f       	sbci	r19, 0xFF	; 255
 		ram.isp._addr++;
-     f30:	30 93 3c 01 	sts	0x013C, r19
-     f34:	20 93 3b 01 	sts	0x013B, r18
-     f38:	cc 15       	cp	r28, r12
-     f3a:	dd 05       	cpc	r29, r13
-     f3c:	a4 f2       	brlt	.-88     	; 0xee6 <write_flash_pages+0x1c>
-     f3e:	c8 01       	movw	r24, r16
-     f40:	8d df       	rcall	.-230    	; 0xe5c <commit>
-     f42:	80 e1       	ldi	r24, 0x10	; 16
+     f26:	30 93 3c 01 	sts	0x013C, r19
+     f2a:	20 93 3b 01 	sts	0x013B, r18
+     f2e:	cc 15       	cp	r28, r12
+     f30:	dd 05       	cpc	r29, r13
+     f32:	a4 f2       	brlt	.-88     	; 0xedc <write_flash_pages+0x1c>
+     f34:	c8 01       	movw	r24, r16
+     f36:	8d df       	rcall	.-230    	; 0xe52 <commit>
+     f38:	80 e1       	ldi	r24, 0x10	; 16
 }
 
 uint8_t write_flash_pages(int length) {
 	int x = 0;
 	int page = current_page();
 	while (x < length) {
-     f44:	df 91       	pop	r29
-     f46:	cf 91       	pop	r28
-     f48:	1f 91       	pop	r17
+     f3a:	df 91       	pop	r29
+     f3c:	cf 91       	pop	r28
+     f3e:	1f 91       	pop	r17
 		}
 		flash(LOW, ram.isp._addr, ram.isp.buff[x++]);
 		flash(HIGH, ram.isp._addr, ram.isp.buff[x++]);
 		ram.isp._addr++;
 	}
 	commit(page);
-     f4a:	0f 91       	pop	r16
-     f4c:	ff 90       	pop	r15
-     f4e:	ef 90       	pop	r14
+     f40:	0f 91       	pop	r16
+     f42:	ff 90       	pop	r15
+     f44:	ef 90       	pop	r14
 	return STK_OK;
 }
-     f50:	df 90       	pop	r13
-     f52:	cf 90       	pop	r12
-     f54:	08 95       	ret
+     f46:	df 90       	pop	r13
+     f48:	cf 90       	pop	r12
+     f4a:	08 95       	ret
 
-00000f56 <write_flash>:
+00000f4c <write_flash>:
 	if (memtype == 'E') result = eeprom_read_page(length);
 	sendCDCbyte(result);
 	return;
 }
 
 void write_flash(int length) {
-     f56:	cf 93       	push	r28
-     f58:	df 93       	push	r29
-     f5a:	ec 01       	movw	r28, r24
+     f4c:	cf 93       	push	r28
+     f4e:	df 93       	push	r29
+     f50:	ec 01       	movw	r28, r24
 	// TODO compare with ada <--
 	fill(length);
-     f5c:	77 dd       	rcall	.-1298   	; 0xa4c <fill>
-     f5e:	6f dd       	rcall	.-1314   	; 0xa3e <getch>
+     f52:	77 dd       	rcall	.-1298   	; 0xa42 <fill>
+     f54:	6f dd       	rcall	.-1314   	; 0xa34 <getch>
 	if (CRC_EOP == getch()) {
-     f60:	80 32       	cpi	r24, 0x20	; 32
-     f62:	29 f4       	brne	.+10     	; 0xf6e <write_flash+0x18>
-     f64:	84 e1       	ldi	r24, 0x14	; 20
-     f66:	46 dd       	rcall	.-1396   	; 0x9f4 <sendCDCbyte>
+     f56:	80 32       	cpi	r24, 0x20	; 32
+     f58:	29 f4       	brne	.+10     	; 0xf64 <write_flash+0x18>
+     f5a:	84 e1       	ldi	r24, 0x14	; 20
+     f5c:	46 dd       	rcall	.-1396   	; 0x9ea <sendCDCbyte>
 		sendCDCbyte(STK_INSYNC);
-     f68:	ce 01       	movw	r24, r28
-     f6a:	af df       	rcall	.-162    	; 0xeca <write_flash_pages>
-     f6c:	0a c0       	rjmp	.+20     	; 0xf82 <write_flash+0x2c>
+     f5e:	ce 01       	movw	r24, r28
+     f60:	af df       	rcall	.-162    	; 0xec0 <write_flash_pages>
+     f62:	0a c0       	rjmp	.+20     	; 0xf78 <write_flash+0x2c>
 		sendCDCbyte(write_flash_pages(length));
-     f6e:	80 91 37 01 	lds	r24, 0x0137
-     f72:	90 91 38 01 	lds	r25, 0x0138
+     f64:	80 91 37 01 	lds	r24, 0x0137
+     f68:	90 91 38 01 	lds	r25, 0x0138
 	}
 	else {
 		ram.isp.error++;
-     f76:	01 96       	adiw	r24, 0x01	; 1
-     f78:	90 93 38 01 	sts	0x0138, r25
-     f7c:	80 93 37 01 	sts	0x0137, r24
-     f80:	85 e1       	ldi	r24, 0x15	; 21
-     f82:	df 91       	pop	r29
-     f84:	cf 91       	pop	r28
-     f86:	36 cd       	rjmp	.-1428   	; 0x9f4 <sendCDCbyte>
+     f6c:	01 96       	adiw	r24, 0x01	; 1
+     f6e:	90 93 38 01 	sts	0x0138, r25
+     f72:	80 93 37 01 	sts	0x0137, r24
+     f76:	85 e1       	ldi	r24, 0x15	; 21
+     f78:	df 91       	pop	r29
+     f7a:	cf 91       	pop	r28
+     f7c:	36 cd       	rjmp	.-1428   	; 0x9ea <sendCDCbyte>
 
-00000f88 <program_page>:
+00000f7e <program_page>:
 		sendCDCbyte(STK_NOSYNC);
-     f88:	cf 93       	push	r28
+     f7e:	cf 93       	push	r28
 	}
 }
-     f8a:	df 93       	push	r29
+     f80:	df 93       	push	r29
 	} while (!(SPSR & (1 << SPIF)));
 }
 
 void program_page(void) {
 	char result = (char)STK_FAILED;
 	int length = 256 * getch();
-     f8c:	58 dd       	rcall	.-1360   	; 0xa3e <getch>
+     f82:	58 dd       	rcall	.-1360   	; 0xa34 <getch>
 		sendCDCbyte(STK_INSYNC);
 		sendCDCbyte(write_flash_pages(length));
 	}
 	else {
 		ram.isp.error++;
 		sendCDCbyte(STK_NOSYNC);
-     f8e:	d8 2f       	mov	r29, r24
-     f90:	80 e0       	ldi	r24, 0x00	; 0
-     f92:	c8 2f       	mov	r28, r24
-     f94:	54 dd       	rcall	.-1368   	; 0xa3e <getch>
+     f84:	d8 2f       	mov	r29, r24
+     f86:	80 e0       	ldi	r24, 0x00	; 0
+     f88:	c8 2f       	mov	r28, r24
+     f8a:	54 dd       	rcall	.-1368   	; 0xa34 <getch>
 }
 
 void program_page(void) {
 	char result = (char)STK_FAILED;
 	int length = 256 * getch();
 	length += getch();
-     f96:	c8 0f       	add	r28, r24
-     f98:	d1 1d       	adc	r29, r1
-     f9a:	c1 30       	cpi	r28, 0x01	; 1
-     f9c:	81 e0       	ldi	r24, 0x01	; 1
+     f8c:	c8 0f       	add	r28, r24
+     f8e:	d1 1d       	adc	r29, r1
+     f90:	c1 30       	cpi	r28, 0x01	; 1
+     f92:	81 e0       	ldi	r24, 0x01	; 1
 
 	// added from ada <--
 	if (length > 256) {
-     f9e:	d8 07       	cpc	r29, r24
-     fa0:	64 f0       	brlt	.+24     	; 0xfba <program_page+0x32>
-     fa2:	81 e1       	ldi	r24, 0x11	; 17
-     fa4:	27 dd       	rcall	.-1458   	; 0x9f4 <sendCDCbyte>
+     f94:	d8 07       	cpc	r29, r24
+     f96:	64 f0       	brlt	.+24     	; 0xfb0 <program_page+0x32>
+     f98:	81 e1       	ldi	r24, 0x11	; 17
+     f9a:	27 dd       	rcall	.-1458   	; 0x9ea <sendCDCbyte>
 		sendCDCbyte(STK_FAILED);
-     fa6:	80 91 37 01 	lds	r24, 0x0137
-     faa:	90 91 38 01 	lds	r25, 0x0138
+     f9c:	80 91 37 01 	lds	r24, 0x0137
+     fa0:	90 91 38 01 	lds	r25, 0x0138
 		ram.isp.error++;
-     fae:	01 96       	adiw	r24, 0x01	; 1
-     fb0:	90 93 38 01 	sts	0x0138, r25
-     fb4:	80 93 37 01 	sts	0x0137, r24
-     fb8:	22 c0       	rjmp	.+68     	; 0xffe <program_page+0x76>
-     fba:	41 dd       	rcall	.-1406   	; 0xa3e <getch>
-     fbc:	86 34       	cpi	r24, 0x46	; 70
+     fa4:	01 96       	adiw	r24, 0x01	; 1
+     fa6:	90 93 38 01 	sts	0x0138, r25
+     faa:	80 93 37 01 	sts	0x0137, r24
+     fae:	22 c0       	rjmp	.+68     	; 0xff4 <program_page+0x76>
+     fb0:	41 dd       	rcall	.-1406   	; 0xa34 <getch>
+     fb2:	86 34       	cpi	r24, 0x46	; 70
 		return;
-     fbe:	21 f4       	brne	.+8      	; 0xfc8 <program_page+0x40>
+     fb4:	21 f4       	brne	.+8      	; 0xfbe <program_page+0x40>
 	}
 
 	// todo compare with ada <--
 
 	char memtype = getch();
-     fc0:	ce 01       	movw	r24, r28
-     fc2:	df 91       	pop	r29
+     fb6:	ce 01       	movw	r24, r28
+     fb8:	df 91       	pop	r29
 	// flash memory @here, (length) bytes
 	if (memtype == 'F') {
-     fc4:	cf 91       	pop	r28
-     fc6:	c7 cf       	rjmp	.-114    	; 0xf56 <write_flash>
+     fba:	cf 91       	pop	r28
+     fbc:	c7 cf       	rjmp	.-114    	; 0xf4c <write_flash>
 		write_flash(length);
-     fc8:	85 34       	cpi	r24, 0x45	; 69
+     fbe:	85 34       	cpi	r24, 0x45	; 69
 		}
 		return;
 	}
 	sendCDCbyte(STK_FAILED);
 	return;
 }
-     fca:	a9 f4       	brne	.+42     	; 0xff6 <program_page+0x6e>
-     fcc:	ce 01       	movw	r24, r28
+     fc0:	a9 f4       	brne	.+42     	; 0xfec <program_page+0x6e>
+     fc2:	ce 01       	movw	r24, r28
 	// todo compare with ada <--
 
 	char memtype = getch();
 	// flash memory @here, (length) bytes
 	if (memtype == 'F') {
 		write_flash(length);
-     fce:	c3 de       	rcall	.-634    	; 0xd56 <write_eeprom>
-     fd0:	c8 2f       	mov	r28, r24
+     fc4:	c3 de       	rcall	.-634    	; 0xd4c <write_eeprom>
+     fc6:	c8 2f       	mov	r28, r24
 		return;
 	}
 	if (memtype == 'E') {
-     fd2:	35 dd       	rcall	.-1430   	; 0xa3e <getch>
-     fd4:	80 32       	cpi	r24, 0x20	; 32
+     fc8:	35 dd       	rcall	.-1430   	; 0xa34 <getch>
+     fca:	80 32       	cpi	r24, 0x20	; 32
 		result = (char)write_eeprom(length);
-     fd6:	21 f4       	brne	.+8      	; 0xfe0 <program_page+0x58>
-     fd8:	84 e1       	ldi	r24, 0x14	; 20
-     fda:	0c dd       	rcall	.-1512   	; 0x9f4 <sendCDCbyte>
-     fdc:	8c 2f       	mov	r24, r28
+     fcc:	21 f4       	brne	.+8      	; 0xfd6 <program_page+0x58>
+     fce:	84 e1       	ldi	r24, 0x14	; 20
+     fd0:	0c dd       	rcall	.-1512   	; 0x9ea <sendCDCbyte>
+     fd2:	8c 2f       	mov	r24, r28
 		if (CRC_EOP == getch()) {
-     fde:	0c c0       	rjmp	.+24     	; 0xff8 <program_page+0x70>
-     fe0:	80 91 37 01 	lds	r24, 0x0137
-     fe4:	90 91 38 01 	lds	r25, 0x0138
+     fd4:	0c c0       	rjmp	.+24     	; 0xfee <program_page+0x70>
+     fd6:	80 91 37 01 	lds	r24, 0x0137
+     fda:	90 91 38 01 	lds	r25, 0x0138
 			sendCDCbyte(STK_INSYNC);
-     fe8:	01 96       	adiw	r24, 0x01	; 1
-     fea:	90 93 38 01 	sts	0x0138, r25
+     fde:	01 96       	adiw	r24, 0x01	; 1
+     fe0:	90 93 38 01 	sts	0x0138, r25
 			sendCDCbyte(result);
-     fee:	80 93 37 01 	sts	0x0137, r24
+     fe4:	80 93 37 01 	sts	0x0137, r24
 		}
 		else {
 			ram.isp.error++;
-     ff2:	85 e1       	ldi	r24, 0x15	; 21
-     ff4:	01 c0       	rjmp	.+2      	; 0xff8 <program_page+0x70>
-     ff6:	81 e1       	ldi	r24, 0x11	; 17
-     ff8:	df 91       	pop	r29
-     ffa:	cf 91       	pop	r28
-     ffc:	fb cc       	rjmp	.-1546   	; 0x9f4 <sendCDCbyte>
-     ffe:	df 91       	pop	r29
-    1000:	cf 91       	pop	r28
+     fe8:	85 e1       	ldi	r24, 0x15	; 21
+     fea:	01 c0       	rjmp	.+2      	; 0xfee <program_page+0x70>
+     fec:	81 e1       	ldi	r24, 0x11	; 17
+     fee:	df 91       	pop	r29
+     ff0:	cf 91       	pop	r28
+     ff2:	fb cc       	rjmp	.-1546   	; 0x9ea <sendCDCbyte>
+     ff4:	df 91       	pop	r29
+     ff6:	cf 91       	pop	r28
 			sendCDCbyte(STK_NOSYNC);
-    1002:	08 95       	ret
+     ff8:	08 95       	ret
 
-00001004 <avrisp>:
+00000ffa <avrisp>:
 
 //================================================================================
 // AVRISP
 //================================================================================
 
 void avrisp(void){
-    1004:	cf 93       	push	r28
+     ffa:	cf 93       	push	r28
 			ram.isp.error++;
 			sendCDCbyte(STK_NOSYNC);
 		}
 		return;
 	}
 	sendCDCbyte(STK_FAILED);
-    1006:	df 93       	push	r29
+     ffc:	df 93       	push	r29
 	return;
 }
-    1008:	80 91 39 01 	lds	r24, 0x0139
+     ffe:	80 91 39 01 	lds	r24, 0x0139
 			ram.isp.error++;
 			sendCDCbyte(STK_NOSYNC);
 		}
 		return;
 	}
 	sendCDCbyte(STK_FAILED);
-    100c:	90 91 3a 01 	lds	r25, 0x013A
+    1002:	90 91 3a 01 	lds	r25, 0x013A
 	return;
 }
-    1010:	89 2b       	or	r24, r25
-    1012:	19 f0       	breq	.+6      	; 0x101a <avrisp+0x16>
+    1006:	89 2b       	or	r24, r25
+    1008:	19 f0       	breq	.+6      	; 0x1010 <avrisp+0x16>
 // AVRISP
 //================================================================================
 
 void avrisp(void){
 	// is pmode active?
 	if (ram.isp.pmode) LEDs_TurnOnLEDs(LEDS_PMODE);
-    1014:	80 e2       	ldi	r24, 0x20	; 32
-    1016:	e9 dc       	rcall	.-1582   	; 0x9ea <LEDs_TurnOnLEDs>
-    1018:	01 c0       	rjmp	.+2      	; 0x101c <avrisp+0x18>
-    101a:	5d 9a       	sbi	0x0b, 5	; 11
-    101c:	80 91 37 01 	lds	r24, 0x0137
+    100a:	80 e2       	ldi	r24, 0x20	; 32
+    100c:	e9 dc       	rcall	.-1582   	; 0x9e0 <LEDs_TurnOnLEDs>
+    100e:	01 c0       	rjmp	.+2      	; 0x1012 <avrisp+0x18>
+    1010:	5d 9a       	sbi	0x0b, 5	; 11
+    1012:	80 91 37 01 	lds	r24, 0x0137
 	else LEDs_TurnOffLEDs(LEDS_PMODE);
 
 	// is there an error?
 	if (ram.isp.error) LEDs_TurnOnLEDs(LEDS_ERR);
-    1020:	90 91 38 01 	lds	r25, 0x0138
-    1024:	89 2b       	or	r24, r25
-    1026:	19 f0       	breq	.+6      	; 0x102e <avrisp+0x2a>
-    1028:	80 e1       	ldi	r24, 0x10	; 16
-    102a:	df dc       	rcall	.-1602   	; 0x9ea <LEDs_TurnOnLEDs>
-    102c:	01 c0       	rjmp	.+2      	; 0x1030 <avrisp+0x2c>
-    102e:	5c 9a       	sbi	0x0b, 4	; 11
-    1030:	80 e1       	ldi	r24, 0x10	; 16
-    1032:	91 e0       	ldi	r25, 0x01	; 1
+    1016:	90 91 38 01 	lds	r25, 0x0138
+    101a:	89 2b       	or	r24, r25
+    101c:	19 f0       	breq	.+6      	; 0x1024 <avrisp+0x2a>
+    101e:	80 e1       	ldi	r24, 0x10	; 16
+    1020:	df dc       	rcall	.-1602   	; 0x9e0 <LEDs_TurnOnLEDs>
+    1022:	01 c0       	rjmp	.+2      	; 0x1026 <avrisp+0x2c>
+    1024:	5c 9a       	sbi	0x0b, 4	; 11
+    1026:	80 e1       	ldi	r24, 0x10	; 16
+    1028:	91 e0       	ldi	r25, 0x01	; 1
 	else LEDs_TurnOffLEDs(LEDS_ERR);
 
 	// read in bytes from the CDC interface
 	int16_t ReceivedByte = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
-    1034:	ab d7       	rcall	.+3926   	; 0x1f8c <CDC_Device_ReceiveByte>
-    1036:	97 fd       	sbrc	r25, 7
-    1038:	ae c0       	rjmp	.+348    	; 0x1196 <avrisp+0x192>
-    103a:	81 35       	cpi	r24, 0x51	; 81
+    102a:	b0 d7       	rcall	.+3936   	; 0x1f8c <CDC_Device_ReceiveByte>
+    102c:	97 fd       	sbrc	r25, 7
+    102e:	ae c0       	rjmp	.+348    	; 0x118c <avrisp+0x192>
+    1030:	81 35       	cpi	r24, 0x51	; 81
 	if (!(ReceivedByte < 0)){
-    103c:	91 05       	cpc	r25, r1
-    103e:	09 f4       	brne	.+2      	; 0x1042 <avrisp+0x3e>
+    1032:	91 05       	cpc	r25, r1
+    1034:	09 f4       	brne	.+2      	; 0x1038 <avrisp+0x3e>
 		switch (ReceivedByte) {
-    1040:	85 c0       	rjmp	.+266    	; 0x114c <avrisp+0x148>
-    1042:	e4 f4       	brge	.+56     	; 0x107c <avrisp+0x78>
-    1044:	81 34       	cpi	r24, 0x41	; 65
+    1036:	85 c0       	rjmp	.+266    	; 0x1142 <avrisp+0x148>
+    1038:	e4 f4       	brge	.+56     	; 0x1072 <avrisp+0x78>
+    103a:	81 34       	cpi	r24, 0x41	; 65
+    103c:	91 05       	cpc	r25, r1
+    103e:	09 f4       	brne	.+2      	; 0x1042 <avrisp+0x48>
+    1040:	52 c0       	rjmp	.+164    	; 0x10e6 <avrisp+0xec>
+    1042:	54 f4       	brge	.+20     	; 0x1058 <avrisp+0x5e>
+    1044:	80 33       	cpi	r24, 0x30	; 48
     1046:	91 05       	cpc	r25, r1
-    1048:	09 f4       	brne	.+2      	; 0x104c <avrisp+0x48>
-    104a:	52 c0       	rjmp	.+164    	; 0x10f0 <avrisp+0xec>
-    104c:	54 f4       	brge	.+20     	; 0x1062 <avrisp+0x5e>
-    104e:	80 33       	cpi	r24, 0x30	; 48
-    1050:	91 05       	cpc	r25, r1
-    1052:	99 f1       	breq	.+102    	; 0x10ba <avrisp+0xb6>
-    1054:	81 33       	cpi	r24, 0x31	; 49
-    1056:	91 05       	cpc	r25, r1
-    1058:	a9 f1       	breq	.+106    	; 0x10c4 <avrisp+0xc0>
-    105a:	80 97       	sbiw	r24, 0x20	; 32
-    105c:	09 f0       	breq	.+2      	; 0x1060 <avrisp+0x5c>
-    105e:	89 c0       	rjmp	.+274    	; 0x1172 <avrisp+0x16e>
-    1060:	7e c0       	rjmp	.+252    	; 0x115e <avrisp+0x15a>
-    1062:	85 34       	cpi	r24, 0x45	; 69
-    1064:	91 05       	cpc	r25, r1
-    1066:	09 f4       	brne	.+2      	; 0x106a <avrisp+0x66>
-    1068:	4e c0       	rjmp	.+156    	; 0x1106 <avrisp+0x102>
-    106a:	80 35       	cpi	r24, 0x50	; 80
-    106c:	91 05       	cpc	r25, r1
-    106e:	09 f4       	brne	.+2      	; 0x1072 <avrisp+0x6e>
-    1070:	4e c0       	rjmp	.+156    	; 0x110e <avrisp+0x10a>
-    1072:	82 34       	cpi	r24, 0x42	; 66
+    1048:	99 f1       	breq	.+102    	; 0x10b0 <avrisp+0xb6>
+    104a:	81 33       	cpi	r24, 0x31	; 49
+    104c:	91 05       	cpc	r25, r1
+    104e:	a9 f1       	breq	.+106    	; 0x10ba <avrisp+0xc0>
+    1050:	80 97       	sbiw	r24, 0x20	; 32
+    1052:	09 f0       	breq	.+2      	; 0x1056 <avrisp+0x5c>
+    1054:	89 c0       	rjmp	.+274    	; 0x1168 <avrisp+0x16e>
+    1056:	7e c0       	rjmp	.+252    	; 0x1154 <avrisp+0x15a>
+    1058:	85 34       	cpi	r24, 0x45	; 69
+    105a:	91 05       	cpc	r25, r1
+    105c:	09 f4       	brne	.+2      	; 0x1060 <avrisp+0x66>
+    105e:	4e c0       	rjmp	.+156    	; 0x10fc <avrisp+0x102>
+    1060:	80 35       	cpi	r24, 0x50	; 80
+    1062:	91 05       	cpc	r25, r1
+    1064:	09 f4       	brne	.+2      	; 0x1068 <avrisp+0x6e>
+    1066:	4e c0       	rjmp	.+156    	; 0x1104 <avrisp+0x10a>
+    1068:	82 34       	cpi	r24, 0x42	; 66
+    106a:	91 05       	cpc	r25, r1
+    106c:	09 f0       	breq	.+2      	; 0x1070 <avrisp+0x76>
+    106e:	7c c0       	rjmp	.+248    	; 0x1168 <avrisp+0x16e>
+    1070:	3e c0       	rjmp	.+124    	; 0x10ee <avrisp+0xf4>
+    1072:	81 36       	cpi	r24, 0x61	; 97
     1074:	91 05       	cpc	r25, r1
-    1076:	09 f0       	breq	.+2      	; 0x107a <avrisp+0x76>
-    1078:	7c c0       	rjmp	.+248    	; 0x1172 <avrisp+0x16e>
-    107a:	3e c0       	rjmp	.+124    	; 0x10f8 <avrisp+0xf4>
-    107c:	81 36       	cpi	r24, 0x61	; 97
+    1076:	09 f4       	brne	.+2      	; 0x107a <avrisp+0x80>
+    1078:	59 c0       	rjmp	.+178    	; 0x112c <avrisp+0x132>
+    107a:	6c f4       	brge	.+26     	; 0x1096 <avrisp+0x9c>
+    107c:	86 35       	cpi	r24, 0x56	; 86
     107e:	91 05       	cpc	r25, r1
-    1080:	09 f4       	brne	.+2      	; 0x1084 <avrisp+0x80>
-    1082:	59 c0       	rjmp	.+178    	; 0x1136 <avrisp+0x132>
-    1084:	6c f4       	brge	.+26     	; 0x10a0 <avrisp+0x9c>
-    1086:	86 35       	cpi	r24, 0x56	; 86
-    1088:	91 05       	cpc	r25, r1
-    108a:	09 f4       	brne	.+2      	; 0x108e <avrisp+0x8a>
-    108c:	5c c0       	rjmp	.+184    	; 0x1146 <avrisp+0x142>
-    108e:	80 36       	cpi	r24, 0x60	; 96
-    1090:	91 05       	cpc	r25, r1
-    1092:	09 f4       	brne	.+2      	; 0x1096 <avrisp+0x92>
-    1094:	4f c0       	rjmp	.+158    	; 0x1134 <avrisp+0x130>
-    1096:	85 35       	cpi	r24, 0x55	; 85
+    1080:	09 f4       	brne	.+2      	; 0x1084 <avrisp+0x8a>
+    1082:	5c c0       	rjmp	.+184    	; 0x113c <avrisp+0x142>
+    1084:	80 36       	cpi	r24, 0x60	; 96
+    1086:	91 05       	cpc	r25, r1
+    1088:	09 f4       	brne	.+2      	; 0x108c <avrisp+0x92>
+    108a:	4f c0       	rjmp	.+158    	; 0x112a <avrisp+0x130>
+    108c:	85 35       	cpi	r24, 0x55	; 85
+    108e:	91 05       	cpc	r25, r1
+    1090:	09 f0       	breq	.+2      	; 0x1094 <avrisp+0x9a>
+    1092:	6a c0       	rjmp	.+212    	; 0x1168 <avrisp+0x16e>
+    1094:	39 c0       	rjmp	.+114    	; 0x1108 <avrisp+0x10e>
+    1096:	84 37       	cpi	r24, 0x74	; 116
     1098:	91 05       	cpc	r25, r1
-    109a:	09 f0       	breq	.+2      	; 0x109e <avrisp+0x9a>
-    109c:	6a c0       	rjmp	.+212    	; 0x1172 <avrisp+0x16e>
-    109e:	39 c0       	rjmp	.+114    	; 0x1112 <avrisp+0x10e>
-    10a0:	84 37       	cpi	r24, 0x74	; 116
-    10a2:	91 05       	cpc	r25, r1
-    10a4:	09 f4       	brne	.+2      	; 0x10a8 <avrisp+0xa4>
-    10a6:	4c c0       	rjmp	.+152    	; 0x1140 <avrisp+0x13c>
-    10a8:	85 37       	cpi	r24, 0x75	; 117
-    10aa:	91 05       	cpc	r25, r1
-    10ac:	09 f4       	brne	.+2      	; 0x10b0 <avrisp+0xac>
-    10ae:	54 c0       	rjmp	.+168    	; 0x1158 <avrisp+0x154>
-    10b0:	84 36       	cpi	r24, 0x64	; 100
-    10b2:	91 05       	cpc	r25, r1
-    10b4:	09 f0       	breq	.+2      	; 0x10b8 <avrisp+0xb4>
-    10b6:	5d c0       	rjmp	.+186    	; 0x1172 <avrisp+0x16e>
-    10b8:	40 c0       	rjmp	.+128    	; 0x113a <avrisp+0x136>
-    10ba:	10 92 38 01 	sts	0x0138, r1
-    10be:	10 92 37 01 	sts	0x0137, r1
+    109a:	09 f4       	brne	.+2      	; 0x109e <avrisp+0xa4>
+    109c:	4c c0       	rjmp	.+152    	; 0x1136 <avrisp+0x13c>
+    109e:	85 37       	cpi	r24, 0x75	; 117
+    10a0:	91 05       	cpc	r25, r1
+    10a2:	09 f4       	brne	.+2      	; 0x10a6 <avrisp+0xac>
+    10a4:	54 c0       	rjmp	.+168    	; 0x114e <avrisp+0x154>
+    10a6:	84 36       	cpi	r24, 0x64	; 100
+    10a8:	91 05       	cpc	r25, r1
+    10aa:	09 f0       	breq	.+2      	; 0x10ae <avrisp+0xb4>
+    10ac:	5d c0       	rjmp	.+186    	; 0x1168 <avrisp+0x16e>
+    10ae:	40 c0       	rjmp	.+128    	; 0x1130 <avrisp+0x136>
+    10b0:	10 92 38 01 	sts	0x0138, r1
+    10b4:	10 92 37 01 	sts	0x0137, r1
 		case STK_GET_SYNC:
 			ram.isp.error = 0;
-    10c2:	1e c0       	rjmp	.+60     	; 0x1100 <avrisp+0xfc>
-    10c4:	bc dc       	rcall	.-1672   	; 0xa3e <getch>
-    10c6:	80 32       	cpi	r24, 0x20	; 32
-    10c8:	09 f0       	breq	.+2      	; 0x10cc <avrisp+0xc8>
+    10b8:	1e c0       	rjmp	.+60     	; 0x10f6 <avrisp+0xfc>
+    10ba:	bc dc       	rcall	.-1672   	; 0xa34 <getch>
+    10bc:	80 32       	cpi	r24, 0x20	; 32
+    10be:	09 f0       	breq	.+2      	; 0x10c2 <avrisp+0xc8>
 			replyOK();
 			break;
 		case STK_GET_SIGNON:
 			if (getch() == CRC_EOP) {
-    10ca:	65 c0       	rjmp	.+202    	; 0x1196 <avrisp+0x192>
-    10cc:	84 e1       	ldi	r24, 0x14	; 20
-    10ce:	92 dc       	rcall	.-1756   	; 0x9f4 <sendCDCbyte>
-    10d0:	81 e4       	ldi	r24, 0x41	; 65
-    10d2:	90 dc       	rcall	.-1760   	; 0x9f4 <sendCDCbyte>
+    10c0:	65 c0       	rjmp	.+202    	; 0x118c <avrisp+0x192>
+    10c2:	84 e1       	ldi	r24, 0x14	; 20
+    10c4:	92 dc       	rcall	.-1756   	; 0x9ea <sendCDCbyte>
+    10c6:	81 e4       	ldi	r24, 0x41	; 65
+    10c8:	90 dc       	rcall	.-1760   	; 0x9ea <sendCDCbyte>
 				sendCDCbyte(STK_INSYNC);
-    10d4:	86 e5       	ldi	r24, 0x56	; 86
-    10d6:	8e dc       	rcall	.-1764   	; 0x9f4 <sendCDCbyte>
-    10d8:	82 e5       	ldi	r24, 0x52	; 82
+    10ca:	86 e5       	ldi	r24, 0x56	; 86
+    10cc:	8e dc       	rcall	.-1764   	; 0x9ea <sendCDCbyte>
+    10ce:	82 e5       	ldi	r24, 0x52	; 82
 				sendCDCbyte('A');
-    10da:	8c dc       	rcall	.-1768   	; 0x9f4 <sendCDCbyte>
-    10dc:	80 e2       	ldi	r24, 0x20	; 32
-    10de:	8a dc       	rcall	.-1772   	; 0x9f4 <sendCDCbyte>
+    10d0:	8c dc       	rcall	.-1768   	; 0x9ea <sendCDCbyte>
+    10d2:	80 e2       	ldi	r24, 0x20	; 32
+    10d4:	8a dc       	rcall	.-1772   	; 0x9ea <sendCDCbyte>
 				sendCDCbyte('V');
-    10e0:	89 e4       	ldi	r24, 0x49	; 73
-    10e2:	88 dc       	rcall	.-1776   	; 0x9f4 <sendCDCbyte>
-    10e4:	83 e5       	ldi	r24, 0x53	; 83
+    10d6:	89 e4       	ldi	r24, 0x49	; 73
+    10d8:	88 dc       	rcall	.-1776   	; 0x9ea <sendCDCbyte>
+    10da:	83 e5       	ldi	r24, 0x53	; 83
 				sendCDCbyte('R');
-    10e6:	86 dc       	rcall	.-1780   	; 0x9f4 <sendCDCbyte>
-    10e8:	80 e5       	ldi	r24, 0x50	; 80
-    10ea:	84 dc       	rcall	.-1784   	; 0x9f4 <sendCDCbyte>
+    10dc:	86 dc       	rcall	.-1780   	; 0x9ea <sendCDCbyte>
+    10de:	80 e5       	ldi	r24, 0x50	; 80
+    10e0:	84 dc       	rcall	.-1784   	; 0x9ea <sendCDCbyte>
 				sendCDCbyte(' ');
-    10ec:	80 e1       	ldi	r24, 0x10	; 16
-    10ee:	50 c0       	rjmp	.+160    	; 0x1190 <avrisp+0x18c>
-    10f0:	a6 dc       	rcall	.-1716   	; 0xa3e <getch>
+    10e2:	80 e1       	ldi	r24, 0x10	; 16
+    10e4:	50 c0       	rjmp	.+160    	; 0x1186 <avrisp+0x18c>
+    10e6:	a6 dc       	rcall	.-1716   	; 0xa34 <getch>
 				sendCDCbyte('I');
-    10f2:	df 91       	pop	r29
-    10f4:	cf 91       	pop	r28
-    10f6:	f5 cc       	rjmp	.-1558   	; 0xae2 <get_parameters>
+    10e8:	df 91       	pop	r29
+    10ea:	cf 91       	pop	r28
+    10ec:	f5 cc       	rjmp	.-1558   	; 0xad8 <get_parameters>
 				sendCDCbyte('S');
-    10f8:	84 e1       	ldi	r24, 0x14	; 20
-    10fa:	90 e0       	ldi	r25, 0x00	; 0
-    10fc:	a7 dc       	rcall	.-1714   	; 0xa4c <fill>
+    10ee:	84 e1       	ldi	r24, 0x14	; 20
+    10f0:	90 e0       	ldi	r25, 0x00	; 0
+    10f2:	a7 dc       	rcall	.-1714   	; 0xa42 <fill>
 				sendCDCbyte('P');
-    10fe:	c1 dc       	rcall	.-1662   	; 0xa82 <set_parameters>
-    1100:	df 91       	pop	r29
-    1102:	cf 91       	pop	r28
+    10f4:	c1 dc       	rcall	.-1662   	; 0xa78 <set_parameters>
+    10f6:	df 91       	pop	r29
+    10f8:	cf 91       	pop	r28
 				sendCDCbyte(STK_OK);
-    1104:	03 cd       	rjmp	.-1530   	; 0xb0c <replyOK>
-    1106:	85 e0       	ldi	r24, 0x05	; 5
+    10fa:	03 cd       	rjmp	.-1530   	; 0xb02 <replyOK>
+    10fc:	85 e0       	ldi	r24, 0x05	; 5
 			}
 			break;
 		case STK_GET_PARM:
 			get_parameters(getch());
-    1108:	90 e0       	ldi	r25, 0x00	; 0
-    110a:	a0 dc       	rcall	.-1728   	; 0xa4c <fill>
+    10fe:	90 e0       	ldi	r25, 0x00	; 0
+    1100:	a0 dc       	rcall	.-1728   	; 0xa42 <fill>
 			else
 				sendCDCbyte(STK_NOSYNC);
 		}
 	}
 
 }
-    110c:	f9 cf       	rjmp	.-14     	; 0x1100 <avrisp+0xfc>
-    110e:	57 dd       	rcall	.-1362   	; 0xbbe <start_pmode>
+    1102:	f9 cf       	rjmp	.-14     	; 0x10f6 <avrisp+0xfc>
+    1104:	57 dd       	rcall	.-1362   	; 0xbb4 <start_pmode>
 				sendCDCbyte('P');
 				sendCDCbyte(STK_OK);
 			}
 			break;
 		case STK_GET_PARM:
 			get_parameters(getch());
-    1110:	f7 cf       	rjmp	.-18     	; 0x1100 <avrisp+0xfc>
-    1112:	95 dc       	rcall	.-1750   	; 0xa3e <getch>
+    1106:	f7 cf       	rjmp	.-18     	; 0x10f6 <avrisp+0xfc>
+    1108:	95 dc       	rcall	.-1750   	; 0xa34 <getch>
 			break;
 		case STK_SET_PARM:
 			fill(20);
-    1114:	c8 2f       	mov	r28, r24
-    1116:	d0 e0       	ldi	r29, 0x00	; 0
-    1118:	d0 93 3c 01 	sts	0x013C, r29
+    110a:	c8 2f       	mov	r28, r24
+    110c:	d0 e0       	ldi	r29, 0x00	; 0
+    110e:	d0 93 3c 01 	sts	0x013C, r29
 			set_parameters();
-    111c:	c0 93 3b 01 	sts	0x013B, r28
+    1112:	c0 93 3b 01 	sts	0x013B, r28
 			else
 				sendCDCbyte(STK_NOSYNC);
 		}
 	}
 
 }
-    1120:	8e dc       	rcall	.-1764   	; 0xa3e <getch>
-    1122:	38 2f       	mov	r19, r24
+    1116:	8e dc       	rcall	.-1764   	; 0xa34 <getch>
+    1118:	38 2f       	mov	r19, r24
 			get_parameters(getch());
 			break;
 		case STK_SET_PARM:
 			fill(20);
 			set_parameters();
 			replyOK();
-    1124:	20 e0       	ldi	r18, 0x00	; 0
-    1126:	2c 0f       	add	r18, r28
+    111a:	20 e0       	ldi	r18, 0x00	; 0
+    111c:	2c 0f       	add	r18, r28
 			break;
 		case STK_SET_PARM_EXT: // extended parameters - ignore for now
 			fill(5);
-    1128:	3d 1f       	adc	r19, r29
-    112a:	30 93 3c 01 	sts	0x013C, r19
-    112e:	20 93 3b 01 	sts	0x013B, r18
+    111e:	3d 1f       	adc	r19, r29
+    1120:	30 93 3c 01 	sts	0x013C, r19
+    1124:	20 93 3b 01 	sts	0x013B, r18
 			replyOK();
 			break;
 
 		case STK_PMODE_START:
 			start_pmode();
-    1132:	e6 cf       	rjmp	.-52     	; 0x1100 <avrisp+0xfc>
-    1134:	84 dc       	rcall	.-1784   	; 0xa3e <getch>
-    1136:	83 dc       	rcall	.-1786   	; 0xa3e <getch>
+    1128:	e6 cf       	rjmp	.-52     	; 0x10f6 <avrisp+0xfc>
+    112a:	84 dc       	rcall	.-1784   	; 0xa34 <getch>
+    112c:	83 dc       	rcall	.-1786   	; 0xa34 <getch>
 			replyOK();
 			break;
 		case STK_SET_ADDR:
 			ram.isp._addr = getch();
-    1138:	e3 cf       	rjmp	.-58     	; 0x1100 <avrisp+0xfc>
-    113a:	df 91       	pop	r29
-    113c:	cf 91       	pop	r28
-    113e:	24 cf       	rjmp	.-440    	; 0xf88 <program_page>
-    1140:	df 91       	pop	r29
-    1142:	cf 91       	pop	r28
-    1144:	5d ce       	rjmp	.-838    	; 0xe00 <read_page>
-    1146:	df 91       	pop	r29
+    112e:	e3 cf       	rjmp	.-58     	; 0x10f6 <avrisp+0xfc>
+    1130:	df 91       	pop	r29
+    1132:	cf 91       	pop	r28
+    1134:	24 cf       	rjmp	.-440    	; 0xf7e <program_page>
+    1136:	df 91       	pop	r29
+    1138:	cf 91       	pop	r28
+    113a:	5d ce       	rjmp	.-838    	; 0xdf6 <read_page>
+    113c:	df 91       	pop	r29
 			ram.isp._addr += 256 * getch();
-    1148:	cf 91       	pop	r28
-    114a:	91 cd       	rjmp	.-1246   	; 0xc6e <universal>
-    114c:	10 92 38 01 	sts	0x0138, r1
-    1150:	10 92 37 01 	sts	0x0137, r1
-    1154:	bd dd       	rcall	.-1158   	; 0xcd0 <end_pmode>
-    1156:	d4 cf       	rjmp	.-88     	; 0x1100 <avrisp+0xfc>
-    1158:	df 91       	pop	r29
-    115a:	cf 91       	pop	r28
-    115c:	95 cd       	rjmp	.-1238   	; 0xc88 <read_signature>
+    113e:	cf 91       	pop	r28
+    1140:	91 cd       	rjmp	.-1246   	; 0xc64 <universal>
+    1142:	10 92 38 01 	sts	0x0138, r1
+    1146:	10 92 37 01 	sts	0x0137, r1
+    114a:	bd dd       	rcall	.-1158   	; 0xcc6 <end_pmode>
+    114c:	d4 cf       	rjmp	.-88     	; 0x10f6 <avrisp+0xfc>
+    114e:	df 91       	pop	r29
+    1150:	cf 91       	pop	r28
+    1152:	95 cd       	rjmp	.-1238   	; 0xc7e <read_signature>
 			replyOK();
 			break;
 
 		case STK_PROG_FLASH:
 			//uint8_t low = getch();
 			getch();
-    115e:	80 91 37 01 	lds	r24, 0x0137
+    1154:	80 91 37 01 	lds	r24, 0x0137
 			getch();
 			replyOK();
 			break;
 		case STK_PROG_DATA:
 			//uint8_t data = getch();
 			getch();
-    1162:	90 91 38 01 	lds	r25, 0x0138
-    1166:	01 96       	adiw	r24, 0x01	; 1
+    1158:	90 91 38 01 	lds	r25, 0x0138
+    115c:	01 96       	adiw	r24, 0x01	; 1
 			else
 				sendCDCbyte(STK_NOSYNC);
 		}
 	}
 
 }
-    1168:	90 93 38 01 	sts	0x0138, r25
+    115e:	90 93 38 01 	sts	0x0138, r25
 			getch();
 			replyOK();
 			break;
 
 		case STK_PROG_PAGE:
 			program_page();
-    116c:	80 93 37 01 	sts	0x0137, r24
+    1162:	80 93 37 01 	sts	0x0137, r24
 			else
 				sendCDCbyte(STK_NOSYNC);
 		}
 	}
 
 }
-    1170:	0e c0       	rjmp	.+28     	; 0x118e <avrisp+0x18a>
-    1172:	80 91 37 01 	lds	r24, 0x0137
+    1166:	0e c0       	rjmp	.+28     	; 0x1184 <avrisp+0x18a>
+    1168:	80 91 37 01 	lds	r24, 0x0137
 		case STK_PROG_PAGE:
 			program_page();
 			break;
 
 		case STK_READ_PAGE:
 			read_page();
-    1176:	90 91 38 01 	lds	r25, 0x0138
+    116c:	90 91 38 01 	lds	r25, 0x0138
 			else
 				sendCDCbyte(STK_NOSYNC);
 		}
 	}
 
 }
-    117a:	01 96       	adiw	r24, 0x01	; 1
+    1170:	01 96       	adiw	r24, 0x01	; 1
 		case STK_READ_PAGE:
 			read_page();
 			break;
 
 		case STK_UNIVERSAL:
 			universal();
-    117c:	90 93 38 01 	sts	0x0138, r25
+    1172:	90 93 38 01 	sts	0x0138, r25
 			break;
 		case STK_PMODE_END:
 			ram.isp.error = 0;
-    1180:	80 93 37 01 	sts	0x0137, r24
-    1184:	5c dc       	rcall	.-1864   	; 0xa3e <getch>
-    1186:	80 32       	cpi	r24, 0x20	; 32
+    1176:	80 93 37 01 	sts	0x0137, r24
+    117a:	5c dc       	rcall	.-1864   	; 0xa34 <getch>
+    117c:	80 32       	cpi	r24, 0x20	; 32
 			end_pmode();
-    1188:	11 f4       	brne	.+4      	; 0x118e <avrisp+0x18a>
-    118a:	82 e1       	ldi	r24, 0x12	; 18
-    118c:	01 c0       	rjmp	.+2      	; 0x1190 <avrisp+0x18c>
+    117e:	11 f4       	brne	.+4      	; 0x1184 <avrisp+0x18a>
+    1180:	82 e1       	ldi	r24, 0x12	; 18
+    1182:	01 c0       	rjmp	.+2      	; 0x1186 <avrisp+0x18c>
 			else
 				sendCDCbyte(STK_NOSYNC);
 		}
 	}
 
 }
-    118e:	85 e1       	ldi	r24, 0x15	; 21
-    1190:	df 91       	pop	r29
+    1184:	85 e1       	ldi	r24, 0x15	; 21
+    1186:	df 91       	pop	r29
 			end_pmode();
 			replyOK();
 			break;
 
 		case STK_READ_SIGN:
 			read_signature();
-    1192:	cf 91       	pop	r28
-    1194:	2f cc       	rjmp	.-1954   	; 0x9f4 <sendCDCbyte>
+    1188:	cf 91       	pop	r28
+    118a:	2f cc       	rjmp	.-1954   	; 0x9ea <sendCDCbyte>
 			break;
 
 			// expecting a command, not CRC_EOP
 			// this is how we can get back in sync
 		case CRC_EOP:
 			ram.isp.error++;
-    1196:	df 91       	pop	r29
-    1198:	cf 91       	pop	r28
-    119a:	08 95       	ret
+    118c:	df 91       	pop	r29
+    118e:	cf 91       	pop	r28
+    1190:	08 95       	ret
 
-0000119c <NHPreadChecksum>:
-//================================================================================
-// Read NHP
-//================================================================================
-
-// reads two bytes and check its inverse
-uint8_t NHPreadChecksum(uint8_t input){
-    119c:	0f 93       	push	r16
-    119e:	1f 93       	push	r17
-    11a0:	98 2f       	mov	r25, r24
-	//write input to the buffer
-	ram.NHP.readbuffer[ram.NHP.readlength] = input;
-    11a2:	40 91 1c 02 	lds	r20, 0x021C
-    11a6:	e4 2f       	mov	r30, r20
-    11a8:	f0 e0       	ldi	r31, 0x00	; 0
-    11aa:	ea 5e       	subi	r30, 0xEA	; 234
-    11ac:	fd 4f       	sbci	r31, 0xFD	; 253
-    11ae:	80 83       	st	Z, r24
-	ram.NHP.readlength++;
-    11b0:	80 91 1c 02 	lds	r24, 0x021C
-    11b4:	8f 5f       	subi	r24, 0xFF	; 255
-    11b6:	80 93 1c 02 	sts	0x021C, r24
-
-	// check the lead/end/data indicator
-	switch (input & NHP_MASK_START){
-    11ba:	89 2f       	mov	r24, r25
-    11bc:	80 7c       	andi	r24, 0xC0	; 192
-    11be:	80 38       	cpi	r24, 0x80	; 128
-    11c0:	09 f4       	brne	.+2      	; 0x11c4 <NHPreadChecksum+0x28>
-    11c2:	44 c0       	rjmp	.+136    	; 0x124c <NHPreadChecksum+0xb0>
-    11c4:	80 3c       	cpi	r24, 0xC0	; 192
-    11c6:	09 f0       	breq	.+2      	; 0x11ca <NHPreadChecksum+0x2e>
-    11c8:	5f c0       	rjmp	.+190    	; 0x1288 <NHPreadChecksum+0xec>
-
-	case(NHP_MASK_LEAD) :
-	{
-		// read command indicator or block length
-		uint8_t blocks = (input & NHP_MASK_LENGTH) >> 3;
-    11ca:	29 2f       	mov	r18, r25
-    11cc:	28 73       	andi	r18, 0x38	; 56
-    11ce:	26 95       	lsr	r18
-    11d0:	26 95       	lsr	r18
-    11d2:	26 95       	lsr	r18
-
-		// ignore command, return 0 write buff down completely
-		if (blocks == 0 || blocks == 1)
-    11d4:	22 30       	cpi	r18, 0x02	; 2
-    11d6:	08 f4       	brcc	.+2      	; 0x11da <NHPreadChecksum+0x3e>
-    11d8:	77 c0       	rjmp	.+238    	; 0x12c8 <NHPreadChecksum+0x12c>
-			break;
-
-		else if (blocks == 7){
-    11da:	27 30       	cpi	r18, 0x07	; 7
-    11dc:	79 f4       	brne	.+30     	; 0x11fc <NHPreadChecksum+0x60>
-			// save block length + first 4 data bits (special case)
-			ram.NHP.mWorkData = input & NHP_MASK_DATA_4BIT;
-    11de:	49 2f       	mov	r20, r25
-    11e0:	4f 70       	andi	r20, 0x0F	; 15
-    11e2:	50 e0       	ldi	r21, 0x00	; 0
-    11e4:	60 e0       	ldi	r22, 0x00	; 0
-    11e6:	70 e0       	ldi	r23, 0x00	; 0
-    11e8:	40 93 12 02 	sts	0x0212, r20
-    11ec:	50 93 13 02 	sts	0x0213, r21
-    11f0:	60 93 14 02 	sts	0x0214, r22
-    11f4:	70 93 15 02 	sts	0x0215, r23
-			blocks -= 2;
-    11f8:	15 e0       	ldi	r17, 0x05	; 5
-    11fa:	0f c0       	rjmp	.+30     	; 0x121a <NHPreadChecksum+0x7e>
-		}
-		else{
-			// save block length + first 3 data bits
-			ram.NHP.mWorkData = input & NHP_MASK_DATA_3BIT;
-    11fc:	89 2f       	mov	r24, r25
-    11fe:	87 70       	andi	r24, 0x07	; 7
-    1200:	90 e0       	ldi	r25, 0x00	; 0
-    1202:	a0 e0       	ldi	r26, 0x00	; 0
-    1204:	b0 e0       	ldi	r27, 0x00	; 0
-    1206:	80 93 12 02 	sts	0x0212, r24
-    120a:	90 93 13 02 	sts	0x0213, r25
-    120e:	a0 93 14 02 	sts	0x0214, r26
-    1212:	b0 93 15 02 	sts	0x0215, r27
-			blocks--;
-    1216:	12 2f       	mov	r17, r18
-    1218:	11 50       	subi	r17, 0x01	; 1
-		}
-
-		// we were still reading!  Log an error
-		if (ram.NHP.mBlocks){
-    121a:	80 91 11 02 	lds	r24, 0x0211
-    121e:	88 23       	and	r24, r24
-    1220:	91 f0       	breq	.+36     	; 0x1246 <NHPreadChecksum+0xaa>
-			// check if previous reading was a valid Control Address and write it down
-			checkNHPControlAddressError();
-    1222:	51 db       	rcall	.-2398   	; 0x8c6 <checkNHPControlAddressError>
-    1224:	60 91 1c 02 	lds	r22, 0x021C
-			// write down the last signal but keep lead
-			// substract 1 more because we already added the count
-			writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength - 1);
-    1228:	61 50       	subi	r22, 0x01	; 1
-    122a:	86 e1       	ldi	r24, 0x16	; 22
-    122c:	92 e0       	ldi	r25, 0x02	; 2
-    122e:	1f db       	rcall	.-2498   	; 0x86e <writeToCDC>
-    1230:	e0 91 1c 02 	lds	r30, 0x021C
-			ram.NHP.readbuffer[0] = ram.NHP.readbuffer[ram.NHP.readlength - 1];
-    1234:	f0 e0       	ldi	r31, 0x00	; 0
-    1236:	eb 5e       	subi	r30, 0xEB	; 235
-    1238:	fd 4f       	sbci	r31, 0xFD	; 253
-    123a:	80 81       	ld	r24, Z
-    123c:	80 93 16 02 	sts	0x0216, r24
-    1240:	81 e0       	ldi	r24, 0x01	; 1
-    1242:	80 93 1c 02 	sts	0x021C, r24
-			ram.NHP.readlength = 1;
-    1246:	10 93 11 02 	sts	0x0211, r17
-		}
-		// save new block length
-		ram.NHP.mBlocks = blocks;
-    124a:	45 c0       	rjmp	.+138    	; 0x12d6 <NHPreadChecksum+0x13a>
-    124c:	80 91 11 02 	lds	r24, 0x0211
-	}
-						break;
-
-	case(NHP_MASK_END) :
-	{
-		if (ram.NHP.mBlocks == 1){
-    1250:	81 30       	cpi	r24, 0x01	; 1
-    1252:	d1 f5       	brne	.+116    	; 0x12c8 <NHPreadChecksum+0x12c>
-    1254:	00 91 12 02 	lds	r16, 0x0212
-			// save data + address
-			// we know its a valid input, left some things out here
-			if (((ram.NHP.mWorkData & 0xFFFF) ^ (ram.NHP.mWorkData >> 16)) == 0xFFFF){
-    1258:	10 91 13 02 	lds	r17, 0x0213
-    125c:	20 91 14 02 	lds	r18, 0x0214
-    1260:	30 91 15 02 	lds	r19, 0x0215
-    1264:	a9 01       	movw	r20, r18
-    1266:	66 27       	eor	r22, r22
-    1268:	77 27       	eor	r23, r23
-    126a:	22 27       	eor	r18, r18
-    126c:	33 27       	eor	r19, r19
-    126e:	40 27       	eor	r20, r16
-    1270:	51 27       	eor	r21, r17
-    1272:	62 27       	eor	r22, r18
-    1274:	73 27       	eor	r23, r19
-    1276:	4f 3f       	cpi	r20, 0xFF	; 255
-    1278:	5f 4f       	sbci	r21, 0xFF	; 255
-    127a:	61 05       	cpc	r22, r1
-    127c:	71 05       	cpc	r23, r1
-    127e:	21 f5       	brne	.+72     	; 0x12c8 <NHPreadChecksum+0x12c>
-    1280:	89 2f       	mov	r24, r25
-    1282:	8f 73       	andi	r24, 0x3F	; 63
-				uint8_t address = (input & 0x3F) + 1;
-    1284:	8f 5f       	subi	r24, 0xFF	; 255
-    1286:	28 c0       	rjmp	.+80     	; 0x12d8 <NHPreadChecksum+0x13c>
-    1288:	80 91 11 02 	lds	r24, 0x0211
-	}
-					   break;
-
-	default:
-	{
-		if (ram.NHP.mBlocks >= 2){
-    128c:	82 30       	cpi	r24, 0x02	; 2
-    128e:	e0 f0       	brcs	.+56     	; 0x12c8 <NHPreadChecksum+0x12c>
-    1290:	81 50       	subi	r24, 0x01	; 1
-    1292:	80 93 11 02 	sts	0x0211, r24
-			ram.NHP.mBlocks--;
-    1296:	40 91 12 02 	lds	r20, 0x0212
-			// get next 7 bits of data
-			ram.NHP.mWorkData <<= 7;
-    129a:	50 91 13 02 	lds	r21, 0x0213
-    129e:	60 91 14 02 	lds	r22, 0x0214
-    12a2:	70 91 15 02 	lds	r23, 0x0215
-    12a6:	87 e0       	ldi	r24, 0x07	; 7
-    12a8:	44 0f       	add	r20, r20
-    12aa:	55 1f       	adc	r21, r21
-    12ac:	66 1f       	adc	r22, r22
-    12ae:	77 1f       	adc	r23, r23
-    12b0:	8a 95       	dec	r24
-    12b2:	d1 f7       	brne	.-12     	; 0x12a8 <NHPreadChecksum+0x10c>
-    12b4:	49 2b       	or	r20, r25
-    12b6:	40 93 12 02 	sts	0x0212, r20
-			// dont need &NHP_MASK_DATA_7BIT because first bit is zero!
-			ram.NHP.mWorkData |= input;
-    12ba:	50 93 13 02 	sts	0x0213, r21
-    12be:	60 93 14 02 	sts	0x0214, r22
-    12c2:	70 93 15 02 	sts	0x0215, r23
-    12c6:	07 c0       	rjmp	.+14     	; 0x12d6 <NHPreadChecksum+0x13a>
-    12c8:	fe da       	rcall	.-2564   	; 0x8c6 <checkNHPControlAddressError>
-    12ca:	60 91 1c 02 	lds	r22, 0x021C
-	}
-		break;
-	} // end switch
-
-	// check if previous reading was a valid Control Address and write it down
-	checkNHPControlAddressError();
-    12ce:	86 e1       	ldi	r24, 0x16	; 22
-
-	// invalid input, write down buffer
-	writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
-    12d0:	92 e0       	ldi	r25, 0x02	; 2
-    12d2:	cd da       	rcall	.-2662   	; 0x86e <writeToCDC>
-    12d4:	28 da       	rcall	.-2992   	; 0x726 <resetNHPbuffer>
-    12d6:	80 e0       	ldi	r24, 0x00	; 0
-    12d8:	1f 91       	pop	r17
-    12da:	0f 91       	pop	r16
-	resetNHPbuffer();
-    12dc:	08 95       	ret
-
-000012de <NHPwriteChecksum>:
+00001192 <NHPwriteChecksum>:
 //================================================================================
 // Write NHP
 //================================================================================
 
 // writes two bytes with its inverse
 uint8_t NHPwriteChecksum(uint8_t address, uint16_t indata, uint8_t* buff){
-    12de:	cf 92       	push	r12
-	checkNHPControlAddressError();
-
-	// invalid input, write down buffer
-	writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
-	resetNHPbuffer();
-	return 0;
-    12e0:	df 92       	push	r13
-}
-    12e2:	ef 92       	push	r14
-    12e4:	ff 92       	push	r15
-    12e6:	0f 93       	push	r16
-    12e8:	1f 93       	push	r17
-    12ea:	fa 01       	movw	r30, r20
-//================================================================================
-
-// writes two bytes with its inverse
-uint8_t NHPwriteChecksum(uint8_t address, uint16_t indata, uint8_t* buff){
+    1192:	cf 92       	push	r12
+    1194:	df 92       	push	r13
+    1196:	ef 92       	push	r14
+    1198:	ff 92       	push	r15
+    119a:	0f 93       	push	r16
+    119c:	1f 93       	push	r17
+    119e:	fa 01       	movw	r30, r20
 	// create checksum data
 	uint32_t temp = ~indata;
-    12ec:	8b 01       	movw	r16, r22
-    12ee:	00 95       	com	r16
-    12f0:	10 95       	com	r17
-    12f2:	20 e0       	ldi	r18, 0x00	; 0
-    12f4:	30 e0       	ldi	r19, 0x00	; 0
+    11a0:	8b 01       	movw	r16, r22
+    11a2:	00 95       	com	r16
+    11a4:	10 95       	com	r17
+    11a6:	20 e0       	ldi	r18, 0x00	; 0
+    11a8:	30 e0       	ldi	r19, 0x00	; 0
 	uint32_t data = (temp << 16) | indata;
-    12f6:	98 01       	movw	r18, r16
-    12f8:	11 27       	eor	r17, r17
-    12fa:	00 27       	eor	r16, r16
-    12fc:	ab 01       	movw	r20, r22
-    12fe:	60 e0       	ldi	r22, 0x00	; 0
-    1300:	70 e0       	ldi	r23, 0x00	; 0
-    1302:	04 2b       	or	r16, r20
-    1304:	15 2b       	or	r17, r21
-    1306:	26 2b       	or	r18, r22
-    1308:	37 2b       	or	r19, r23
-    130a:	4c e1       	ldi	r20, 0x1C	; 28
-    130c:	50 e0       	ldi	r21, 0x00	; 0
+    11aa:	98 01       	movw	r18, r16
+    11ac:	11 27       	eor	r17, r17
+    11ae:	00 27       	eor	r16, r16
+    11b0:	ab 01       	movw	r20, r22
+    11b2:	60 e0       	ldi	r22, 0x00	; 0
+    11b4:	70 e0       	ldi	r23, 0x00	; 0
+    11b6:	04 2b       	or	r16, r20
+    11b8:	15 2b       	or	r17, r21
+    11ba:	26 2b       	or	r18, r22
+    11bc:	37 2b       	or	r19, r23
+    11be:	4c e1       	ldi	r20, 0x1C	; 28
+    11c0:	50 e0       	ldi	r21, 0x00	; 0
 
 	// start with the maximum size of blocks
 	uint8_t blocks = 7;
-    130e:	97 e0       	ldi	r25, 0x07	; 7
+    11c2:	97 e0       	ldi	r25, 0x07	; 7
 
 	// check for the first 7 bit block that doesnt fit into the first 3 bits
 	while (blocks > 2){
 		uint8_t nextvalue = (data >> (7 * (blocks - 3)));
-    1310:	68 01       	movw	r12, r16
-    1312:	79 01       	movw	r14, r18
-    1314:	04 2e       	mov	r0, r20
-    1316:	04 c0       	rjmp	.+8      	; 0x1320 <NHPwriteChecksum+0x42>
-    1318:	f6 94       	lsr	r15
-    131a:	e7 94       	ror	r14
-    131c:	d7 94       	ror	r13
-    131e:	c7 94       	ror	r12
-    1320:	0a 94       	dec	r0
-    1322:	d2 f7       	brpl	.-12     	; 0x1318 <NHPwriteChecksum+0x3a>
-    1324:	6c 2d       	mov	r22, r12
+    11c4:	68 01       	movw	r12, r16
+    11c6:	79 01       	movw	r14, r18
+    11c8:	04 2e       	mov	r0, r20
+    11ca:	04 c0       	rjmp	.+8      	; 0x11d4 <NHPwriteChecksum+0x42>
+    11cc:	f6 94       	lsr	r15
+    11ce:	e7 94       	ror	r14
+    11d0:	d7 94       	ror	r13
+    11d2:	c7 94       	ror	r12
+    11d4:	0a 94       	dec	r0
+    11d6:	d2 f7       	brpl	.-12     	; 0x11cc <NHPwriteChecksum+0x3a>
+    11d8:	6c 2d       	mov	r22, r12
 		if (nextvalue > NHP_MASK_DATA_3BIT){
-    1326:	68 30       	cpi	r22, 0x08	; 8
-    1328:	28 f0       	brcs	.+10     	; 0x1334 <NHPwriteChecksum+0x56>
+    11da:	68 30       	cpi	r22, 0x08	; 8
+    11dc:	28 f0       	brcs	.+10     	; 0x11e8 <NHPwriteChecksum+0x56>
 			// special case for the MSB
 			if (blocks == 7) {
-    132a:	97 30       	cpi	r25, 0x07	; 7
-    132c:	59 f4       	brne	.+22     	; 0x1344 <NHPwriteChecksum+0x66>
+    11de:	97 30       	cpi	r25, 0x07	; 7
+    11e0:	59 f4       	brne	.+22     	; 0x11f8 <NHPwriteChecksum+0x66>
 				buff[0] = nextvalue;
-    132e:	c0 82       	st	Z, r12
+    11e2:	c0 82       	st	Z, r12
 				blocks--;
-    1330:	96 e0       	ldi	r25, 0x06	; 6
-    1332:	08 c0       	rjmp	.+16     	; 0x1344 <NHPwriteChecksum+0x66>
+    11e4:	96 e0       	ldi	r25, 0x06	; 6
+    11e6:	08 c0       	rjmp	.+16     	; 0x11f8 <NHPwriteChecksum+0x66>
 			}
 			break;
 		}
 		else{
 			// write the possible first 3 bits and check again after if zero
 			buff[0] = nextvalue;
-    1334:	c0 82       	st	Z, r12
+    11e8:	c0 82       	st	Z, r12
 			blocks--;
-    1336:	91 50       	subi	r25, 0x01	; 1
+    11ea:	91 50       	subi	r25, 0x01	; 1
 			// we have our first bits, stop (nonzero)
 			if (nextvalue)
-    1338:	c1 10       	cpse	r12, r1
-    133a:	04 c0       	rjmp	.+8      	; 0x1344 <NHPwriteChecksum+0x66>
-    133c:	47 50       	subi	r20, 0x07	; 7
-    133e:	51 09       	sbc	r21, r1
+    11ec:	c1 10       	cpse	r12, r1
+    11ee:	04 c0       	rjmp	.+8      	; 0x11f8 <NHPwriteChecksum+0x66>
+    11f0:	47 50       	subi	r20, 0x07	; 7
+    11f2:	51 09       	sbc	r21, r1
 
 	// start with the maximum size of blocks
 	uint8_t blocks = 7;
 
 	// check for the first 7 bit block that doesnt fit into the first 3 bits
 	while (blocks > 2){
-    1340:	92 30       	cpi	r25, 0x02	; 2
-    1342:	31 f7       	brne	.-52     	; 0x1310 <NHPwriteChecksum+0x32>
+    11f4:	92 30       	cpi	r25, 0x02	; 2
+    11f6:	31 f7       	brne	.-52     	; 0x11c4 <NHPwriteChecksum+0x32>
 				break;
 		}
 	}
 
 	// write the rest of the data bits
 	uint8_t datablocks = blocks - 2;
-    1344:	49 2f       	mov	r20, r25
-    1346:	42 50       	subi	r20, 0x02	; 2
+    11f8:	49 2f       	mov	r20, r25
+    11fa:	42 50       	subi	r20, 0x02	; 2
 	while (datablocks > 0){
-    1348:	13 c0       	rjmp	.+38     	; 0x1370 <NHPwriteChecksum+0x92>
+    11fc:	13 c0       	rjmp	.+38     	; 0x1224 <NHPwriteChecksum+0x92>
 		buff[datablocks] = data & NHP_MASK_DATA_7BIT;
-    134a:	df 01       	movw	r26, r30
-    134c:	a4 0f       	add	r26, r20
-    134e:	b1 1d       	adc	r27, r1
-    1350:	68 01       	movw	r12, r16
-    1352:	79 01       	movw	r14, r18
-    1354:	e8 94       	clt
-    1356:	c7 f8       	bld	r12, 7
-    1358:	dd 24       	eor	r13, r13
-    135a:	ee 24       	eor	r14, r14
-    135c:	ff 24       	eor	r15, r15
-    135e:	cc 92       	st	X, r12
+    11fe:	df 01       	movw	r26, r30
+    1200:	a4 0f       	add	r26, r20
+    1202:	b1 1d       	adc	r27, r1
+    1204:	68 01       	movw	r12, r16
+    1206:	79 01       	movw	r14, r18
+    1208:	e8 94       	clt
+    120a:	c7 f8       	bld	r12, 7
+    120c:	dd 24       	eor	r13, r13
+    120e:	ee 24       	eor	r14, r14
+    1210:	ff 24       	eor	r15, r15
+    1212:	cc 92       	st	X, r12
 		data >>= 7;
-    1360:	77 e0       	ldi	r23, 0x07	; 7
-    1362:	36 95       	lsr	r19
-    1364:	27 95       	ror	r18
-    1366:	17 95       	ror	r17
-    1368:	07 95       	ror	r16
-    136a:	7a 95       	dec	r23
-    136c:	d1 f7       	brne	.-12     	; 0x1362 <NHPwriteChecksum+0x84>
+    1214:	77 e0       	ldi	r23, 0x07	; 7
+    1216:	36 95       	lsr	r19
+    1218:	27 95       	ror	r18
+    121a:	17 95       	ror	r17
+    121c:	07 95       	ror	r16
+    121e:	7a 95       	dec	r23
+    1220:	d1 f7       	brne	.-12     	; 0x1216 <NHPwriteChecksum+0x84>
 		datablocks--;
-    136e:	41 50       	subi	r20, 0x01	; 1
+    1222:	41 50       	subi	r20, 0x01	; 1
 		}
 	}
 
 	// write the rest of the data bits
 	uint8_t datablocks = blocks - 2;
 	while (datablocks > 0){
-    1370:	41 11       	cpse	r20, r1
-    1372:	eb cf       	rjmp	.-42     	; 0x134a <NHPwriteChecksum+0x6c>
+    1224:	41 11       	cpse	r20, r1
+    1226:	eb cf       	rjmp	.-42     	; 0x11fe <NHPwriteChecksum+0x6c>
 		data >>= 7;
 		datablocks--;
 	}
 
 	// write lead + length mask
 	buff[0] |= NHP_MASK_LEAD | (blocks << 3);
-    1374:	49 2f       	mov	r20, r25
-    1376:	50 e0       	ldi	r21, 0x00	; 0
-    1378:	9a 01       	movw	r18, r20
-    137a:	63 e0       	ldi	r22, 0x03	; 3
-    137c:	22 0f       	add	r18, r18
-    137e:	33 1f       	adc	r19, r19
-    1380:	6a 95       	dec	r22
-    1382:	e1 f7       	brne	.-8      	; 0x137c <NHPwriteChecksum+0x9e>
-    1384:	20 6c       	ori	r18, 0xC0	; 192
-    1386:	3f 6f       	ori	r19, 0xFF	; 255
-    1388:	30 81       	ld	r19, Z
-    138a:	32 2b       	or	r19, r18
-    138c:	30 83       	st	Z, r19
+    1228:	49 2f       	mov	r20, r25
+    122a:	50 e0       	ldi	r21, 0x00	; 0
+    122c:	9a 01       	movw	r18, r20
+    122e:	63 e0       	ldi	r22, 0x03	; 3
+    1230:	22 0f       	add	r18, r18
+    1232:	33 1f       	adc	r19, r19
+    1234:	6a 95       	dec	r22
+    1236:	e1 f7       	brne	.-8      	; 0x1230 <NHPwriteChecksum+0x9e>
+    1238:	20 6c       	ori	r18, 0xC0	; 192
+    123a:	3f 6f       	ori	r19, 0xFF	; 255
+    123c:	30 81       	ld	r19, Z
+    123e:	32 2b       	or	r19, r18
+    1240:	30 83       	st	Z, r19
 
 	// write end mask
 	buff[blocks - 1] = NHP_MASK_END | ((address - 1) & NHP_MASK_ADDRESS);
-    138e:	e4 0f       	add	r30, r20
-    1390:	f5 1f       	adc	r31, r21
-    1392:	31 97       	sbiw	r30, 0x01	; 1
-    1394:	81 50       	subi	r24, 0x01	; 1
-    1396:	8f 73       	andi	r24, 0x3F	; 63
-    1398:	80 68       	ori	r24, 0x80	; 128
-    139a:	80 83       	st	Z, r24
+    1242:	e4 0f       	add	r30, r20
+    1244:	f5 1f       	adc	r31, r21
+    1246:	31 97       	sbiw	r30, 0x01	; 1
+    1248:	81 50       	subi	r24, 0x01	; 1
+    124a:	8f 73       	andi	r24, 0x3F	; 63
+    124c:	80 68       	ori	r24, 0x80	; 128
+    124e:	80 83       	st	Z, r24
 
 	// return the length
 	return blocks;
 }
-    139c:	89 2f       	mov	r24, r25
-    139e:	1f 91       	pop	r17
-    13a0:	0f 91       	pop	r16
-    13a2:	ff 90       	pop	r15
-    13a4:	ef 90       	pop	r14
-    13a6:	df 90       	pop	r13
-    13a8:	cf 90       	pop	r12
+    1250:	89 2f       	mov	r24, r25
+    1252:	1f 91       	pop	r17
+    1254:	0f 91       	pop	r16
+    1256:	ff 90       	pop	r15
+    1258:	ef 90       	pop	r14
+    125a:	df 90       	pop	r13
+    125c:	cf 90       	pop	r12
+    125e:	08 95       	ret
+
+00001260 <resetNHPbuffer>:
+
+
+void resetNHPbuffer(void){
+	ram.NHP.readlength = 0;
+    1260:	10 92 1c 02 	sts	0x021C, r1
+	ram.NHP.mBlocks = 0;
+    1264:	10 92 11 02 	sts	0x0211, r1
+    1268:	08 95       	ret
+
+0000126a <NHPreadChecksum>:
+//================================================================================
+// Read NHP
+//================================================================================
+
+// reads two bytes and check its inverse
+uint8_t NHPreadChecksum(uint8_t input){
+    126a:	0f 93       	push	r16
+    126c:	1f 93       	push	r17
+    126e:	98 2f       	mov	r25, r24
+	//write input to the buffer
+	ram.NHP.readbuffer[ram.NHP.readlength] = input;
+    1270:	40 91 1c 02 	lds	r20, 0x021C
+    1274:	e4 2f       	mov	r30, r20
+    1276:	f0 e0       	ldi	r31, 0x00	; 0
+    1278:	ea 5e       	subi	r30, 0xEA	; 234
+    127a:	fd 4f       	sbci	r31, 0xFD	; 253
+    127c:	80 83       	st	Z, r24
+	ram.NHP.readlength++;
+    127e:	80 91 1c 02 	lds	r24, 0x021C
+    1282:	8f 5f       	subi	r24, 0xFF	; 255
+    1284:	80 93 1c 02 	sts	0x021C, r24
+
+	// check the lead/end/data indicator
+	switch (input & NHP_MASK_START){
+    1288:	89 2f       	mov	r24, r25
+    128a:	80 7c       	andi	r24, 0xC0	; 192
+    128c:	80 38       	cpi	r24, 0x80	; 128
+    128e:	09 f4       	brne	.+2      	; 0x1292 <NHPreadChecksum+0x28>
+    1290:	44 c0       	rjmp	.+136    	; 0x131a <NHPreadChecksum+0xb0>
+    1292:	80 3c       	cpi	r24, 0xC0	; 192
+    1294:	09 f0       	breq	.+2      	; 0x1298 <NHPreadChecksum+0x2e>
+    1296:	5f c0       	rjmp	.+190    	; 0x1356 <NHPreadChecksum+0xec>
+
+	case(NHP_MASK_LEAD) :
+	{
+		// read command indicator or block length
+		uint8_t blocks = (input & NHP_MASK_LENGTH) >> 3;
+    1298:	29 2f       	mov	r18, r25
+    129a:	28 73       	andi	r18, 0x38	; 56
+    129c:	26 95       	lsr	r18
+    129e:	26 95       	lsr	r18
+    12a0:	26 95       	lsr	r18
+
+		// ignore command, return 0 write buff down completely
+		if (blocks == 0 || blocks == 1)
+    12a2:	22 30       	cpi	r18, 0x02	; 2
+    12a4:	08 f4       	brcc	.+2      	; 0x12a8 <NHPreadChecksum+0x3e>
+    12a6:	77 c0       	rjmp	.+238    	; 0x1396 <NHPreadChecksum+0x12c>
+			break;
+
+		else if (blocks == 7){
+    12a8:	27 30       	cpi	r18, 0x07	; 7
+    12aa:	79 f4       	brne	.+30     	; 0x12ca <NHPreadChecksum+0x60>
+			// save block length + first 4 data bits (special case)
+			ram.NHP.mWorkData = input & NHP_MASK_DATA_4BIT;
+    12ac:	49 2f       	mov	r20, r25
+    12ae:	4f 70       	andi	r20, 0x0F	; 15
+    12b0:	50 e0       	ldi	r21, 0x00	; 0
+    12b2:	60 e0       	ldi	r22, 0x00	; 0
+    12b4:	70 e0       	ldi	r23, 0x00	; 0
+    12b6:	40 93 12 02 	sts	0x0212, r20
+    12ba:	50 93 13 02 	sts	0x0213, r21
+    12be:	60 93 14 02 	sts	0x0214, r22
+    12c2:	70 93 15 02 	sts	0x0215, r23
+			blocks -= 2;
+    12c6:	15 e0       	ldi	r17, 0x05	; 5
+    12c8:	0f c0       	rjmp	.+30     	; 0x12e8 <NHPreadChecksum+0x7e>
+		}
+		else{
+			// save block length + first 3 data bits
+			ram.NHP.mWorkData = input & NHP_MASK_DATA_3BIT;
+    12ca:	89 2f       	mov	r24, r25
+    12cc:	87 70       	andi	r24, 0x07	; 7
+    12ce:	90 e0       	ldi	r25, 0x00	; 0
+    12d0:	a0 e0       	ldi	r26, 0x00	; 0
+    12d2:	b0 e0       	ldi	r27, 0x00	; 0
+    12d4:	80 93 12 02 	sts	0x0212, r24
+    12d8:	90 93 13 02 	sts	0x0213, r25
+    12dc:	a0 93 14 02 	sts	0x0214, r26
+    12e0:	b0 93 15 02 	sts	0x0215, r27
+			blocks--;
+    12e4:	12 2f       	mov	r17, r18
+    12e6:	11 50       	subi	r17, 0x01	; 1
+		}
+
+		// we were still reading!  Log an error
+		if (ram.NHP.mBlocks){
+    12e8:	80 91 11 02 	lds	r24, 0x0211
+    12ec:	88 23       	and	r24, r24
+    12ee:	91 f0       	breq	.+36     	; 0x1314 <NHPreadChecksum+0xaa>
+			// check if previous reading was a valid Control Address and write it down
+			checkNHPControlAddressError();
+    12f0:	e5 da       	rcall	.-2614   	; 0x8bc <checkNHPControlAddressError>
+    12f2:	60 91 1c 02 	lds	r22, 0x021C
+			// write down the last signal but keep lead
+			// substract 1 more because we already added the count
+			writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength - 1);
+    12f6:	61 50       	subi	r22, 0x01	; 1
+    12f8:	86 e1       	ldi	r24, 0x16	; 22
+    12fa:	92 e0       	ldi	r25, 0x02	; 2
+    12fc:	b3 da       	rcall	.-2714   	; 0x864 <writeToCDC>
+    12fe:	e0 91 1c 02 	lds	r30, 0x021C
+			ram.NHP.readbuffer[0] = ram.NHP.readbuffer[ram.NHP.readlength - 1];
+    1302:	f0 e0       	ldi	r31, 0x00	; 0
+    1304:	eb 5e       	subi	r30, 0xEB	; 235
+    1306:	fd 4f       	sbci	r31, 0xFD	; 253
+    1308:	80 81       	ld	r24, Z
+    130a:	80 93 16 02 	sts	0x0216, r24
+    130e:	81 e0       	ldi	r24, 0x01	; 1
+    1310:	80 93 1c 02 	sts	0x021C, r24
+			ram.NHP.readlength = 1;
+    1314:	10 93 11 02 	sts	0x0211, r17
+		}
+		// save new block length
+		ram.NHP.mBlocks = blocks;
+    1318:	45 c0       	rjmp	.+138    	; 0x13a4 <NHPreadChecksum+0x13a>
+    131a:	80 91 11 02 	lds	r24, 0x0211
+	}
+						break;
+
+	case(NHP_MASK_END) :
+	{
+		if (ram.NHP.mBlocks == 1){
+    131e:	81 30       	cpi	r24, 0x01	; 1
+    1320:	d1 f5       	brne	.+116    	; 0x1396 <NHPreadChecksum+0x12c>
+    1322:	00 91 12 02 	lds	r16, 0x0212
+			// save data + address
+			// we know its a valid input, left some things out here
+			if (((ram.NHP.mWorkData & 0xFFFF) ^ (ram.NHP.mWorkData >> 16)) == 0xFFFF){
+    1326:	10 91 13 02 	lds	r17, 0x0213
+    132a:	20 91 14 02 	lds	r18, 0x0214
+    132e:	30 91 15 02 	lds	r19, 0x0215
+    1332:	a9 01       	movw	r20, r18
+    1334:	66 27       	eor	r22, r22
+    1336:	77 27       	eor	r23, r23
+    1338:	22 27       	eor	r18, r18
+    133a:	33 27       	eor	r19, r19
+    133c:	40 27       	eor	r20, r16
+    133e:	51 27       	eor	r21, r17
+    1340:	62 27       	eor	r22, r18
+    1342:	73 27       	eor	r23, r19
+    1344:	4f 3f       	cpi	r20, 0xFF	; 255
+    1346:	5f 4f       	sbci	r21, 0xFF	; 255
+    1348:	61 05       	cpc	r22, r1
+    134a:	71 05       	cpc	r23, r1
+    134c:	21 f5       	brne	.+72     	; 0x1396 <NHPreadChecksum+0x12c>
+    134e:	89 2f       	mov	r24, r25
+    1350:	8f 73       	andi	r24, 0x3F	; 63
+				uint8_t address = (input & 0x3F) + 1;
+    1352:	8f 5f       	subi	r24, 0xFF	; 255
+    1354:	28 c0       	rjmp	.+80     	; 0x13a6 <NHPreadChecksum+0x13c>
+    1356:	80 91 11 02 	lds	r24, 0x0211
+	}
+					   break;
+
+	default:
+	{
+		if (ram.NHP.mBlocks >= 2){
+    135a:	82 30       	cpi	r24, 0x02	; 2
+    135c:	e0 f0       	brcs	.+56     	; 0x1396 <NHPreadChecksum+0x12c>
+    135e:	81 50       	subi	r24, 0x01	; 1
+    1360:	80 93 11 02 	sts	0x0211, r24
+			ram.NHP.mBlocks--;
+    1364:	40 91 12 02 	lds	r20, 0x0212
+			// get next 7 bits of data
+			ram.NHP.mWorkData <<= 7;
+    1368:	50 91 13 02 	lds	r21, 0x0213
+    136c:	60 91 14 02 	lds	r22, 0x0214
+    1370:	70 91 15 02 	lds	r23, 0x0215
+    1374:	b7 e0       	ldi	r27, 0x07	; 7
+    1376:	44 0f       	add	r20, r20
+    1378:	55 1f       	adc	r21, r21
+    137a:	66 1f       	adc	r22, r22
+    137c:	77 1f       	adc	r23, r23
+    137e:	ba 95       	dec	r27
+    1380:	d1 f7       	brne	.-12     	; 0x1376 <NHPreadChecksum+0x10c>
+    1382:	49 2b       	or	r20, r25
+    1384:	40 93 12 02 	sts	0x0212, r20
+			// dont need &NHP_MASK_DATA_7BIT because first bit is zero!
+			ram.NHP.mWorkData |= input;
+    1388:	50 93 13 02 	sts	0x0213, r21
+    138c:	60 93 14 02 	sts	0x0214, r22
+    1390:	70 93 15 02 	sts	0x0215, r23
+    1394:	07 c0       	rjmp	.+14     	; 0x13a4 <NHPreadChecksum+0x13a>
+    1396:	92 da       	rcall	.-2780   	; 0x8bc <checkNHPControlAddressError>
+    1398:	60 91 1c 02 	lds	r22, 0x021C
+	}
+		break;
+	} // end switch
+
+	// check if previous reading was a valid Control Address and write it down
+	checkNHPControlAddressError();
+    139c:	86 e1       	ldi	r24, 0x16	; 22
+
+	// invalid input, write down buffer
+	writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
+    139e:	92 e0       	ldi	r25, 0x02	; 2
+    13a0:	61 da       	rcall	.-2878   	; 0x864 <writeToCDC>
+    13a2:	5e df       	rcall	.-324    	; 0x1260 <resetNHPbuffer>
+    13a4:	80 e0       	ldi	r24, 0x00	; 0
+    13a6:	1f 91       	pop	r17
+    13a8:	0f 91       	pop	r16
+	resetNHPbuffer();
     13aa:	08 95       	ret
 
 000013ac <EVENT_CDC_Device_LineEncodingChanged>:
@@ -7957,7 +7951,7 @@ void HID_Device_ProcessControlRequest(USB_ClassInfo_HID_Device_t* const HIDInter
     2214:	6d 5f       	subi	r22, 0xFD	; 253
     2216:	7f 4f       	sbci	r23, 0xFF	; 255
     2218:	c7 01       	movw	r24, r14
-    221a:	0e 94 a8 03 	call	0x750	; 0x750 <CALLBACK_HID_Device_CreateHIDReport>
+    221a:	0e 94 a3 03 	call	0x746	; 0x746 <CALLBACK_HID_Device_CreateHIDReport>
     221e:	f7 01       	movw	r30, r14
 
 				if (HIDInterfaceInfo->Config.PrevReportINBuffer != NULL)
@@ -8091,7 +8085,7 @@ void HID_Device_ProcessControlRequest(USB_ClassInfo_HID_Device_t* const HIDInter
 				uint16_t ReportSize = USB_ControlRequest.wLength;
 				uint8_t  ReportID   = (USB_ControlRequest.wValue & 0xFF);
 				uint8_t  ReportType = (USB_ControlRequest.wValue >> 8) - 1;
-    22c4:	0e 94 e2 03 	call	0x7c4	; 0x7c4 <CALLBACK_HID_Device_ProcessHIDReport>
+    22c4:	0e 94 dd 03 	call	0x7ba	; 0x7ba <CALLBACK_HID_Device_ProcessHIDReport>
 
 				Endpoint_ClearSETUP();
 				Endpoint_Read_Control_Stream_LE(ReportData, ReportSize);
@@ -8446,7 +8440,7 @@ void HID_Device_USBTask(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo)
     2480:	6d 5f       	subi	r22, 0xFD	; 253
     2482:	7f 4f       	sbci	r23, 0xFF	; 255
     2484:	c7 01       	movw	r24, r14
-    2486:	0e 94 a8 03 	call	0x750	; 0x750 <CALLBACK_HID_Device_CreateHIDReport>
+    2486:	0e 94 a3 03 	call	0x746	; 0x746 <CALLBACK_HID_Device_CreateHIDReport>
     248a:	58 2e       	mov	r5, r24
     248c:	f7 01       	movw	r30, r14
 		                                                             ReportINData, &ReportINSize);
