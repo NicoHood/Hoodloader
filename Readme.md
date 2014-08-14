@@ -10,6 +10,10 @@ normal 16u2 usbserial Bootloader. It can still work the same but has more functi
 * Use the 16u2 as ISP to reprogram your 328 and others
 * One Firmware for Uno/Mega
 
+**Tested Devices:**
+* Arduino Uno R3
+* Arduino Mega R3
+
 **Limitations:**
 * HID only works at baud 115200 (Software and speed limitation, see "how it works below")
 * All other bauds work 100%. If you still try to use HID with other baud you will get weird output.
@@ -52,6 +56,7 @@ Today everybody should have an R3 so no resistor and complicated stuff is needed
 The device should now show up as Atmega16u2 in the device manager.
 If not or if you get Error: **“AtLibUsbDfu.dll not found”** install the drivers manually from the device manager.
 Right click the unknown device and select the Flip installation path to search the drivers.
+C:\Program Files (x86)\Atmel\Flip 3.4.7\usb rightclick the .inf file and hit install!
 
 Click the IC Button an select **Atmega16u2. (same for Uno/Mega).**
 
@@ -178,6 +183,28 @@ and complete the full report. You might get weird Serial output if you hit the e
 And if the reading timed out the Data will also be forwarded. And if you only send Ascii Code the Information is forwarded instantly
 because the NHP filters that out instantly (see documentation of the NHP). So filtering should be fine and dont block :)
 
+Just an excerpt (better explanation soon):
+```
+so There are 3 modes: Default (usb to serial), HID, and ISP
+to distinguish between ISP and the others there is a simple way of doing it: The CDC Virtual Serial interface can have different baud rates.
+and the MCU know this baud, because it needs to reprogram the chip. So what i did was to use an invalid baud (1) to say "hey, its programming mode"
+this will turn off usbtoserial and HID. this will set the ram up for ISP mode. this will deactivate any incoming Serial byte (discard)
+to with baud 1 iso mode is called any every received byte is translated as stk500v1 command
+thats the ISP part
+the HID - DEFAULT part is also easy
+HID only works at baud 0 and baud 115200
+baud 0 is when the MCU started, so no baud was set with the pc
+baud 115200 is set after programming. thatswhy i had to use 115200. luckly its the fastest baud, for faster reports.
+so its the best thing that could happen ;)
+if its not baud 0, 115200 or the HID is deactivated (which might get removed) it will be in normal mode
+it will translater usb to serial and serial to usb byte by byte
+HID mode is a bit different. PC->328 for example works the same
+but 328->PC is filtered. the 16u2 listens for NHP (Nicohoodprotocol) commands with a special pattern and filters this out.
+therefore i buff every possible command. If its valid it will send the HID report. this is very save, its very unlikly
+that you will ever produce a valid HID report with random data. also normal ASCII is always filtered out, due to protocol specification
+and if a possible valid protocol times out the data is also send to the pc to not keep the last bytes
+```
+
 The 16u2 as ISP works like the Arduino sketch. It just uses its won SPI header to program the device
 and uses a special baud to not get into conflict with other commonly used bauds.
 In ISP mode no data is transferred between Arduino main chip and Pc. This also wouldnt be possible because of shared ram.
@@ -213,12 +240,14 @@ Feel free to open an Issue on Github if you find a bug. Or message me via my [bl
 
 Ideas for the future:
 =====================
+* bug: programmed via ISP, then use HID wont work. -> dont block serial 100%, just dont use a ringbuffer??
 * Save if HID report!=0 and release after every restart
 * Design new Arduino with I2C and SPI connection
 * Pmode timeout!
 * general timeout function for hid and other
 * Different h/c files for better overview!
 * remove older debug/TODO stuff
+* explain how it works better
 
 Version History
 ===============
@@ -278,6 +307,7 @@ Version History
 * Minor fixes
 
 1.0 Beta Release (03.06.2014)
+```
 
 For Developers
 ==============
@@ -290,7 +320,7 @@ The Leonardo/Micro version worked fine till now.
 See this how to uninstall the drivers (not tested):
 https://support.microsoft.com/kb/315539
 
-The Hootloader was coded with Windows7/8.1 + Visual Studio Express and compiled with a Raspberry Pi.
+The Hoodloader was coded with Windows7/8.1 + Visual Studio Express and compiled with a Raspberry Pi.
 Lufa version 140302 is included!
 
 ```
