@@ -17,19 +17,19 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   6 .debug_aranges 00000898  00000000  00000000  00003d91  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_info   0000e0fc  00000000  00000000  00004629  2**0
+  7 .debug_info   0000e10a  00000000  00000000  00004629  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_abbrev 000039bd  00000000  00000000  00012725  2**0
+  8 .debug_abbrev 000039fe  00000000  00000000  00012733  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_line   0000586d  00000000  00000000  000160e2  2**0
+  9 .debug_line   0000586d  00000000  00000000  00016131  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_frame  0000155c  00000000  00000000  0001b950  2**2
+ 10 .debug_frame  0000155c  00000000  00000000  0001b9a0  2**2
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_str    00004881  00000000  00000000  0001ceac  2**0
+ 11 .debug_str    00004881  00000000  00000000  0001cefc  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_loc    000084ea  00000000  00000000  0002172d  2**0
+ 12 .debug_loc    000084ea  00000000  00000000  0002177d  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_ranges 00000a78  00000000  00000000  00029c17  2**0
+ 13 .debug_ranges 00000a78  00000000  00000000  00029c67  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -247,7 +247,7 @@ bool USB_GetHIDReportItemInfo(const uint8_t* ReportData,
 	uint16_t DataBitsRem  = ReportItem->Attributes.BitSize;
 	uint16_t CurrentBit   = ReportItem->BitOffset;
 	uint32_t BitMask      = (1 << 0);
-      5c:	16 c2       	rjmp	.+1068   	; 0x48a <__vector_23>
+      5c:	c0 c2       	rjmp	.+1408   	; 0x5de <__vector_23>
 	uint16_t              UsageList[HID_USAGE_STACK_DEPTH];
 	uint8_t               UsageListSize      = 0;
 	HID_MinMax_t          UsageMinMax        = {0, 0};
@@ -520,7 +520,7 @@ void USB_SetHIDReportItemInfo(uint8_t* ReportData,
 			case HID_RI_REPORT_SIZE(0):
 				CurrStateTable->Attributes.BitSize          = ReportItemData;
      318:	e1 f7       	brne	.-8      	; 0x312 <.do_clear_bss_loop>
-     31a:	9c d1       	rcall	.+824    	; 0x654 <main>
+     31a:	a7 d0       	rcall	.+334    	; 0x46a <main>
 				break;
      31c:	0c 94 f4 12 	jmp	0x25e8	; 0x25e8 <_exit>
 
@@ -728,11 +728,11 @@ uint8_t USB_ProcessHIDReport(const uint8_t* ReportData,
      42a:	80 91 36 01 	lds	r24, 0x0136
      42e:	82 30       	cpi	r24, 0x02	; 2
      430:	21 f4       	brne	.+8      	; 0x43a <selectMode+0xa2>
-     432:	0b d2       	rcall	.+1046   	; 0x84a <resetNHPbuffer>
+     432:	79 d1       	rcall	.+754    	; 0x726 <resetNHPbuffer>
      434:	10 92 c5 01 	sts	0x01C5, r1
      438:	08 95       	ret
-     43a:	0c d2       	rcall	.+1048   	; 0x854 <flushHID>
-     43c:	91 d2       	rcall	.+1314   	; 0x960 <clearHIDReports>
+     43a:	7a d1       	rcall	.+756    	; 0x730 <flushHID>
+     43c:	ff d1       	rcall	.+1022   	; 0x83c <clearHIDReports>
 						  return HID_PARSE_InsufficientCollectionPaths;
 
 						CurrCollectionPath++;
@@ -770,1221 +770,1132 @@ uint8_t USB_ProcessHIDReport(const uint8_t* ReportData,
      466:	2a 9a       	sbi	0x05, 2	; 5
      468:	08 95       	ret
 
-0000046a <EVENT_USB_Device_Connect>:
+0000046a <main>:
 				{
 					CurrCollectionPath->Usage.Usage = UsageList[0];
-     46a:	08 95       	ret
-
-0000046c <EVENT_USB_Device_Disconnect>:
-     46c:	08 95       	ret
-
-0000046e <EVENT_USB_Device_ConfigurationChanged>:
-     46e:	80 e0       	ldi	r24, 0x00	; 0
-     470:	91 e0       	ldi	r25, 0x01	; 1
-     472:	0e 94 dc 11 	call	0x23b8	; 0x23b8 <HID_Device_ConfigureEndpoints>
-     476:	80 e1       	ldi	r24, 0x10	; 16
-     478:	91 e0       	ldi	r25, 0x01	; 1
-     47a:	0e 94 1b 0f 	call	0x1e36	; 0x1e36 <CDC_Device_ConfigureEndpoints>
-     47e:	e2 ee       	ldi	r30, 0xE2	; 226
+     46a:	10 92 36 01 	sts	0x0136, r1
+     46e:	4a e0       	ldi	r20, 0x0A	; 10
+     470:	50 e0       	ldi	r21, 0x00	; 0
+     472:	61 e0       	ldi	r22, 0x01	; 1
+     474:	70 e0       	ldi	r23, 0x00	; 0
+     476:	87 e0       	ldi	r24, 0x07	; 7
+     478:	92 e0       	ldi	r25, 0x02	; 2
+     47a:	0e 94 ed 12 	call	0x25da	; 0x25da <memset>
+     47e:	51 df       	rcall	.-350    	; 0x322 <SetupHardware>
 
 					for (uint8_t i = 1; i < UsageListSize; i++)
-     480:	f0 e0       	ldi	r31, 0x00	; 0
-     482:	80 81       	ld	r24, Z
+     480:	78 94       	sei
+     482:	83 e0       	ldi	r24, 0x03	; 3
 					  UsageList[i - 1] = UsageList[i];
-     484:	84 60       	ori	r24, 0x04	; 4
-     486:	80 83       	st	Z, r24
-     488:	08 95       	ret
-
-0000048a <__vector_23>:
-     48a:	1f 92       	push	r1
+     484:	f8 2e       	mov	r15, r24
+     486:	07 e3       	ldi	r16, 0x37	; 55
+     488:	11 e0       	ldi	r17, 0x01	; 1
+     48a:	86 df       	rcall	.-244    	; 0x398 <selectMode>
 
 				if (UsageListSize)
 				{
 					CurrCollectionPath->Usage.Usage = UsageList[0];
 
 					for (uint8_t i = 1; i < UsageListSize; i++)
-     48c:	0f 92       	push	r0
-     48e:	0f b6       	in	r0, 0x3f	; 63
-     490:	0f 92       	push	r0
-     492:	11 24       	eor	r1, r1
-     494:	2f 93       	push	r18
-     496:	3f 93       	push	r19
+     48c:	4f 9b       	sbis	0x09, 7	; 9
+     48e:	d6 d1       	rcall	.+940    	; 0x83c <clearHIDReports>
+     490:	80 91 36 01 	lds	r24, 0x0136
+     494:	83 30       	cpi	r24, 0x03	; 3
+     496:	11 f4       	brne	.+4      	; 0x49c <main+0x32>
 					  UsageList[i - 1] = UsageList[i];
 
 					UsageListSize--;
-     498:	8f 93       	push	r24
-     49a:	9f 93       	push	r25
-     49c:	af 93       	push	r26
-     49e:	bf 93       	push	r27
-     4a0:	ef 93       	push	r30
+     498:	b5 d5       	rcall	.+2922   	; 0x1004 <avrisp>
+     49a:	8a c0       	rjmp	.+276    	; 0x5b0 <main+0x146>
+     49c:	80 e1       	ldi	r24, 0x10	; 16
+     49e:	91 e0       	ldi	r25, 0x01	; 1
+     4a0:	0e 94 c6 0f 	call	0x1f8c	; 0x1f8c <CDC_Device_ReceiveByte>
 				}
 				else if (UsageMinMax.Minimum <= UsageMinMax.Maximum)
-     4a2:	ff 93       	push	r31
-     4a4:	80 91 ce 00 	lds	r24, 0x00CE
-     4a8:	90 91 36 01 	lds	r25, 0x0136
-     4ac:	93 30       	cpi	r25, 0x03	; 3
-     4ae:	f9 f0       	breq	.+62     	; 0x4ee <__vector_23+0x64>
-     4b0:	90 91 45 02 	lds	r25, 0x0245
-     4b4:	94 30       	cpi	r25, 0x04	; 4
-     4b6:	d9 f4       	brne	.+54     	; 0x4ee <__vector_23+0x64>
-     4b8:	e7 e3       	ldi	r30, 0x37	; 55
+     4a4:	97 fd       	sbrc	r25, 7
+     4a6:	09 c0       	rjmp	.+18     	; 0x4ba <main+0x50>
+     4a8:	5c 98       	cbi	0x0b, 4	; 11
+     4aa:	f0 92 c4 01 	sts	0x01C4, r15
+     4ae:	90 91 c8 00 	lds	r25, 0x00C8
+     4b2:	95 ff       	sbrs	r25, 5
+     4b4:	fc cf       	rjmp	.-8      	; 0x4ae <main+0x44>
+     4b6:	80 93 ce 00 	sts	0x00CE, r24
 				{
 					CurrCollectionPath->Usage.Usage = UsageMinMax.Minimum++;
-     4ba:	f1 e0       	ldi	r31, 0x01	; 1
-     4bc:	a0 81       	ld	r26, Z
-     4be:	b1 81       	ldd	r27, Z+1	; 0x01
-     4c0:	8c 93       	st	X, r24
-     4c2:	80 81       	ld	r24, Z
-     4c4:	91 81       	ldd	r25, Z+1	; 0x01
-     4c6:	01 96       	adiw	r24, 0x01	; 1
-     4c8:	91 83       	std	Z+1, r25	; 0x01
-     4ca:	80 83       	st	Z, r24
-     4cc:	26 81       	ldd	r18, Z+6	; 0x06
-     4ce:	37 81       	ldd	r19, Z+7	; 0x07
+     4ba:	2f b7       	in	r18, 0x3f	; 63
+     4bc:	f8 94       	cli
+     4be:	80 91 41 01 	lds	r24, 0x0141
+     4c2:	90 91 42 01 	lds	r25, 0x0142
+     4c6:	2f bf       	out	0x3f, r18	; 63
+     4c8:	00 97       	sbiw	r24, 0x00	; 0
+     4ca:	19 f4       	brne	.+6      	; 0x4d2 <main+0x68>
+     4cc:	a8 99       	sbic	0x15, 0	; 21
+     4ce:	48 c0       	rjmp	.+144    	; 0x560 <main+0xf6>
 				}
 
 				break;
 
 			case HID_RI_END_COLLECTION(0):
 				if (CurrCollectionPath == NULL)
-     4d0:	82 17       	cp	r24, r18
-     4d2:	93 07       	cpc	r25, r19
-     4d4:	21 f4       	brne	.+8      	; 0x4de <__vector_23+0x54>
-     4d6:	84 81       	ldd	r24, Z+4	; 0x04
+     4d0:	67 c0       	rjmp	.+206    	; 0x5a0 <main+0x136>
+     4d2:	5d 98       	cbi	0x0b, 5	; 11
+     4d4:	f0 92 c3 01 	sts	0x01C3, r15
 				  return HID_PARSE_UnexpectedEndCollection;
 
 				CurrCollectionPath = CurrCollectionPath->Parent;
-     4d8:	95 81       	ldd	r25, Z+5	; 0x05
-     4da:	91 83       	std	Z+1, r25	; 0x01
-     4dc:	80 83       	st	Z, r24
+     4d8:	20 91 11 01 	lds	r18, 0x0111
+     4dc:	2f 70       	andi	r18, 0x0F	; 15
 				break;
-     4de:	2f b7       	in	r18, 0x3f	; 63
+     4de:	20 93 e9 00 	sts	0x00E9, r18
 			case HID_RI_FEATURE(0):
 				for (uint8_t ReportItemNum = 0; ReportItemNum < CurrStateTable->ReportCount; ReportItemNum++)
 				{
 					HID_ReportItem_t NewReportItem;
 
 					memcpy(&NewReportItem.Attributes,
-     4e0:	f8 94       	cli
-     4e2:	82 85       	ldd	r24, Z+10	; 0x0a
-     4e4:	93 85       	ldd	r25, Z+11	; 0x0b
-     4e6:	01 96       	adiw	r24, 0x01	; 1
-     4e8:	93 87       	std	Z+11, r25	; 0x0b
-     4ea:	82 87       	std	Z+10, r24	; 0x0a
-     4ec:	2f bf       	out	0x3f, r18	; 63
-     4ee:	ff 91       	pop	r31
-     4f0:	ef 91       	pop	r30
+     4e2:	20 91 e8 00 	lds	r18, 0x00E8
+     4e6:	20 ff       	sbrs	r18, 0
+     4e8:	f1 cf       	rjmp	.-30     	; 0x4cc <main+0x62>
+     4ea:	80 34       	cpi	r24, 0x40	; 64
+     4ec:	91 05       	cpc	r25, r1
+     4ee:	10 f0       	brcs	.+4      	; 0x4f4 <main+0x8a>
+     4f0:	8f e3       	ldi	r24, 0x3F	; 63
 					       &CurrStateTable->Attributes,
 					       sizeof(HID_ReportItem_Attributes_t));
 
 					NewReportItem.ItemFlags      = ReportItemData;
-     4f2:	bf 91       	pop	r27
-     4f4:	af 91       	pop	r26
+     4f2:	90 e0       	ldi	r25, 0x00	; 0
+     4f4:	e8 2e       	mov	r14, r24
 					NewReportItem.CollectionPath = CurrCollectionPath;
-     4f6:	9f 91       	pop	r25
-     4f8:	8f 91       	pop	r24
-     4fa:	3f 91       	pop	r19
-     4fc:	2f 91       	pop	r18
+     4f6:	c0 e0       	ldi	r28, 0x00	; 0
+     4f8:	d0 e0       	ldi	r29, 0x00	; 0
+     4fa:	2f c0       	rjmp	.+94     	; 0x55a <main+0xf0>
+     4fc:	80 91 36 01 	lds	r24, 0x0136
 					NewReportItem.ReportID       = CurrStateTable->ReportID;
-     4fe:	0f 90       	pop	r0
-     500:	0f be       	out	0x3f, r0	; 63
-     502:	0f 90       	pop	r0
-     504:	1f 90       	pop	r1
+     500:	81 30       	cpi	r24, 0x01	; 1
+     502:	61 f0       	breq	.+24     	; 0x51c <main+0xb2>
+     504:	f8 01       	movw	r30, r16
 
 					if (UsageListSize)
-     506:	18 95       	reti
-
-00000508 <EVENT_USB_Device_ControlRequest>:
-     508:	80 e1       	ldi	r24, 0x10	; 16
-     50a:	91 e0       	ldi	r25, 0x01	; 1
-     50c:	0e 94 f4 0f 	call	0x1fe8	; 0x1fe8 <CDC_Device_ProcessControlRequest>
+     506:	a2 81       	ldd	r26, Z+2	; 0x02
+     508:	b3 81       	ldd	r27, Z+3	; 0x03
+     50a:	8d 91       	ld	r24, X+
+     50c:	b3 83       	std	Z+3, r27	; 0x03
+     50e:	a2 83       	std	Z+2, r26	; 0x02
 					{
 						NewReportItem.Attributes.Usage.Usage = UsageList[0];
-     510:	80 e0       	ldi	r24, 0x00	; 0
-     512:	91 e0       	ldi	r25, 0x01	; 1
-     514:	0c 94 a5 10 	jmp	0x214a	; 0x214a <HID_Device_ProcessControlRequest>
-
-00000518 <EVENT_USB_Device_StartOfFrame>:
-     518:	80 91 0e 01 	lds	r24, 0x010E
-     51c:	90 91 0f 01 	lds	r25, 0x010F
-     520:	00 97       	sbiw	r24, 0x00	; 0
-     522:	29 f0       	breq	.+10     	; 0x52e <EVENT_USB_Device_StartOfFrame+0x16>
-     524:	01 97       	sbiw	r24, 0x01	; 1
+     510:	26 81       	ldd	r18, Z+6	; 0x06
+     512:	37 81       	ldd	r19, Z+7	; 0x07
+     514:	a2 17       	cp	r26, r18
+     516:	b3 07       	cpc	r27, r19
+     518:	89 f4       	brne	.+34     	; 0x53c <main+0xd2>
+     51a:	0c c0       	rjmp	.+24     	; 0x534 <main+0xca>
+     51c:	e0 91 39 01 	lds	r30, 0x0139
+     520:	f0 91 3a 01 	lds	r31, 0x013A
+     524:	60 81       	ld	r22, Z
 
 						for (uint8_t i = 1; i < UsageListSize; i++)
-     526:	90 93 0f 01 	sts	0x010F, r25
+     526:	80 e1       	ldi	r24, 0x10	; 16
+     528:	91 e0       	ldi	r25, 0x01	; 1
 						  UsageList[i - 1] = UsageList[i];
-     52a:	80 93 0e 01 	sts	0x010E, r24
-     52e:	08 95       	ret
-
-00000530 <checkNHPControlAddressError>:
-     530:	cf 93       	push	r28
+     52a:	0e 94 5e 0f 	call	0x1ebc	; 0x1ebc <CDC_Device_SendByte>
+     52e:	88 23       	and	r24, r24
+     530:	49 f3       	breq	.-46     	; 0x504 <main+0x9a>
 
 					if (UsageListSize)
 					{
 						NewReportItem.Attributes.Usage.Usage = UsageList[0];
 
 						for (uint8_t i = 1; i < UsageListSize; i++)
-     532:	df 93       	push	r29
-     534:	00 d0       	rcall	.+0      	; 0x536 <checkNHPControlAddressError+0x6>
-     536:	00 d0       	rcall	.+0      	; 0x538 <checkNHPControlAddressError+0x8>
-     538:	00 d0       	rcall	.+0      	; 0x53a <checkNHPControlAddressError+0xa>
-     53a:	cd b7       	in	r28, 0x3d	; 61
-     53c:	de b7       	in	r29, 0x3e	; 62
+     532:	cc cf       	rjmp	.-104    	; 0x4cc <main+0x62>
+     534:	24 81       	ldd	r18, Z+4	; 0x04
+     536:	35 81       	ldd	r19, Z+5	; 0x05
+     538:	33 83       	std	Z+3, r19	; 0x03
+     53a:	22 83       	std	Z+2, r18	; 0x02
+     53c:	9f b7       	in	r25, 0x3f	; 63
 						  UsageList[i - 1] = UsageList[i];
 
 						UsageListSize--;
-     53e:	60 91 c5 01 	lds	r22, 0x01C5
-     542:	66 23       	and	r22, r22
-     544:	79 f0       	breq	.+30     	; 0x564 <checkNHPControlAddressError+0x34>
-     546:	80 91 c7 01 	lds	r24, 0x01C7
+     53e:	f8 94       	cli
+     540:	22 85       	ldd	r18, Z+10	; 0x0a
+     542:	33 85       	ldd	r19, Z+11	; 0x0b
+     544:	21 50       	subi	r18, 0x01	; 1
+     546:	31 09       	sbc	r19, r1
 					}
 					else if (UsageMinMax.Minimum <= UsageMinMax.Maximum)
-     54a:	81 11       	cpse	r24, r1
-     54c:	0b c0       	rjmp	.+22     	; 0x564 <checkNHPControlAddressError+0x34>
-     54e:	70 e0       	ldi	r23, 0x00	; 0
-     550:	71 60       	ori	r23, 0x01	; 1
-     552:	ae 01       	movw	r20, r28
-     554:	4f 5f       	subi	r20, 0xFF	; 255
-     556:	5f 4f       	sbci	r21, 0xFF	; 255
-     558:	81 e0       	ldi	r24, 0x01	; 1
-     55a:	c1 d6       	rcall	.+3458   	; 0x12de <NHPwriteChecksum>
-     55c:	68 2f       	mov	r22, r24
+     548:	33 87       	std	Z+11, r19	; 0x0b
+     54a:	22 87       	std	Z+10, r18	; 0x0a
+     54c:	9f bf       	out	0x3f, r25	; 63
+     54e:	90 91 36 01 	lds	r25, 0x0136
+     552:	92 30       	cpi	r25, 0x02	; 2
+     554:	09 f4       	brne	.+2      	; 0x558 <main+0xee>
+     556:	e1 d1       	rcall	.+962    	; 0x91a <checkNHPProtocol>
+     558:	21 96       	adiw	r28, 0x01	; 1
+     55a:	ec 12       	cpse	r14, r28
+     55c:	cf cf       	rjmp	.-98     	; 0x4fc <main+0x92>
 					{
 						NewReportItem.Attributes.Usage.Usage = UsageMinMax.Minimum++;
-     55e:	ce 01       	movw	r24, r28
-     560:	01 96       	adiw	r24, 0x01	; 1
-     562:	17 d2       	rcall	.+1070   	; 0x992 <writeToCDC>
-     564:	77 d1       	rcall	.+750    	; 0x854 <flushHID>
-     566:	10 92 c5 01 	sts	0x01C5, r1
-     56a:	10 92 c7 01 	sts	0x01C7, r1
-     56e:	10 92 c6 01 	sts	0x01C6, r1
+     55e:	b6 cf       	rjmp	.-148    	; 0x4cc <main+0x62>
+     560:	a8 9a       	sbi	0x15, 0	; 21
+     562:	80 91 c3 01 	lds	r24, 0x01C3
+     566:	88 23       	and	r24, r24
+     568:	89 f0       	breq	.+34     	; 0x58c <main+0x122>
+     56a:	81 50       	subi	r24, 0x01	; 1
+     56c:	80 93 c3 01 	sts	0x01C3, r24
 					}
 
 					uint8_t ItemTypeTag = (HIDReportItem & (HID_RI_TYPE_MASK | HID_RI_TAG_MASK));
 
 					if (ItemTypeTag == HID_RI_INPUT(0))
-     572:	26 96       	adiw	r28, 0x06	; 6
+     570:	81 11       	cpse	r24, r1
+     572:	0c c0       	rjmp	.+24     	; 0x58c <main+0x122>
 					  NewReportItem.ItemType = HID_REPORT_ITEM_In;
-     574:	0f b6       	in	r0, 0x3f	; 63
-     576:	f8 94       	cli
+     574:	80 91 36 01 	lds	r24, 0x0136
 					else if (ItemTypeTag == HID_RI_OUTPUT(0))
-     578:	de bf       	out	0x3e, r29	; 62
-     57a:	0f be       	out	0x3f, r0	; 63
+     578:	82 30       	cpi	r24, 0x02	; 2
+     57a:	39 f4       	brne	.+14     	; 0x58a <main+0x120>
 					  NewReportItem.ItemType = HID_REPORT_ITEM_Out;
-     57c:	cd bf       	out	0x3d, r28	; 61
-     57e:	df 91       	pop	r29
-     580:	cf 91       	pop	r28
+     57c:	a4 d1       	rcall	.+840    	; 0x8c6 <checkNHPControlAddressError>
+     57e:	60 91 1c 02 	lds	r22, 0x021C
 					else
 					  NewReportItem.ItemType = HID_REPORT_ITEM_Feature;
-     582:	08 95       	ret
-
-00000584 <checkNHPProtocol>:
-     584:	cf 93       	push	r28
+     582:	86 e1       	ldi	r24, 0x16	; 22
+     584:	92 e0       	ldi	r25, 0x02	; 2
 
 					NewReportItem.BitOffset = CurrReportIDInfo->ReportSizeBits[NewReportItem.ItemType];
-     586:	df 93       	push	r29
-     588:	1f 92       	push	r1
-     58a:	cd b7       	in	r28, 0x3d	; 61
-     58c:	de b7       	in	r29, 0x3e	; 62
-     58e:	06 d6       	rcall	.+3084   	; 0x119c <NHPreadChecksum>
+     586:	73 d1       	rcall	.+742    	; 0x86e <writeToCDC>
+     588:	ce d0       	rcall	.+412    	; 0x726 <resetNHPbuffer>
+     58a:	5d 9a       	sbi	0x0b, 5	; 11
+     58c:	80 91 c4 01 	lds	r24, 0x01C4
      590:	88 23       	and	r24, r24
-     592:	09 f4       	brne	.+2      	; 0x596 <checkNHPProtocol+0x12>
-     594:	5b c0       	rjmp	.+182    	; 0x64c <checkNHPProtocol+0xc8>
-     596:	89 83       	std	Y+1, r24	; 0x01
-     598:	5d d1       	rcall	.+698    	; 0x854 <flushHID>
-     59a:	89 81       	ldd	r24, Y+1	; 0x01
-     59c:	81 30       	cpi	r24, 0x01	; 1
-     59e:	c9 f4       	brne	.+50     	; 0x5d2 <checkNHPProtocol+0x4e>
-     5a0:	90 91 13 02 	lds	r25, 0x0213
+     592:	31 f0       	breq	.+12     	; 0x5a0 <main+0x136>
+     594:	81 50       	subi	r24, 0x01	; 1
+     596:	80 93 c4 01 	sts	0x01C4, r24
+     59a:	81 11       	cpse	r24, r1
+     59c:	01 c0       	rjmp	.+2      	; 0x5a0 <main+0x136>
+     59e:	5c 9a       	sbi	0x0b, 4	; 11
+     5a0:	80 91 36 01 	lds	r24, 0x0136
 
 					CurrReportIDInfo->ReportSizeBits[NewReportItem.ItemType] += CurrStateTable->Attributes.BitSize;
-     5a4:	91 30       	cpi	r25, 0x01	; 1
-     5a6:	a9 f4       	brne	.+42     	; 0x5d2 <checkNHPProtocol+0x4e>
-     5a8:	c3 df       	rcall	.-122    	; 0x530 <checkNHPControlAddressError>
-     5aa:	80 91 12 02 	lds	r24, 0x0212
-     5ae:	80 93 c5 01 	sts	0x01C5, r24
+     5a4:	82 30       	cpi	r24, 0x02	; 2
+     5a6:	21 f4       	brne	.+8      	; 0x5b0 <main+0x146>
+     5a8:	80 e0       	ldi	r24, 0x00	; 0
+     5aa:	91 e0       	ldi	r25, 0x01	; 1
+     5ac:	0e 94 f1 11 	call	0x23e2	; 0x23e2 <HID_Device_USBTask>
+     5b0:	80 e1       	ldi	r24, 0x10	; 16
 
 					ParserData->LargestReportSizeBits = MAX(ParserData->LargestReportSizeBits, CurrReportIDInfo->ReportSizeBits[NewReportItem.ItemType]);
-     5b2:	10 92 c7 01 	sts	0x01C7, r1
-     5b6:	9f e3       	ldi	r25, 0x3F	; 63
-     5b8:	e8 ec       	ldi	r30, 0xC8	; 200
-     5ba:	f1 e0       	ldi	r31, 0x01	; 1
-     5bc:	df 01       	movw	r26, r30
-     5be:	1d 92       	st	X+, r1
-     5c0:	9a 95       	dec	r25
-     5c2:	e9 f7       	brne	.-6      	; 0x5be <checkNHPProtocol+0x3a>
-     5c4:	a0 d1       	rcall	.+832    	; 0x906 <getHIDReportLength>
-     5c6:	80 93 c6 01 	sts	0x01C6, r24
-     5ca:	81 11       	cpse	r24, r1
-     5cc:	3b c0       	rjmp	.+118    	; 0x644 <checkNHPProtocol+0xc0>
-     5ce:	b0 df       	rcall	.-160    	; 0x530 <checkNHPControlAddressError>
-     5d0:	39 c0       	rjmp	.+114    	; 0x644 <checkNHPProtocol+0xc0>
-     5d2:	90 91 c5 01 	lds	r25, 0x01C5
-     5d6:	99 23       	and	r25, r25
-     5d8:	79 f1       	breq	.+94     	; 0x638 <checkNHPProtocol+0xb4>
-     5da:	60 91 c7 01 	lds	r22, 0x01C7
-     5de:	46 2f       	mov	r20, r22
-     5e0:	50 e0       	ldi	r21, 0x00	; 0
-     5e2:	90 e0       	ldi	r25, 0x00	; 0
-     5e4:	9a 01       	movw	r18, r20
-     5e6:	2e 5f       	subi	r18, 0xFE	; 254
-     5e8:	3f 4f       	sbci	r19, 0xFF	; 255
-     5ea:	35 95       	asr	r19
-     5ec:	27 95       	ror	r18
-     5ee:	2f 5f       	subi	r18, 0xFF	; 255
-     5f0:	3f 4f       	sbci	r19, 0xFF	; 255
+     5b2:	91 e0       	ldi	r25, 0x01	; 1
+     5b4:	0e 94 b0 0f 	call	0x1f60	; 0x1f60 <CDC_Device_USBTask>
+     5b8:	0e 94 ff 0e 	call	0x1dfe	; 0x1dfe <USB_USBTask>
+     5bc:	66 cf       	rjmp	.-308    	; 0x48a <main+0x20>
+
+000005be <EVENT_USB_Device_Connect>:
+     5be:	08 95       	ret
+
+000005c0 <EVENT_USB_Device_Disconnect>:
+     5c0:	08 95       	ret
+
+000005c2 <EVENT_USB_Device_ConfigurationChanged>:
+     5c2:	80 e0       	ldi	r24, 0x00	; 0
+     5c4:	91 e0       	ldi	r25, 0x01	; 1
+     5c6:	0e 94 dc 11 	call	0x23b8	; 0x23b8 <HID_Device_ConfigureEndpoints>
+     5ca:	80 e1       	ldi	r24, 0x10	; 16
+     5cc:	91 e0       	ldi	r25, 0x01	; 1
+     5ce:	0e 94 1b 0f 	call	0x1e36	; 0x1e36 <CDC_Device_ConfigureEndpoints>
+     5d2:	e2 ee       	ldi	r30, 0xE2	; 226
+     5d4:	f0 e0       	ldi	r31, 0x00	; 0
+     5d6:	80 81       	ld	r24, Z
+     5d8:	84 60       	ori	r24, 0x04	; 4
+     5da:	80 83       	st	Z, r24
+     5dc:	08 95       	ret
+
+000005de <__vector_23>:
+     5de:	1f 92       	push	r1
+     5e0:	0f 92       	push	r0
+     5e2:	0f b6       	in	r0, 0x3f	; 63
+     5e4:	0f 92       	push	r0
+     5e6:	11 24       	eor	r1, r1
+     5e8:	2f 93       	push	r18
+     5ea:	3f 93       	push	r19
+     5ec:	8f 93       	push	r24
+     5ee:	9f 93       	push	r25
+     5f0:	af 93       	push	r26
 
 					if (ParserData->TotalReportItems == HID_MAX_REPORTITEMS)
-     5f2:	82 17       	cp	r24, r18
-     5f4:	93 07       	cpc	r25, r19
-     5f6:	01 f5       	brne	.+64     	; 0x638 <checkNHPProtocol+0xb4>
-     5f8:	fa 01       	movw	r30, r20
+     5f2:	bf 93       	push	r27
+     5f4:	ef 93       	push	r30
+     5f6:	ff 93       	push	r31
+     5f8:	80 91 ce 00 	lds	r24, 0x00CE
 					  return HID_PARSE_InsufficientReportItems;
-     5fa:	e8 53       	subi	r30, 0x38	; 56
-     5fc:	fe 4f       	sbci	r31, 0xFE	; 254
+     5fc:	90 91 36 01 	lds	r25, 0x0136
 
 					memcpy(&ParserData->ReportItems[ParserData->TotalReportItems],
-     5fe:	80 91 12 02 	lds	r24, 0x0212
-     602:	80 83       	st	Z, r24
-     604:	e6 2f       	mov	r30, r22
-     606:	ef 5f       	subi	r30, 0xFF	; 255
-     608:	e0 93 c7 01 	sts	0x01C7, r30
-     60c:	80 91 c6 01 	lds	r24, 0x01C6
-     610:	8e 17       	cp	r24, r30
-     612:	49 f0       	breq	.+18     	; 0x626 <checkNHPProtocol+0xa2>
-     614:	f0 e0       	ldi	r31, 0x00	; 0
-     616:	e8 53       	subi	r30, 0x38	; 56
-     618:	fe 4f       	sbci	r31, 0xFE	; 254
-     61a:	90 91 13 02 	lds	r25, 0x0213
+     600:	93 30       	cpi	r25, 0x03	; 3
+     602:	f9 f0       	breq	.+62     	; 0x642 <__vector_23+0x64>
+     604:	90 91 45 02 	lds	r25, 0x0245
+     608:	94 30       	cpi	r25, 0x04	; 4
+     60a:	d9 f4       	brne	.+54     	; 0x642 <__vector_23+0x64>
+     60c:	e7 e3       	ldi	r30, 0x37	; 55
+     60e:	f1 e0       	ldi	r31, 0x01	; 1
+     610:	a0 81       	ld	r26, Z
+     612:	b1 81       	ldd	r27, Z+1	; 0x01
+     614:	8c 93       	st	X, r24
+     616:	80 81       	ld	r24, Z
+     618:	91 81       	ldd	r25, Z+1	; 0x01
+     61a:	01 96       	adiw	r24, 0x01	; 1
+     61c:	91 83       	std	Z+1, r25	; 0x01
 					       &NewReportItem, sizeof(HID_ReportItem_t));
 
 					if (!(ReportItemData & HID_IOF_CONSTANT) && CALLBACK_HIDParser_FilterHIDReportItem(&NewReportItem))
-     61e:	90 83       	st	Z, r25
-     620:	6e 5f       	subi	r22, 0xFE	; 254
-     622:	60 93 c7 01 	sts	0x01C7, r22
-     626:	90 91 c7 01 	lds	r25, 0x01C7
-     62a:	89 13       	cpse	r24, r25
-     62c:	0b c0       	rjmp	.+22     	; 0x644 <checkNHPProtocol+0xc0>
-     62e:	80 e0       	ldi	r24, 0x00	; 0
-     630:	91 e0       	ldi	r25, 0x01	; 1
-     632:	0e 94 f1 11 	call	0x23e2	; 0x23e2 <HID_Device_USBTask>
-     636:	06 c0       	rjmp	.+12     	; 0x644 <checkNHPProtocol+0xc0>
-     638:	7b df       	rcall	.-266    	; 0x530 <checkNHPControlAddressError>
-     63a:	60 91 1c 02 	lds	r22, 0x021C
-     63e:	86 e1       	ldi	r24, 0x16	; 22
-     640:	92 e0       	ldi	r25, 0x02	; 2
-     642:	a7 d1       	rcall	.+846    	; 0x992 <writeToCDC>
-     644:	0f 90       	pop	r0
-     646:	df 91       	pop	r29
-     648:	cf 91       	pop	r28
-     64a:	ff c0       	rjmp	.+510    	; 0x84a <resetNHPbuffer>
-     64c:	0f 90       	pop	r0
-     64e:	df 91       	pop	r29
-     650:	cf 91       	pop	r28
-     652:	08 95       	ret
+     61e:	80 83       	st	Z, r24
+     620:	26 81       	ldd	r18, Z+6	; 0x06
+     622:	37 81       	ldd	r19, Z+7	; 0x07
+     624:	82 17       	cp	r24, r18
+     626:	93 07       	cpc	r25, r19
+     628:	21 f4       	brne	.+8      	; 0x632 <__vector_23+0x54>
+     62a:	84 81       	ldd	r24, Z+4	; 0x04
+     62c:	95 81       	ldd	r25, Z+5	; 0x05
+     62e:	91 83       	std	Z+1, r25	; 0x01
+     630:	80 83       	st	Z, r24
+     632:	2f b7       	in	r18, 0x3f	; 63
+     634:	f8 94       	cli
+     636:	82 85       	ldd	r24, Z+10	; 0x0a
+     638:	93 85       	ldd	r25, Z+11	; 0x0b
+     63a:	01 96       	adiw	r24, 0x01	; 1
+     63c:	93 87       	std	Z+11, r25	; 0x0b
+     63e:	82 87       	std	Z+10, r24	; 0x0a
+     640:	2f bf       	out	0x3f, r18	; 63
+     642:	ff 91       	pop	r31
+     644:	ef 91       	pop	r30
+     646:	bf 91       	pop	r27
+     648:	af 91       	pop	r26
+     64a:	9f 91       	pop	r25
+     64c:	8f 91       	pop	r24
+     64e:	3f 91       	pop	r19
+     650:	2f 91       	pop	r18
+     652:	0f 90       	pop	r0
+     654:	0f be       	out	0x3f, r0	; 63
+     656:	0f 90       	pop	r0
+     658:	1f 90       	pop	r1
+     65a:	18 95       	reti
 
-00000654 <main>:
-     654:	10 92 36 01 	sts	0x0136, r1
-     658:	4a e0       	ldi	r20, 0x0A	; 10
-     65a:	50 e0       	ldi	r21, 0x00	; 0
-     65c:	61 e0       	ldi	r22, 0x01	; 1
-     65e:	70 e0       	ldi	r23, 0x00	; 0
-     660:	87 e0       	ldi	r24, 0x07	; 7
-     662:	92 e0       	ldi	r25, 0x02	; 2
-     664:	0e 94 ed 12 	call	0x25da	; 0x25da <memset>
-     668:	5c de       	rcall	.-840    	; 0x322 <SetupHardware>
-     66a:	78 94       	sei
-     66c:	e3 e0       	ldi	r30, 0x03	; 3
-     66e:	fe 2e       	mov	r15, r30
-     670:	07 e3       	ldi	r16, 0x37	; 55
-     672:	11 e0       	ldi	r17, 0x01	; 1
-     674:	91 de       	rcall	.-734    	; 0x398 <selectMode>
-     676:	4f 9b       	sbis	0x09, 7	; 9
-     678:	73 d1       	rcall	.+742    	; 0x960 <clearHIDReports>
-     67a:	80 91 36 01 	lds	r24, 0x0136
+0000065c <EVENT_USB_Device_ControlRequest>:
+     65c:	80 e1       	ldi	r24, 0x10	; 16
+     65e:	91 e0       	ldi	r25, 0x01	; 1
+     660:	0e 94 f4 0f 	call	0x1fe8	; 0x1fe8 <CDC_Device_ProcessControlRequest>
+     664:	80 e0       	ldi	r24, 0x00	; 0
+     666:	91 e0       	ldi	r25, 0x01	; 1
+     668:	0c 94 a5 10 	jmp	0x214a	; 0x214a <HID_Device_ProcessControlRequest>
+
+0000066c <EVENT_USB_Device_StartOfFrame>:
+     66c:	80 91 0e 01 	lds	r24, 0x010E
+     670:	90 91 0f 01 	lds	r25, 0x010F
+     674:	00 97       	sbiw	r24, 0x00	; 0
+     676:	29 f0       	breq	.+10     	; 0x682 <EVENT_USB_Device_StartOfFrame+0x16>
+     678:	01 97       	sbiw	r24, 0x01	; 1
+     67a:	90 93 0f 01 	sts	0x010F, r25
 					  ParserData->TotalReportItems++;
-     67e:	83 30       	cpi	r24, 0x03	; 3
-     680:	11 f4       	brne	.+4      	; 0x686 <main+0x32>
-     682:	c0 d4       	rcall	.+2432   	; 0x1004 <avrisp>
-     684:	8a c0       	rjmp	.+276    	; 0x79a <main+0x146>
+     67e:	80 93 0e 01 	sts	0x010E, r24
+     682:	08 95       	ret
+
+00000684 <CALLBACK_USB_GetDescriptor>:
+     684:	29 2f       	mov	r18, r25
 				break;
 
 			case HID_RI_INPUT(0):
 			case HID_RI_OUTPUT(0):
 			case HID_RI_FEATURE(0):
 				for (uint8_t ReportItemNum = 0; ReportItemNum < CurrStateTable->ReportCount; ReportItemNum++)
-     686:	80 e1       	ldi	r24, 0x10	; 16
-     688:	91 e0       	ldi	r25, 0x01	; 1
+     686:	33 27       	eor	r19, r19
+     688:	23 30       	cpi	r18, 0x03	; 3
 			default:
 				ReportItemData  = 0;
 				break;
 		}
 
 		switch (HIDReportItem & (HID_RI_TYPE_MASK | HID_RI_TAG_MASK))
-     68a:	0e 94 c6 0f 	call	0x1f8c	; 0x1f8c <CDC_Device_ReceiveByte>
+     68a:	31 05       	cpc	r19, r1
+			case HID_RI_FEATURE(0):
+				for (uint8_t ReportItemNum = 0; ReportItemNum < CurrStateTable->ReportCount; ReportItemNum++)
+				{
+					HID_ReportItem_t NewReportItem;
+
+					memcpy(&NewReportItem.Attributes,
+     68c:	b1 f0       	breq	.+44     	; 0x6ba <CALLBACK_USB_GetDescriptor+0x36>
 					  return HID_PARSE_InsufficientReportItems;
 
 					memcpy(&ParserData->ReportItems[ParserData->TotalReportItems],
 					       &NewReportItem, sizeof(HID_ReportItem_t));
 
 					if (!(ReportItemData & HID_IOF_CONSTANT) && CALLBACK_HIDParser_FilterHIDReportItem(&NewReportItem))
-     68e:	97 fd       	sbrc	r25, 7
-     690:	09 c0       	rjmp	.+18     	; 0x6a4 <main+0x50>
-     692:	5c 98       	cbi	0x0b, 4	; 11
-     694:	f0 92 c4 01 	sts	0x01C4, r15
-     698:	90 91 c8 00 	lds	r25, 0x00C8
-     69c:	95 ff       	sbrs	r25, 5
-     69e:	fc cf       	rjmp	.-8      	; 0x698 <main+0x44>
-     6a0:	80 93 ce 00 	sts	0x00CE, r24
-     6a4:	2f b7       	in	r18, 0x3f	; 63
-     6a6:	f8 94       	cli
-     6a8:	80 91 41 01 	lds	r24, 0x0141
+     68e:	4c f4       	brge	.+18     	; 0x6a2 <CALLBACK_USB_GetDescriptor+0x1e>
+     690:	21 30       	cpi	r18, 0x01	; 1
+     692:	31 05       	cpc	r19, r1
+     694:	09 f4       	brne	.+2      	; 0x698 <CALLBACK_USB_GetDescriptor+0x14>
+     696:	39 c0       	rjmp	.+114    	; 0x70a <CALLBACK_USB_GetDescriptor+0x86>
+     698:	22 30       	cpi	r18, 0x02	; 2
+     69a:	31 05       	cpc	r19, r1
+     69c:	09 f0       	breq	.+2      	; 0x6a0 <CALLBACK_USB_GetDescriptor+0x1c>
+     69e:	3a c0       	rjmp	.+116    	; 0x714 <CALLBACK_USB_GetDescriptor+0x90>
+     6a0:	07 c0       	rjmp	.+14     	; 0x6b0 <CALLBACK_USB_GetDescriptor+0x2c>
+     6a2:	21 32       	cpi	r18, 0x21	; 33
+     6a4:	31 05       	cpc	r19, r1
+     6a6:	39 f1       	breq	.+78     	; 0x6f6 <CALLBACK_USB_GetDescriptor+0x72>
+     6a8:	22 32       	cpi	r18, 0x22	; 34
 				break;
 
 			case HID_RI_INPUT(0):
 			case HID_RI_OUTPUT(0):
 			case HID_RI_FEATURE(0):
 				for (uint8_t ReportItemNum = 0; ReportItemNum < CurrStateTable->ReportCount; ReportItemNum++)
-     6ac:	90 91 42 01 	lds	r25, 0x0142
-     6b0:	2f bf       	out	0x3f, r18	; 63
-     6b2:	00 97       	sbiw	r24, 0x00	; 0
-     6b4:	19 f4       	brne	.+6      	; 0x6bc <main+0x68>
-     6b6:	a8 99       	sbic	0x15, 0	; 21
+     6aa:	31 05       	cpc	r19, r1
+     6ac:	49 f1       	breq	.+82     	; 0x700 <CALLBACK_USB_GetDescriptor+0x7c>
+     6ae:	32 c0       	rjmp	.+100    	; 0x714 <CALLBACK_USB_GetDescriptor+0x90>
+     6b0:	ef e5       	ldi	r30, 0x5F	; 95
+     6b2:	f0 e0       	ldi	r31, 0x00	; 0
+     6b4:	8e eb       	ldi	r24, 0xBE	; 190
+     6b6:	90 e0       	ldi	r25, 0x00	; 0
 			default:
 				ReportItemData  = 0;
 				break;
 		}
 
 		switch (HIDReportItem & (HID_RI_TYPE_MASK | HID_RI_TAG_MASK))
-     6b8:	48 c0       	rjmp	.+144    	; 0x74a <main+0xf6>
-     6ba:	67 c0       	rjmp	.+206    	; 0x78a <main+0x136>
+     6b8:	31 c0       	rjmp	.+98     	; 0x71c <CALLBACK_USB_GetDescriptor+0x98>
+     6ba:	99 27       	eor	r25, r25
 
 			default:
 				break;
 		}
 
 		if ((HIDReportItem & HID_RI_TYPE_MASK) == HID_RI_TYPE_MAIN)
-     6bc:	5d 98       	cbi	0x0b, 5	; 11
-     6be:	f0 92 c3 01 	sts	0x01C3, r15
-     6c2:	20 91 11 01 	lds	r18, 0x0111
+     6bc:	81 30       	cpi	r24, 0x01	; 1
+     6be:	91 05       	cpc	r25, r1
+     6c0:	61 f0       	breq	.+24     	; 0x6da <CALLBACK_USB_GetDescriptor+0x56>
+     6c2:	82 30       	cpi	r24, 0x02	; 2
+     6c4:	91 05       	cpc	r25, r1
 		{
 			UsageMinMax.Minimum = 0;
 			UsageMinMax.Maximum = 0;
-     6c6:	2f 70       	andi	r18, 0x0F	; 15
-     6c8:	20 93 e9 00 	sts	0x00E9, r18
-     6cc:	20 91 e8 00 	lds	r18, 0x00E8
-     6d0:	20 ff       	sbrs	r18, 0
+     6c6:	81 f0       	breq	.+32     	; 0x6e8 <CALLBACK_USB_GetDescriptor+0x64>
+     6c8:	89 2b       	or	r24, r25
+     6ca:	21 f5       	brne	.+72     	; 0x714 <CALLBACK_USB_GetDescriptor+0x90>
+     6cc:	ea eb       	ldi	r30, 0xBA	; 186
+     6ce:	f0 e0       	ldi	r31, 0x00	; 0
+     6d0:	e4 91       	lpm	r30, Z+
 				break;
 		}
 
 		if ((HIDReportItem & HID_RI_TYPE_MASK) == HID_RI_TYPE_MAIN)
 		{
 			UsageMinMax.Minimum = 0;
-     6d2:	f1 cf       	rjmp	.-30     	; 0x6b6 <main+0x62>
-     6d4:	80 34       	cpi	r24, 0x40	; 64
-     6d6:	91 05       	cpc	r25, r1
+     6d2:	f0 e0       	ldi	r31, 0x00	; 0
+     6d4:	8a eb       	ldi	r24, 0xBA	; 186
+     6d6:	90 e0       	ldi	r25, 0x00	; 0
 			UsageMinMax.Maximum = 0;
 			UsageListSize       = 0;
-     6d8:	10 f0       	brcs	.+4      	; 0x6de <main+0x8a>
-     6da:	8f e3       	ldi	r24, 0x3F	; 63
-     6dc:	90 e0       	ldi	r25, 0x00	; 0
+     6d8:	21 c0       	rjmp	.+66     	; 0x71c <CALLBACK_USB_GetDescriptor+0x98>
+     6da:	e6 ea       	ldi	r30, 0xA6	; 166
+     6dc:	f0 e0       	ldi	r31, 0x00	; 0
 	memset(CurrStateTable,   0x00, sizeof(HID_StateTable_t));
 	memset(CurrReportIDInfo, 0x00, sizeof(HID_ReportSizeInfo_t));
 
 	ParserData->TotalDeviceReports = 1;
 
 	while (ReportSize)
-     6de:	e8 2e       	mov	r14, r24
-     6e0:	c0 e0       	ldi	r28, 0x00	; 0
-     6e2:	d0 e0       	ldi	r29, 0x00	; 0
-     6e4:	2f c0       	rjmp	.+94     	; 0x744 <main+0xf0>
-     6e6:	80 91 36 01 	lds	r24, 0x0136
-     6ea:	81 30       	cpi	r24, 0x01	; 1
+     6de:	e4 91       	lpm	r30, Z+
+     6e0:	f0 e0       	ldi	r31, 0x00	; 0
+     6e2:	86 ea       	ldi	r24, 0xA6	; 166
+     6e4:	90 e0       	ldi	r25, 0x00	; 0
+     6e6:	1a c0       	rjmp	.+52     	; 0x71c <CALLBACK_USB_GetDescriptor+0x98>
+     6e8:	e4 e7       	ldi	r30, 0x74	; 116
+     6ea:	f0 e0       	ldi	r31, 0x00	; 0
 			UsageMinMax.Maximum = 0;
 			UsageListSize       = 0;
 		}
 	}
 
 	if (!(ParserData->TotalReportItems))
-     6ec:	61 f0       	breq	.+24     	; 0x706 <main+0xb2>
-     6ee:	f8 01       	movw	r30, r16
-     6f0:	a2 81       	ldd	r26, Z+2	; 0x02
-     6f2:	b3 81       	ldd	r27, Z+3	; 0x03
+     6ec:	e4 91       	lpm	r30, Z+
+     6ee:	f0 e0       	ldi	r31, 0x00	; 0
+     6f0:	84 e7       	ldi	r24, 0x74	; 116
+     6f2:	90 e0       	ldi	r25, 0x00	; 0
 	  return HID_PARSE_NoUnfilteredReportItems;
-     6f4:	8d 91       	ld	r24, X+
-     6f6:	b3 83       	std	Z+3, r27	; 0x03
+     6f4:	13 c0       	rjmp	.+38     	; 0x71c <CALLBACK_USB_GetDescriptor+0x98>
+     6f6:	e9 e0       	ldi	r30, 0x09	; 9
 
 		switch (HIDReportItem & (HID_RI_TYPE_MASK | HID_RI_TAG_MASK))
 		{
 			case HID_RI_PUSH(0):
 				if (CurrStateTable == &StateTable[HID_STATETABLE_STACK_DEPTH - 1])
 				  return HID_PARSE_HIDStackOverflow;
-     6f8:	a2 83       	std	Z+2, r26	; 0x02
-     6fa:	26 81       	ldd	r18, Z+6	; 0x06
+     6f8:	f0 e0       	ldi	r31, 0x00	; 0
+     6fa:	8d e0       	ldi	r24, 0x0D	; 13
 				CurrStateTable++;
 				break;
 
 			case HID_RI_POP(0):
 				if (CurrStateTable == &StateTable[0])
 				  return HID_PARSE_HIDStackUnderflow;
-     6fc:	37 81       	ldd	r19, Z+7	; 0x07
-     6fe:	a2 17       	cp	r26, r18
+     6fc:	91 e0       	ldi	r25, 0x01	; 1
+     6fe:	0e c0       	rjmp	.+28     	; 0x71c <CALLBACK_USB_GetDescriptor+0x98>
 				CurrReportIDInfo->ReportID = CurrStateTable->ReportID;
 				break;
 
 			case HID_RI_USAGE(0):
 				if (UsageListSize == HID_USAGE_STACK_DEPTH)
 				  return HID_PARSE_UsageListOverflow;
-     700:	b3 07       	cpc	r27, r19
-     702:	89 f4       	brne	.+34     	; 0x726 <main+0xd2>
+     700:	e8 eb       	ldi	r30, 0xB8	; 184
+     702:	f1 e0       	ldi	r31, 0x01	; 1
 					CurrCollectionPath = &ParserData->CollectionPaths[1];
 
 					while (CurrCollectionPath->Parent != NULL)
 					{
 						if (CurrCollectionPath == &ParserData->CollectionPaths[HID_MAX_COLLECTIONS - 1])
 						  return HID_PARSE_InsufficientCollectionPaths;
-     704:	0c c0       	rjmp	.+24     	; 0x71e <main+0xca>
-     706:	e0 91 39 01 	lds	r30, 0x0139
+     704:	8f e2       	ldi	r24, 0x2F	; 47
+     706:	91 e0       	ldi	r25, 0x01	; 1
 
 				break;
 
 			case HID_RI_END_COLLECTION(0):
 				if (CurrCollectionPath == NULL)
 				  return HID_PARSE_UnexpectedEndCollection;
-     70a:	f0 91 3a 01 	lds	r31, 0x013A
+     708:	09 c0       	rjmp	.+18     	; 0x71c <CALLBACK_USB_GetDescriptor+0x98>
+     70a:	e2 e1       	ldi	r30, 0x12	; 18
 	}
 
 	if (!(ParserData->TotalReportItems))
 	  return HID_PARSE_NoUnfilteredReportItems;
 
 	return HID_PARSE_Successful;
-     70e:	60 81       	ld	r22, Z
+     70c:	f0 e0       	ldi	r31, 0x00	; 0
+     70e:	8d e1       	ldi	r24, 0x1D	; 29
 					}
 
 					if (CurrReportIDInfo == NULL)
 					{
 						if (ParserData->TotalDeviceReports == HID_MAX_REPORT_IDS)
 						  return HID_PARSE_InsufficientReportIDItems;
-     710:	80 e1       	ldi	r24, 0x10	; 16
-     712:	91 e0       	ldi	r25, 0x01	; 1
+     710:	91 e0       	ldi	r25, 0x01	; 1
+     712:	04 c0       	rjmp	.+8      	; 0x71c <CALLBACK_USB_GetDescriptor+0x98>
 						}
 					}
 
 					if (CurrReportIDInfo == NULL)
 					{
 						if (ParserData->TotalDeviceReports == HID_MAX_REPORT_IDS)
-     714:	0e 94 5e 0f 	call	0x1ebc	; 0x1ebc <CDC_Device_SendByte>
-     718:	88 23       	and	r24, r24
-     71a:	49 f3       	breq	.-46     	; 0x6ee <main+0x9a>
+     714:	e0 e0       	ldi	r30, 0x00	; 0
+     716:	f0 e0       	ldi	r31, 0x00	; 0
+     718:	80 e0       	ldi	r24, 0x00	; 0
+     71a:	90 e0       	ldi	r25, 0x00	; 0
 
 	if (!(ParserData->TotalReportItems))
 	  return HID_PARSE_NoUnfilteredReportItems;
 
 	return HID_PARSE_Successful;
 }
-     71c:	cc cf       	rjmp	.-104    	; 0x6b6 <main+0x62>
-     71e:	24 81       	ldd	r18, Z+4	; 0x04
-     720:	35 81       	ldd	r19, Z+5	; 0x05
-     722:	33 83       	std	Z+3, r19	; 0x03
-     724:	22 83       	std	Z+2, r18	; 0x02
-     726:	9f b7       	in	r25, 0x3f	; 63
-     728:	f8 94       	cli
-     72a:	22 85       	ldd	r18, Z+10	; 0x0a
-     72c:	33 85       	ldd	r19, Z+11	; 0x0b
-     72e:	21 50       	subi	r18, 0x01	; 1
-     730:	31 09       	sbc	r19, r1
-     732:	33 87       	std	Z+11, r19	; 0x0b
-     734:	22 87       	std	Z+10, r18	; 0x0a
-     736:	9f bf       	out	0x3f, r25	; 63
-     738:	90 91 36 01 	lds	r25, 0x0136
-     73c:	92 30       	cpi	r25, 0x02	; 2
-     73e:	09 f4       	brne	.+2      	; 0x742 <main+0xee>
-     740:	21 df       	rcall	.-446    	; 0x584 <checkNHPProtocol>
-     742:	21 96       	adiw	r28, 0x01	; 1
-     744:	ec 12       	cpse	r14, r28
-     746:	cf cf       	rjmp	.-98     	; 0x6e6 <main+0x92>
-     748:	b6 cf       	rjmp	.-148    	; 0x6b6 <main+0x62>
-     74a:	a8 9a       	sbi	0x15, 0	; 21
-     74c:	80 91 c3 01 	lds	r24, 0x01C3
-					// Never send more than one bank size less one byte to the host at a time, so that we don't block
-					// while a Zero Length Packet (ZLP) to terminate the transfer is sent if the host isn't listening
-					uint8_t BytesToSend = MIN(BufferCount, (CDC_TXRX_EPSIZE - 1));
+     71c:	da 01       	movw	r26, r20
+     71e:	8d 93       	st	X+, r24
+     720:	9c 93       	st	X, r25
+     722:	cf 01       	movw	r24, r30
+     724:	08 95       	ret
 
-					/// Read bytes from the USART receive buffer into the USB IN endpoint */
-					while (BytesToSend--)
-     750:	88 23       	and	r24, r24
-     752:	89 f0       	breq	.+34     	; 0x776 <main+0x122>
-			}
+00000726 <resetNHPbuffer>:
+     726:	10 92 1c 02 	sts	0x021C, r1
+     72a:	10 92 11 02 	sts	0x0211, r1
+     72e:	08 95       	ret
 
-			// Check if the led flush timer has expired
-			if (TIFR0 & (1 << TOV0)){
-				// reset the timer
-				TIFR0 |= (1 << TOV0);
-     754:	81 50       	subi	r24, 0x01	; 1
+00000730 <flushHID>:
+     730:	04 c0       	rjmp	.+8      	; 0x73a <flushHID+0xa>
+     732:	80 e0       	ldi	r24, 0x00	; 0
+     734:	91 e0       	ldi	r25, 0x01	; 1
+     736:	0e 94 f1 11 	call	0x23e2	; 0x23e2 <HID_Device_USBTask>
+     73a:	80 91 c5 01 	lds	r24, 0x01C5
+     73e:	88 23       	and	r24, r24
+     740:	31 f0       	breq	.+12     	; 0x74e <flushHID+0x1e>
+     742:	90 91 c6 01 	lds	r25, 0x01C6
+     746:	80 91 c7 01 	lds	r24, 0x01C7
+     74a:	98 17       	cp	r25, r24
+     74c:	91 f3       	breq	.-28     	; 0x732 <flushHID+0x2>
+     74e:	08 95       	ret
 
-				// Turn off TX LED(s) once the TX pulse period has elapsed
-				if (ram.PulseMSRemaining.TxLEDPulse && !(--ram.PulseMSRemaining.TxLEDPulse)){
-     756:	80 93 c3 01 	sts	0x01C3, r24
-     75a:	81 11       	cpse	r24, r1
-     75c:	0c c0       	rjmp	.+24     	; 0x776 <main+0x122>
-     75e:	80 91 36 01 	lds	r24, 0x0136
-     762:	82 30       	cpi	r24, 0x02	; 2
-     764:	39 f4       	brne	.+14     	; 0x774 <main+0x120>
-     766:	e4 de       	rcall	.-568    	; 0x530 <checkNHPControlAddressError>
-
-					// if reading has timed out write the buffers down the serial
-					if (ram.mode == MODE_HID){
-     768:	60 91 1c 02 	lds	r22, 0x021C
-     76c:	86 e1       	ldi	r24, 0x16	; 22
-     76e:	92 e0       	ldi	r25, 0x02	; 2
-						// check if previous reading was a valid Control Address and write it down
-						checkNHPControlAddressError();
-     770:	10 d1       	rcall	.+544    	; 0x992 <writeToCDC>
-     772:	6b d0       	rcall	.+214    	; 0x84a <resetNHPbuffer>
-
-						// write the rest of the cached NHP buffer down
-						writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
-     774:	5d 9a       	sbi	0x0b, 5	; 11
-     776:	80 91 c4 01 	lds	r24, 0x01C4
-     77a:	88 23       	and	r24, r24
-     77c:	31 f0       	breq	.+12     	; 0x78a <main+0x136>
-     77e:	81 50       	subi	r24, 0x01	; 1
-						resetNHPbuffer();
-     780:	80 93 c4 01 	sts	0x01C4, r24
-		PORTD &= ~LEDMask;
-	}
-
-	static inline void LEDs_TurnOffLEDs(const uint8_t LEDMask)
-	{
-		PORTD |= LEDMask;
-     784:	81 11       	cpse	r24, r1
-
-					LEDs_TurnOffLEDs(LEDMASK_TX);
-				}
-
-				// Turn off RX LED(s) once the RX pulse period has elapsed
-				if (ram.PulseMSRemaining.RxLEDPulse && !(--ram.PulseMSRemaining.RxLEDPulse))
-     786:	01 c0       	rjmp	.+2      	; 0x78a <main+0x136>
-     788:	5c 9a       	sbi	0x0b, 4	; 11
-     78a:	80 91 36 01 	lds	r24, 0x0136
-     78e:	82 30       	cpi	r24, 0x02	; 2
-     790:	21 f4       	brne	.+8      	; 0x79a <main+0x146>
-     792:	80 e0       	ldi	r24, 0x00	; 0
-     794:	91 e0       	ldi	r25, 0x01	; 1
-     796:	0e 94 f1 11 	call	0x23e2	; 0x23e2 <HID_Device_USBTask>
-					LEDs_TurnOffLEDs(LEDMASK_RX);
-			}
-
-			// get new reports from the PC side and try to send pending reports
-			if (ram.mode == MODE_HID)
-     79a:	80 e1       	ldi	r24, 0x10	; 16
-     79c:	91 e0       	ldi	r25, 0x01	; 1
-     79e:	0e 94 b0 0f 	call	0x1f60	; 0x1f60 <CDC_Device_USBTask>
-				HID_Device_USBTask(&Device_HID_Interface);
-     7a2:	0e 94 ff 0e 	call	0x1dfe	; 0x1dfe <USB_USBTask>
-     7a6:	66 cf       	rjmp	.-308    	; 0x674 <main+0x20>
-
-000007a8 <CALLBACK_USB_GetDescriptor>:
-		break;
-	}
-
-	*DescriptorAddress = Address;
-	return Size;
-}
-     7a8:	29 2f       	mov	r18, r25
-     7aa:	33 27       	eor	r19, r19
-	const uint8_t  DescriptorNumber = (wValue & 0xFF);
-
-	const void* Address = NULL;
-	uint16_t    Size = NO_DESCRIPTOR;
-
-	switch (DescriptorType)
-     7ac:	23 30       	cpi	r18, 0x03	; 3
-     7ae:	31 05       	cpc	r19, r1
-     7b0:	b1 f0       	breq	.+44     	; 0x7de <CALLBACK_USB_GetDescriptor+0x36>
-     7b2:	4c f4       	brge	.+18     	; 0x7c6 <CALLBACK_USB_GetDescriptor+0x1e>
-     7b4:	21 30       	cpi	r18, 0x01	; 1
-     7b6:	31 05       	cpc	r19, r1
-     7b8:	09 f4       	brne	.+2      	; 0x7bc <CALLBACK_USB_GetDescriptor+0x14>
-     7ba:	39 c0       	rjmp	.+114    	; 0x82e <CALLBACK_USB_GetDescriptor+0x86>
-     7bc:	22 30       	cpi	r18, 0x02	; 2
-     7be:	31 05       	cpc	r19, r1
-     7c0:	09 f0       	breq	.+2      	; 0x7c4 <CALLBACK_USB_GetDescriptor+0x1c>
-     7c2:	3a c0       	rjmp	.+116    	; 0x838 <CALLBACK_USB_GetDescriptor+0x90>
-     7c4:	07 c0       	rjmp	.+14     	; 0x7d4 <CALLBACK_USB_GetDescriptor+0x2c>
-     7c6:	21 32       	cpi	r18, 0x21	; 33
-     7c8:	31 05       	cpc	r19, r1
-     7ca:	39 f1       	breq	.+78     	; 0x81a <CALLBACK_USB_GetDescriptor+0x72>
-     7cc:	22 32       	cpi	r18, 0x22	; 34
-     7ce:	31 05       	cpc	r19, r1
-     7d0:	49 f1       	breq	.+82     	; 0x824 <CALLBACK_USB_GetDescriptor+0x7c>
-     7d2:	32 c0       	rjmp	.+100    	; 0x838 <CALLBACK_USB_GetDescriptor+0x90>
-		Address = &DeviceDescriptor;
-		Size = sizeof(USB_Descriptor_Device_t);
-		break;
-	case DTYPE_Configuration:
-		Address = &ConfigurationDescriptor;
-		Size = sizeof(USB_Descriptor_Configuration_t);
-     7d4:	ef e5       	ldi	r30, 0x5F	; 95
-     7d6:	f0 e0       	ldi	r31, 0x00	; 0
-	case DTYPE_Device:
-		Address = &DeviceDescriptor;
-		Size = sizeof(USB_Descriptor_Device_t);
-		break;
-	case DTYPE_Configuration:
-		Address = &ConfigurationDescriptor;
-     7d8:	8e eb       	ldi	r24, 0xBE	; 190
-     7da:	90 e0       	ldi	r25, 0x00	; 0
-		Size = sizeof(USB_Descriptor_Configuration_t);
-		break;
-     7dc:	31 c0       	rjmp	.+98     	; 0x840 <CALLBACK_USB_GetDescriptor+0x98>
-		break;
-	}
-
-	*DescriptorAddress = Address;
-	return Size;
-}
-     7de:	99 27       	eor	r25, r25
-	case DTYPE_Configuration:
-		Address = &ConfigurationDescriptor;
-		Size = sizeof(USB_Descriptor_Configuration_t);
-		break;
-	case DTYPE_String:
-		switch (DescriptorNumber)
-     7e0:	81 30       	cpi	r24, 0x01	; 1
-     7e2:	91 05       	cpc	r25, r1
-     7e4:	61 f0       	breq	.+24     	; 0x7fe <CALLBACK_USB_GetDescriptor+0x56>
-     7e6:	82 30       	cpi	r24, 0x02	; 2
-     7e8:	91 05       	cpc	r25, r1
-     7ea:	81 f0       	breq	.+32     	; 0x80c <CALLBACK_USB_GetDescriptor+0x64>
-     7ec:	89 2b       	or	r24, r25
-     7ee:	21 f5       	brne	.+72     	; 0x838 <CALLBACK_USB_GetDescriptor+0x90>
-		{
-		case STRING_ID_Language:
-			Address = &LanguageString;
-			Size = pgm_read_byte(&LanguageString.Header.Size);
-     7f0:	ea eb       	ldi	r30, 0xBA	; 186
-     7f2:	f0 e0       	ldi	r31, 0x00	; 0
-     7f4:	e4 91       	lpm	r30, Z+
-     7f6:	f0 e0       	ldi	r31, 0x00	; 0
-		break;
-	case DTYPE_String:
-		switch (DescriptorNumber)
-		{
-		case STRING_ID_Language:
-			Address = &LanguageString;
-     7f8:	8a eb       	ldi	r24, 0xBA	; 186
-     7fa:	90 e0       	ldi	r25, 0x00	; 0
-			Size = pgm_read_byte(&LanguageString.Header.Size);
-			break;
-     7fc:	21 c0       	rjmp	.+66     	; 0x840 <CALLBACK_USB_GetDescriptor+0x98>
-		case STRING_ID_Manufacturer:
-			Address = &ManufacturerString;
-			Size = pgm_read_byte(&ManufacturerString.Header.Size);
-     7fe:	e6 ea       	ldi	r30, 0xA6	; 166
-     800:	f0 e0       	ldi	r31, 0x00	; 0
-     802:	e4 91       	lpm	r30, Z+
-     804:	f0 e0       	ldi	r31, 0x00	; 0
-		case STRING_ID_Language:
-			Address = &LanguageString;
-			Size = pgm_read_byte(&LanguageString.Header.Size);
-			break;
-		case STRING_ID_Manufacturer:
-			Address = &ManufacturerString;
-     806:	86 ea       	ldi	r24, 0xA6	; 166
-     808:	90 e0       	ldi	r25, 0x00	; 0
-			Size = pgm_read_byte(&ManufacturerString.Header.Size);
-			break;
-     80a:	1a c0       	rjmp	.+52     	; 0x840 <CALLBACK_USB_GetDescriptor+0x98>
-		case STRING_ID_Product:
-			Address = &ProductString;
-			Size = pgm_read_byte(&ProductString.Header.Size);
-     80c:	e4 e7       	ldi	r30, 0x74	; 116
-     80e:	f0 e0       	ldi	r31, 0x00	; 0
-     810:	e4 91       	lpm	r30, Z+
-     812:	f0 e0       	ldi	r31, 0x00	; 0
-		case STRING_ID_Manufacturer:
-			Address = &ManufacturerString;
-			Size = pgm_read_byte(&ManufacturerString.Header.Size);
-			break;
-		case STRING_ID_Product:
-			Address = &ProductString;
-     814:	84 e7       	ldi	r24, 0x74	; 116
-     816:	90 e0       	ldi	r25, 0x00	; 0
-			Size = pgm_read_byte(&ProductString.Header.Size);
-			break;
-     818:	13 c0       	rjmp	.+38     	; 0x840 <CALLBACK_USB_GetDescriptor+0x98>
-		break;
-
-		//new <--
-	case HID_DTYPE_HID:
-		Address = &ConfigurationDescriptor.HID_HIDData;
-		Size = sizeof(USB_HID_Descriptor_HID_t);
-     81a:	e9 e0       	ldi	r30, 0x09	; 9
-     81c:	f0 e0       	ldi	r31, 0x00	; 0
-
-		break;
-
-		//new <--
-	case HID_DTYPE_HID:
-		Address = &ConfigurationDescriptor.HID_HIDData;
-     81e:	8d e0       	ldi	r24, 0x0D	; 13
-     820:	91 e0       	ldi	r25, 0x01	; 1
-		Size = sizeof(USB_HID_Descriptor_HID_t);
-		break;
-     822:	0e c0       	rjmp	.+28     	; 0x840 <CALLBACK_USB_GetDescriptor+0x98>
-	case HID_DTYPE_Report:
-		Address = &HIDReport;
-		Size = sizeof(HIDReport);
-     824:	e8 eb       	ldi	r30, 0xB8	; 184
-     826:	f1 e0       	ldi	r31, 0x01	; 1
-	case HID_DTYPE_HID:
-		Address = &ConfigurationDescriptor.HID_HIDData;
-		Size = sizeof(USB_HID_Descriptor_HID_t);
-		break;
-	case HID_DTYPE_Report:
-		Address = &HIDReport;
-     828:	8f e2       	ldi	r24, 0x2F	; 47
-     82a:	91 e0       	ldi	r25, 0x01	; 1
-		Size = sizeof(HIDReport);
-		break;
-     82c:	09 c0       	rjmp	.+18     	; 0x840 <CALLBACK_USB_GetDescriptor+0x98>
-
-	switch (DescriptorType)
-	{
-	case DTYPE_Device:
-		Address = &DeviceDescriptor;
-		Size = sizeof(USB_Descriptor_Device_t);
-     82e:	e2 e1       	ldi	r30, 0x12	; 18
-     830:	f0 e0       	ldi	r31, 0x00	; 0
-	uint16_t    Size = NO_DESCRIPTOR;
-
-	switch (DescriptorType)
-	{
-	case DTYPE_Device:
-		Address = &DeviceDescriptor;
-     832:	8d e1       	ldi	r24, 0x1D	; 29
-     834:	91 e0       	ldi	r25, 0x01	; 1
-     836:	04 c0       	rjmp	.+8      	; 0x840 <CALLBACK_USB_GetDescriptor+0x98>
-{
-	const uint8_t  DescriptorType = (wValue >> 8);
-	const uint8_t  DescriptorNumber = (wValue & 0xFF);
-
-	const void* Address = NULL;
-	uint16_t    Size = NO_DESCRIPTOR;
-     838:	e0 e0       	ldi	r30, 0x00	; 0
-     83a:	f0 e0       	ldi	r31, 0x00	; 0
-	const void** const DescriptorAddress)
-{
-	const uint8_t  DescriptorType = (wValue >> 8);
-	const uint8_t  DescriptorNumber = (wValue & 0xFF);
-
-	const void* Address = NULL;
-     83c:	80 e0       	ldi	r24, 0x00	; 0
-     83e:	90 e0       	ldi	r25, 0x00	; 0
-		Address = &HIDReport;
-		Size = sizeof(HIDReport);
-		break;
-	}
-
-	*DescriptorAddress = Address;
-     840:	da 01       	movw	r26, r20
-     842:	8d 93       	st	X+, r24
-     844:	9c 93       	st	X, r25
-	return Size;
-}
-     846:	cf 01       	movw	r24, r30
-     848:	08 95       	ret
-
-0000084a <resetNHPbuffer>:
-	},
-};
-
-
-void resetNHPbuffer(void){
-	ram.NHP.readlength = 0;
-     84a:	10 92 1c 02 	sts	0x021C, r1
-	ram.NHP.mBlocks = 0;
-     84e:	10 92 11 02 	sts	0x0211, r1
-     852:	08 95       	ret
-
-00000854 <flushHID>:
-	ram.HID.isEmpty[HID_REPORTID_NotAReport] = true;
-}
-
-void flushHID(void){
-	// try to send until its done
-	while (ram.HID.ID && ram.HID.length == ram.HID.recvlength)
-     854:	04 c0       	rjmp	.+8      	; 0x85e <flushHID+0xa>
-		HID_Device_USBTask(&Device_HID_Interface);
-     856:	80 e0       	ldi	r24, 0x00	; 0
-     858:	91 e0       	ldi	r25, 0x01	; 1
-     85a:	0e 94 f1 11 	call	0x23e2	; 0x23e2 <HID_Device_USBTask>
-	ram.HID.isEmpty[HID_REPORTID_NotAReport] = true;
-}
-
-void flushHID(void){
-	// try to send until its done
-	while (ram.HID.ID && ram.HID.length == ram.HID.recvlength)
-     85e:	80 91 c5 01 	lds	r24, 0x01C5
-     862:	88 23       	and	r24, r24
-     864:	31 f0       	breq	.+12     	; 0x872 <flushHID+0x1e>
-     866:	90 91 c6 01 	lds	r25, 0x01C6
-     86a:	80 91 c7 01 	lds	r24, 0x01C7
-     86e:	98 17       	cp	r25, r24
-     870:	91 f3       	breq	.-28     	; 0x856 <flushHID+0x2>
-     872:	08 95       	ret
-
-00000874 <CALLBACK_HID_Device_CreateHIDReport>:
+00000750 <CALLBACK_HID_Device_CreateHIDReport>:
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
 	uint8_t* const ReportID,
 	const uint8_t ReportType,
 	void* ReportData,
 	uint16_t* const ReportSize)
 {
-     874:	ef 92       	push	r14
-     876:	ff 92       	push	r15
-     878:	0f 93       	push	r16
-     87a:	1f 93       	push	r17
-     87c:	cf 93       	push	r28
-     87e:	df 93       	push	r29
-     880:	7b 01       	movw	r14, r22
-     882:	c9 01       	movw	r24, r18
-     884:	e8 01       	movw	r28, r16
+     750:	ef 92       	push	r14
+     752:	ff 92       	push	r15
+     754:	0f 93       	push	r16
+     756:	1f 93       	push	r17
+     758:	cf 93       	push	r28
+     75a:	df 93       	push	r29
+     75c:	7b 01       	movw	r14, r22
+     75e:	c9 01       	movw	r24, r18
+     760:	e8 01       	movw	r28, r16
 	// only send report if there is actually a new report
 	if (ram.HID.ID && ram.HID.length == ram.HID.recvlength){
-     886:	e0 91 c5 01 	lds	r30, 0x01C5
-     88a:	ee 23       	and	r30, r30
-     88c:	29 f1       	breq	.+74     	; 0x8d8 <CALLBACK_HID_Device_CreateHIDReport+0x64>
-     88e:	40 91 c6 01 	lds	r20, 0x01C6
-     892:	20 91 c7 01 	lds	r18, 0x01C7
-     896:	42 13       	cpse	r20, r18
-     898:	1f c0       	rjmp	.+62     	; 0x8d8 <CALLBACK_HID_Device_CreateHIDReport+0x64>
+     762:	e0 91 c5 01 	lds	r30, 0x01C5
+     766:	ee 23       	and	r30, r30
+     768:	29 f1       	breq	.+74     	; 0x7b4 <CALLBACK_HID_Device_CreateHIDReport+0x64>
+     76a:	40 91 c6 01 	lds	r20, 0x01C6
+     76e:	20 91 c7 01 	lds	r18, 0x01C7
+     772:	42 13       	cpse	r20, r18
+     774:	1f c0       	rjmp	.+62     	; 0x7b4 <CALLBACK_HID_Device_CreateHIDReport+0x64>
 		// set a general and specific flag that a report was made, ignore rawHID
 		if (ram.HID.ID != HID_REPORTID_RawKeyboardReport){
-     89a:	e3 30       	cpi	r30, 0x03	; 3
-     89c:	39 f0       	breq	.+14     	; 0x8ac <CALLBACK_HID_Device_CreateHIDReport+0x38>
+     776:	e3 30       	cpi	r30, 0x03	; 3
+     778:	39 f0       	breq	.+14     	; 0x788 <CALLBACK_HID_Device_CreateHIDReport+0x38>
 			ram.HID.isEmpty[HID_REPORTID_NotAReport] = true;
-     89e:	51 e0       	ldi	r21, 0x01	; 1
-     8a0:	50 93 07 02 	sts	0x0207, r21
+     77a:	51 e0       	ldi	r21, 0x01	; 1
+     77c:	50 93 07 02 	sts	0x0207, r21
 			ram.HID.isEmpty[ram.HID.ID] = true;
-     8a4:	f0 e0       	ldi	r31, 0x00	; 0
-     8a6:	e9 5f       	subi	r30, 0xF9	; 249
-     8a8:	fd 4f       	sbci	r31, 0xFD	; 253
-     8aa:	50 83       	st	Z, r21
+     780:	f0 e0       	ldi	r31, 0x00	; 0
+     782:	e9 5f       	subi	r30, 0xF9	; 249
+     784:	fd 4f       	sbci	r31, 0xFD	; 253
+     786:	50 83       	st	Z, r21
 		}
 
 		//write report and reset ID
 		memcpy(ReportData, ram.HID.buffer, ram.HID.length);
-     8ac:	e8 ec       	ldi	r30, 0xC8	; 200
-     8ae:	f1 e0       	ldi	r31, 0x01	; 1
-     8b0:	50 e0       	ldi	r21, 0x00	; 0
-     8b2:	bf 01       	movw	r22, r30
-     8b4:	0e 94 e4 12 	call	0x25c8	; 0x25c8 <memcpy>
+     788:	e8 ec       	ldi	r30, 0xC8	; 200
+     78a:	f1 e0       	ldi	r31, 0x01	; 1
+     78c:	50 e0       	ldi	r21, 0x00	; 0
+     78e:	bf 01       	movw	r22, r30
+     790:	0e 94 e4 12 	call	0x25c8	; 0x25c8 <memcpy>
 		*ReportID = ram.HID.ID;
-     8b8:	80 91 c5 01 	lds	r24, 0x01C5
-     8bc:	f7 01       	movw	r30, r14
-     8be:	80 83       	st	Z, r24
+     794:	80 91 c5 01 	lds	r24, 0x01C5
+     798:	f7 01       	movw	r30, r14
+     79a:	80 83       	st	Z, r24
 		*ReportSize = ram.HID.length;
-     8c0:	80 91 c6 01 	lds	r24, 0x01C6
-     8c4:	88 83       	st	Y, r24
-     8c6:	19 82       	std	Y+1, r1	; 0x01
+     79c:	80 91 c6 01 	lds	r24, 0x01C6
+     7a0:	88 83       	st	Y, r24
+     7a2:	19 82       	std	Y+1, r1	; 0x01
 		ram.HID.ID = 0;
-     8c8:	10 92 c5 01 	sts	0x01C5, r1
+     7a4:	10 92 c5 01 	sts	0x01C5, r1
 		ram.HID.recvlength = 0; //just to be sure if you call HID_Task by accident again
-     8cc:	10 92 c7 01 	sts	0x01C7, r1
+     7a8:	10 92 c7 01 	sts	0x01C7, r1
 		ram.HID.length = 0; //just to be sure if you call HID_Task by accident again
-     8d0:	10 92 c6 01 	sts	0x01C6, r1
+     7ac:	10 92 c6 01 	sts	0x01C6, r1
 
 		// always return true, because we cannot compare with >1 report due to ram limit
 		// this will forcewrite the report every time
 		return true;
-     8d4:	81 e0       	ldi	r24, 0x01	; 1
-     8d6:	01 c0       	rjmp	.+2      	; 0x8da <CALLBACK_HID_Device_CreateHIDReport+0x66>
+     7b0:	81 e0       	ldi	r24, 0x01	; 1
+     7b2:	01 c0       	rjmp	.+2      	; 0x7b6 <CALLBACK_HID_Device_CreateHIDReport+0x66>
 	}
 	else return false;
-     8d8:	80 e0       	ldi	r24, 0x00	; 0
+     7b4:	80 e0       	ldi	r24, 0x00	; 0
 }
-     8da:	df 91       	pop	r29
-     8dc:	cf 91       	pop	r28
-     8de:	1f 91       	pop	r17
-     8e0:	0f 91       	pop	r16
-     8e2:	ff 90       	pop	r15
-     8e4:	ef 90       	pop	r14
-     8e6:	08 95       	ret
+     7b6:	df 91       	pop	r29
+     7b8:	cf 91       	pop	r28
+     7ba:	1f 91       	pop	r17
+     7bc:	0f 91       	pop	r16
+     7be:	ff 90       	pop	r15
+     7c0:	ef 90       	pop	r14
+     7c2:	08 95       	ret
 
-000008e8 <CALLBACK_HID_Device_ProcessHIDReport>:
+000007c4 <CALLBACK_HID_Device_ProcessHIDReport>:
 void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
 	const uint8_t ReportID,
 	const uint8_t ReportType,
 	const void* ReportData,
 	const uint16_t ReportSize)
 {
-     8e8:	0f 93       	push	r16
-     8ea:	1f 93       	push	r17
-     8ec:	c9 01       	movw	r24, r18
+     7c4:	0f 93       	push	r16
+     7c6:	1f 93       	push	r17
+     7c8:	c9 01       	movw	r24, r18
 	// Unused in this demo, since there are no Host->Device reports
 	//	uint8_t* LEDReport = (uint8_t*)ReportData;
 
 	if (ReportID == HID_REPORTID_RawKeyboardReport){
-     8ee:	63 30       	cpi	r22, 0x03	; 3
-     8f0:	39 f4       	brne	.+14     	; 0x900 <CALLBACK_HID_Device_ProcessHIDReport+0x18>
+     7ca:	63 30       	cpi	r22, 0x03	; 3
+     7cc:	39 f4       	brne	.+14     	; 0x7dc <CALLBACK_HID_Device_ProcessHIDReport+0x18>
 		PORTD |= LEDS_ALL_LEDS;
 	}
 
 	static inline void LEDs_TurnOnLEDs(const uint8_t LEDMask)
 	{
 		PORTD &= ~LEDMask;
-     8f2:	5c 98       	cbi	0x0b, 4	; 11
+     7ce:	5c 98       	cbi	0x0b, 4	; 11
 		//LEDs_SetAllLEDs(LEDS_ALL_LEDS);
 		//while (1); //TODO remove <--
 
 		// Turn on RX LED
 		LEDs_TurnOnLEDs(LEDMASK_RX);
 		ram.PulseMSRemaining.RxLEDPulse = TX_RX_LED_PULSE_MS;
-     8f4:	60 93 c4 01 	sts	0x01C4, r22
+     7d0:	60 93 c4 01 	sts	0x01C4, r22
 
 		// Send bytes
 		Serial_SendData(ReportData, ReportSize);
-     8f8:	b8 01       	movw	r22, r16
+     7d4:	b8 01       	movw	r22, r16
 	}
 }
-     8fa:	1f 91       	pop	r17
-     8fc:	0f 91       	pop	r16
+     7d6:	1f 91       	pop	r17
+     7d8:	0f 91       	pop	r16
 		// Turn on RX LED
 		LEDs_TurnOnLEDs(LEDMASK_RX);
 		ram.PulseMSRemaining.RxLEDPulse = TX_RX_LED_PULSE_MS;
 
 		// Send bytes
 		Serial_SendData(ReportData, ReportSize);
-     8fe:	bd c5       	rjmp	.+2938   	; 0x147a <Serial_SendData>
-     900:	1f 91       	pop	r17
+     7da:	4f c6       	rjmp	.+3230   	; 0x147a <Serial_SendData>
+     7dc:	1f 91       	pop	r17
 	}
 }
-     902:	0f 91       	pop	r16
-     904:	08 95       	ret
+     7de:	0f 91       	pop	r16
+     7e0:	08 95       	ret
 
-00000906 <getHIDReportLength>:
+000007e2 <getHIDReportLength>:
 
 	// save new empty state
 	ram.HID.isEmpty[ID] = true;
 }
 
 uint8_t getHIDReportLength(uint8_t ID){
-     906:	e0 91 c5 01 	lds	r30, 0x01C5
-     90a:	e1 50       	subi	r30, 0x01	; 1
-     90c:	e9 30       	cpi	r30, 0x09	; 9
-     90e:	28 f4       	brcc	.+10     	; 0x91a <getHIDReportLength+0x14>
-     910:	f0 e0       	ldi	r31, 0x00	; 0
-     912:	e5 5d       	subi	r30, 0xD5	; 213
-     914:	fe 4f       	sbci	r31, 0xFE	; 254
-     916:	80 81       	ld	r24, Z
-     918:	08 95       	ret
+     7e2:	e0 91 c5 01 	lds	r30, 0x01C5
+     7e6:	e1 50       	subi	r30, 0x01	; 1
+     7e8:	e9 30       	cpi	r30, 0x09	; 9
+     7ea:	28 f4       	brcc	.+10     	; 0x7f6 <getHIDReportLength+0x14>
+     7ec:	f0 e0       	ldi	r31, 0x00	; 0
+     7ee:	e5 5d       	subi	r30, 0xD5	; 213
+     7f0:	fe 4f       	sbci	r31, 0xFE	; 254
+     7f2:	80 81       	ld	r24, Z
+     7f4:	08 95       	ret
 	// Get the length of the report
 	switch (ram.HID.ID){
-     91a:	80 e0       	ldi	r24, 0x00	; 0
+     7f6:	80 e0       	ldi	r24, 0x00	; 0
 		// error, write down this wrong ID report
 		return 0;
 		break;
 	} //end switch
 	return 0;
 }
-     91c:	08 95       	ret
+     7f8:	08 95       	ret
 
-0000091e <clearHIDReport>:
+000007fa <clearHIDReport>:
 		Serial_SendData(ReportData, ReportSize);
 	}
 }
 
 
 void clearHIDReport(uint8_t ID){
-     91e:	cf 93       	push	r28
-     920:	c8 2f       	mov	r28, r24
+     7fa:	cf 93       	push	r28
+     7fc:	c8 2f       	mov	r28, r24
 	// RAW HID cannot be cleared
 	if (ID == HID_REPORTID_RawKeyboardReport) return;
-     922:	83 30       	cpi	r24, 0x03	; 3
-     924:	d9 f0       	breq	.+54     	; 0x95c <clearHIDReport+0x3e>
+     7fe:	83 30       	cpi	r24, 0x03	; 3
+     800:	d9 f0       	breq	.+54     	; 0x838 <clearHIDReport+0x3e>
 
 	// we have a pending HID report, flush it first
 	flushHID();
-     926:	96 df       	rcall	.-212    	; 0x854 <flushHID>
-     928:	8c 2f       	mov	r24, r28
+     802:	96 df       	rcall	.-212    	; 0x730 <flushHID>
+     804:	8c 2f       	mov	r24, r28
 
 	// get length of the report if its a valid report
 	uint8_t length = getHIDReportLength(ID);
-     92a:	ed df       	rcall	.-38     	; 0x906 <getHIDReportLength>
-     92c:	88 23       	and	r24, r24
-     92e:	b1 f0       	breq	.+44     	; 0x95c <clearHIDReport+0x3e>
+     806:	ed df       	rcall	.-38     	; 0x7e2 <getHIDReportLength>
+     808:	88 23       	and	r24, r24
+     80a:	b1 f0       	breq	.+44     	; 0x838 <clearHIDReport+0x3e>
 	if (!length) return;
-     930:	80 93 c7 01 	sts	0x01C7, r24
+     80c:	80 93 c7 01 	sts	0x01C7, r24
 
 	// save new values and prepare for sending
 	ram.HID.length = ram.HID.recvlength = length;
-     934:	80 93 c6 01 	sts	0x01C6, r24
-     938:	c0 93 c5 01 	sts	0x01C5, r28
+     810:	80 93 c6 01 	sts	0x01C6, r24
+     814:	c0 93 c5 01 	sts	0x01C5, r28
 	ram.HID.ID = ID;
-     93c:	28 ec       	ldi	r18, 0xC8	; 200
-     93e:	31 e0       	ldi	r19, 0x01	; 1
+     818:	28 ec       	ldi	r18, 0xC8	; 200
+     81a:	31 e0       	ldi	r19, 0x01	; 1
 	memset(&ram.HID.buffer, 0x00, length);
-     940:	48 2f       	mov	r20, r24
-     942:	50 e0       	ldi	r21, 0x00	; 0
-     944:	60 e0       	ldi	r22, 0x00	; 0
-     946:	70 e0       	ldi	r23, 0x00	; 0
-     948:	c9 01       	movw	r24, r18
-     94a:	0e 94 ed 12 	call	0x25da	; 0x25da <memset>
-     94e:	82 df       	rcall	.-252    	; 0x854 <flushHID>
-     950:	ec 2f       	mov	r30, r28
+     81c:	48 2f       	mov	r20, r24
+     81e:	50 e0       	ldi	r21, 0x00	; 0
+     820:	60 e0       	ldi	r22, 0x00	; 0
+     822:	70 e0       	ldi	r23, 0x00	; 0
+     824:	c9 01       	movw	r24, r18
+     826:	0e 94 ed 12 	call	0x25da	; 0x25da <memset>
+     82a:	82 df       	rcall	.-252    	; 0x730 <flushHID>
+     82c:	ec 2f       	mov	r30, r28
 
 	// flush HID
 	flushHID();
-     952:	f0 e0       	ldi	r31, 0x00	; 0
-     954:	e9 5f       	subi	r30, 0xF9	; 249
+     82e:	f0 e0       	ldi	r31, 0x00	; 0
+     830:	e9 5f       	subi	r30, 0xF9	; 249
 
 	// save new empty state
 	ram.HID.isEmpty[ID] = true;
-     956:	fd 4f       	sbci	r31, 0xFD	; 253
-     958:	81 e0       	ldi	r24, 0x01	; 1
-     95a:	80 83       	st	Z, r24
-     95c:	cf 91       	pop	r28
-     95e:	08 95       	ret
+     832:	fd 4f       	sbci	r31, 0xFD	; 253
+     834:	81 e0       	ldi	r24, 0x01	; 1
+     836:	80 83       	st	Z, r24
+     838:	cf 91       	pop	r28
+     83a:	08 95       	ret
 
-00000960 <clearHIDReports>:
+0000083c <clearHIDReports>:
 	ram.NHP.readlength = 0;
 	ram.NHP.mBlocks = 0;
 }
 
 
 void clearHIDReports(void){
-     960:	1f 93       	push	r17
+     83c:	1f 93       	push	r17
 	// flush HID
 	flushHID();
 
 	// save new empty state
 	ram.HID.isEmpty[ID] = true;
 }
-     962:	cf 93       	push	r28
-     964:	df 93       	push	r29
+     83e:	cf 93       	push	r28
+     840:	df 93       	push	r29
 }
 
 
 void clearHIDReports(void){
 	// dont do anything if the main flag is empty
 	if (ram.HID.isEmpty[HID_REPORTID_NotAReport]) return;
-     966:	80 91 07 02 	lds	r24, 0x0207
-     96a:	81 11       	cpse	r24, r1
-     96c:	0e c0       	rjmp	.+28     	; 0x98a <clearHIDReports+0x2a>
-     96e:	c8 e0       	ldi	r28, 0x08	; 8
-     970:	d2 e0       	ldi	r29, 0x02	; 2
-     972:	11 e0       	ldi	r17, 0x01	; 1
+     842:	80 91 07 02 	lds	r24, 0x0207
+     846:	81 11       	cpse	r24, r1
+     848:	0e c0       	rjmp	.+28     	; 0x866 <clearHIDReports+0x2a>
+     84a:	c8 e0       	ldi	r28, 0x08	; 8
+     84c:	d2 e0       	ldi	r29, 0x02	; 2
+     84e:	11 e0       	ldi	r17, 0x01	; 1
 
 	// check if every report is empty or not
 	for (int i = 1; i < HID_REPORTID_LastNotAReport; i++){
 
 		if (!ram.HID.isEmpty[i])
-     974:	89 91       	ld	r24, Y+
-     976:	81 11       	cpse	r24, r1
-     978:	02 c0       	rjmp	.+4      	; 0x97e <clearHIDReports+0x1e>
+     850:	89 91       	ld	r24, Y+
+     852:	81 11       	cpse	r24, r1
+     854:	02 c0       	rjmp	.+4      	; 0x85a <clearHIDReports+0x1e>
 			clearHIDReport(i);
-     97a:	81 2f       	mov	r24, r17
-     97c:	d0 df       	rcall	.-96     	; 0x91e <clearHIDReport>
-     97e:	1f 5f       	subi	r17, 0xFF	; 255
-     980:	1a 30       	cpi	r17, 0x0A	; 10
+     856:	81 2f       	mov	r24, r17
+     858:	d0 df       	rcall	.-96     	; 0x7fa <clearHIDReport>
+     85a:	1f 5f       	subi	r17, 0xFF	; 255
+     85c:	1a 30       	cpi	r17, 0x0A	; 10
 void clearHIDReports(void){
 	// dont do anything if the main flag is empty
 	if (ram.HID.isEmpty[HID_REPORTID_NotAReport]) return;
 
 	// check if every report is empty or not
 	for (int i = 1; i < HID_REPORTID_LastNotAReport; i++){
-     982:	c1 f7       	brne	.-16     	; 0x974 <clearHIDReports+0x14>
-     984:	81 e0       	ldi	r24, 0x01	; 1
+     85e:	c1 f7       	brne	.-16     	; 0x850 <clearHIDReports+0x14>
+     860:	81 e0       	ldi	r24, 0x01	; 1
 
 		if (!ram.HID.isEmpty[i])
 			clearHIDReport(i);
 	}
 	// clear the flag that >0 reports were set
 	ram.HID.isEmpty[HID_REPORTID_NotAReport] = true;
-     986:	80 93 07 02 	sts	0x0207, r24
-     98a:	df 91       	pop	r29
+     862:	80 93 07 02 	sts	0x0207, r24
+     866:	df 91       	pop	r29
 }
-     98c:	cf 91       	pop	r28
-     98e:	1f 91       	pop	r17
-     990:	08 95       	ret
+     868:	cf 91       	pop	r28
+     86a:	1f 91       	pop	r17
+     86c:	08 95       	ret
 
-00000992 <writeToCDC>:
+0000086e <writeToCDC>:
 	} //end switch
 	return 0;
 }
 
 
 void writeToCDC(uint8_t buffer[], uint8_t length){
-     992:	0f 93       	push	r16
-     994:	1f 93       	push	r17
-     996:	cf 93       	push	r28
-     998:	df 93       	push	r29
-     99a:	1f 92       	push	r1
-     99c:	cd b7       	in	r28, 0x3d	; 61
-     99e:	de b7       	in	r29, 0x3e	; 62
-     9a0:	8c 01       	movw	r16, r24
+     86e:	0f 93       	push	r16
+     870:	1f 93       	push	r17
+     872:	cf 93       	push	r28
+     874:	df 93       	push	r29
+     876:	1f 92       	push	r1
+     878:	cd b7       	in	r28, 0x3d	; 61
+     87a:	de b7       	in	r29, 0x3e	; 62
+     87c:	8c 01       	movw	r16, r24
 	// refresh DTR state
 	CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
-     9a2:	80 e1       	ldi	r24, 0x10	; 16
-     9a4:	91 e0       	ldi	r25, 0x01	; 1
-     9a6:	69 83       	std	Y+1, r22	; 0x01
-     9a8:	0e 94 b0 0f 	call	0x1f60	; 0x1f60 <CDC_Device_USBTask>
+     87e:	80 e1       	ldi	r24, 0x10	; 16
+     880:	91 e0       	ldi	r25, 0x01	; 1
+     882:	69 83       	std	Y+1, r22	; 0x01
+     884:	0e 94 b0 0f 	call	0x1f60	; 0x1f60 <CDC_Device_USBTask>
 			 */
 			static inline void Endpoint_SelectEndpoint(const uint8_t Address) ATTR_ALWAYS_INLINE;
 			static inline void Endpoint_SelectEndpoint(const uint8_t Address)
 			{
 				#if !defined(CONTROL_ONLY_DEVICE)
 					UENUM = (Address & ENDPOINT_EPNUM_MASK);
-     9ac:	80 91 11 01 	lds	r24, 0x0111
-     9b0:	8f 70       	andi	r24, 0x0F	; 15
-     9b2:	80 93 e9 00 	sts	0x00E9, r24
-     9b6:	49 81       	ldd	r20, Y+1	; 0x01
+     888:	80 91 11 01 	lds	r24, 0x0111
+     88c:	8f 70       	andi	r24, 0x0F	; 15
+     88e:	80 93 e9 00 	sts	0x00E9, r24
+     892:	49 81       	ldd	r20, Y+1	; 0x01
 			 *  \return Boolean \c true if the current endpoint is ready for an IN packet, \c false otherwise.
 			 */
 			static inline bool Endpoint_IsINReady(void) ATTR_WARN_UNUSED_RESULT ATTR_ALWAYS_INLINE;
 			static inline bool Endpoint_IsINReady(void)
 			{
 				return ((UEINTX & (1 << TXINI)) ? true : false);
-     9b8:	80 91 e8 00 	lds	r24, 0x00E8
+     894:	80 91 e8 00 	lds	r24, 0x00E8
 
 	// Check if a packet is already enqueued to the host - if so, we shouldn't try to send more data
 	// until it completes as there is a chance nothing is listening and a lengthy timeout could occur
 	Endpoint_SelectEndpoint(VirtualSerial_CDC_Interface.Config.DataINEndpoint.Address);
 	while (!Endpoint_IsINReady());
-     9bc:	80 ff       	sbrs	r24, 0
-     9be:	fc cf       	rjmp	.-8      	; 0x9b8 <writeToCDC+0x26>
+     898:	80 ff       	sbrs	r24, 0
+     89a:	fc cf       	rjmp	.-8      	; 0x894 <writeToCDC+0x26>
 
 	// Try to send the next bytes to the host, abort if DTR isnt set to not block serial reading
 	bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
-     9c0:	80 91 20 01 	lds	r24, 0x0120
+     89c:	80 91 20 01 	lds	r24, 0x0120
 	if (CurrentDTRState)
-     9c4:	80 ff       	sbrs	r24, 0
-     9c6:	0b c0       	rjmp	.+22     	; 0x9de <writeToCDC+0x4c>
+     8a0:	80 ff       	sbrs	r24, 0
+     8a2:	0b c0       	rjmp	.+22     	; 0x8ba <writeToCDC+0x4c>
 		CDC_Device_SendData(&VirtualSerial_CDC_Interface, buffer, length);
-     9c8:	50 e0       	ldi	r21, 0x00	; 0
-     9ca:	b8 01       	movw	r22, r16
-     9cc:	80 e1       	ldi	r24, 0x10	; 16
-     9ce:	91 e0       	ldi	r25, 0x01	; 1
-     9d0:	0f 90       	pop	r0
-     9d2:	df 91       	pop	r29
-     9d4:	cf 91       	pop	r28
-     9d6:	1f 91       	pop	r17
-     9d8:	0f 91       	pop	r16
+     8a4:	50 e0       	ldi	r21, 0x00	; 0
+     8a6:	b8 01       	movw	r22, r16
+     8a8:	80 e1       	ldi	r24, 0x10	; 16
+     8aa:	91 e0       	ldi	r25, 0x01	; 1
+}
+     8ac:	0f 90       	pop	r0
+     8ae:	df 91       	pop	r29
+     8b0:	cf 91       	pop	r28
+     8b2:	1f 91       	pop	r17
+     8b4:	0f 91       	pop	r16
 	while (!Endpoint_IsINReady());
 
 	// Try to send the next bytes to the host, abort if DTR isnt set to not block serial reading
 	bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
 	if (CurrentDTRState)
 		CDC_Device_SendData(&VirtualSerial_CDC_Interface, buffer, length);
-     9da:	0c 94 40 0f 	jmp	0x1e80	; 0x1e80 <CDC_Device_SendData>
-     9de:	0f 90       	pop	r0
-     9e0:	df 91       	pop	r29
-     9e2:	cf 91       	pop	r28
-     9e4:	1f 91       	pop	r17
-     9e6:	0f 91       	pop	r16
+     8b6:	0c 94 40 0f 	jmp	0x1e80	; 0x1e80 <CDC_Device_SendData>
+}
+     8ba:	0f 90       	pop	r0
+     8bc:	df 91       	pop	r29
+     8be:	cf 91       	pop	r28
+     8c0:	1f 91       	pop	r17
+     8c2:	0f 91       	pop	r16
+     8c4:	08 95       	ret
+
+000008c6 <checkNHPControlAddressError>:
+
+	// in any case: clear NHP buffer now and start a new reading
+	resetNHPbuffer();
+}
+
+void checkNHPControlAddressError(void){
+     8c6:	cf 93       	push	r28
+     8c8:	df 93       	push	r29
+     8ca:	00 d0       	rcall	.+0      	; 0x8cc <checkNHPControlAddressError+0x6>
+     8cc:	00 d0       	rcall	.+0      	; 0x8ce <checkNHPControlAddressError+0x8>
+     8ce:	00 d0       	rcall	.+0      	; 0x8d0 <checkNHPControlAddressError+0xa>
+     8d0:	cd b7       	in	r28, 0x3d	; 61
+     8d2:	de b7       	in	r29, 0x3e	; 62
+	// only write if a control address was just before, maybe it was a random valid address
+	// but if we already received some data we handle this as corrupted data and just
+	// discard all the bytes
+	if (ram.HID.ID && !ram.HID.recvlength){
+     8d4:	60 91 c5 01 	lds	r22, 0x01C5
+     8d8:	66 23       	and	r22, r22
+     8da:	79 f0       	breq	.+30     	; 0x8fa <checkNHPControlAddressError+0x34>
+     8dc:	80 91 c7 01 	lds	r24, 0x01C7
+     8e0:	81 11       	cpse	r24, r1
+     8e2:	0b c0       	rjmp	.+22     	; 0x8fa <checkNHPControlAddressError+0x34>
+		// write the cached buffer (recreate protocol)
+		uint8_t buff[6];
+		uint8_t length = NHPwriteChecksum(NHP_ADDRESS_CONTROL, (NHP_USAGE_ARDUINOHID << 8) | ram.HID.ID, buff);
+     8e4:	70 e0       	ldi	r23, 0x00	; 0
+     8e6:	71 60       	ori	r23, 0x01	; 1
+     8e8:	ae 01       	movw	r20, r28
+     8ea:	4f 5f       	subi	r20, 0xFF	; 255
+     8ec:	5f 4f       	sbci	r21, 0xFF	; 255
+     8ee:	81 e0       	ldi	r24, 0x01	; 1
+     8f0:	f6 d4       	rcall	.+2540   	; 0x12de <NHPwriteChecksum>
+     8f2:	68 2f       	mov	r22, r24
+
+		// Writes the NHP read buffer with the given length
+		// If host is not listening it will discard all bytes to not block any HID reading
+		writeToCDC(buff, length);
+     8f4:	ce 01       	movw	r24, r28
+     8f6:	01 96       	adiw	r24, 0x01	; 1
+     8f8:	ba df       	rcall	.-140    	; 0x86e <writeToCDC>
+     8fa:	1a df       	rcall	.-460    	; 0x730 <flushHID>
+     8fc:	10 92 c5 01 	sts	0x01C5, r1
+	}
+	// bug in 1.6 - 1.7.2 found
+	flushHID();
+     900:	10 92 c7 01 	sts	0x01C7, r1
+
+	// reset any pending HID reports
+	ram.HID.ID = 0;
+     904:	10 92 c6 01 	sts	0x01C6, r1
+	ram.HID.recvlength = 0; // just to be sure
+     908:	26 96       	adiw	r28, 0x06	; 6
+	ram.HID.length = 0; // just to be sure
+     90a:	0f b6       	in	r0, 0x3f	; 63
+     90c:	f8 94       	cli
+}
+     90e:	de bf       	out	0x3e, r29	; 62
+     910:	0f be       	out	0x3f, r0	; 63
+     912:	cd bf       	out	0x3d, r28	; 61
+     914:	df 91       	pop	r29
+     916:	cf 91       	pop	r28
+     918:	08 95       	ret
+
+0000091a <checkNHPProtocol>:
+
+
+
+
+// Checks for a valid protocol input and writes HID report
+void checkNHPProtocol(uint8_t input){
+     91a:	cf 93       	push	r28
+     91c:	df 93       	push	r29
+     91e:	1f 92       	push	r1
+     920:	cd b7       	in	r28, 0x3d	; 61
+     922:	de b7       	in	r29, 0x3e	; 62
+	uint8_t address = NHPreadChecksum(input);
+     924:	3b d4       	rcall	.+2166   	; 0x119c <NHPreadChecksum>
+     926:	88 23       	and	r24, r24
+
+	// if we have got an address this also means the checksum is correct!
+	// if not the buff is automatically written down
+	if (!address)
+     928:	09 f4       	brne	.+2      	; 0x92c <checkNHPProtocol+0x12>
+     92a:	5b c0       	rjmp	.+182    	; 0x9e2 <checkNHPProtocol+0xc8>
+     92c:	89 83       	std	Y+1, r24	; 0x01
+		return;
+
+	// we have a pending HID report, flush it first
+	// TODO timeout? <--
+	flushHID();
+     92e:	00 df       	rcall	.-512    	; 0x730 <flushHID>
+     930:	89 81       	ldd	r24, Y+1	; 0x01
+     932:	81 30       	cpi	r24, 0x01	; 1
+
+	// nearly the same priciple like the Protocol itself: check for control address
+	if ((address == NHP_ADDRESS_CONTROL) && (((ram.NHP.mWorkData >> 8) & 0xFF) == NHP_USAGE_ARDUINOHID)){
+     934:	c9 f4       	brne	.+50     	; 0x968 <checkNHPProtocol+0x4e>
+     936:	90 91 13 02 	lds	r25, 0x0213
+     93a:	91 30       	cpi	r25, 0x01	; 1
+     93c:	a9 f4       	brne	.+42     	; 0x968 <checkNHPProtocol+0x4e>
+     93e:	c3 df       	rcall	.-122    	; 0x8c6 <checkNHPControlAddressError>
+     940:	80 91 12 02 	lds	r24, 0x0212
+		// check if previous reading was a valid Control Address and write it down
+		checkNHPControlAddressError();
+     944:	80 93 c5 01 	sts	0x01C5, r24
+
+		// get the new report ID and reset the buffer
+		ram.HID.ID = ram.NHP.mWorkData & 0xFF;
+     948:	10 92 c7 01 	sts	0x01C7, r1
+     94c:	9f e3       	ldi	r25, 0x3F	; 63
+		ram.HID.recvlength = 0;
+     94e:	e8 ec       	ldi	r30, 0xC8	; 200
+     950:	f1 e0       	ldi	r31, 0x01	; 1
+		memset(ram.HID.buffer, 0, sizeof(ram.HID.buffer));
+     952:	df 01       	movw	r26, r30
+     954:	1d 92       	st	X+, r1
+     956:	9a 95       	dec	r25
+     958:	e9 f7       	brne	.-6      	; 0x954 <checkNHPProtocol+0x3a>
+     95a:	43 df       	rcall	.-378    	; 0x7e2 <getHIDReportLength>
+     95c:	80 93 c6 01 	sts	0x01C6, r24
+
+		// Determine which interface must have its report generated
+		ram.HID.length = getHIDReportLength(ram.HID.ID);
+     960:	81 11       	cpse	r24, r1
+     962:	3b c0       	rjmp	.+118    	; 0x9da <checkNHPProtocol+0xc0>
+     964:	b0 df       	rcall	.-160    	; 0x8c6 <checkNHPControlAddressError>
+     966:	39 c0       	rjmp	.+114    	; 0x9da <checkNHPProtocol+0xc0>
+
+		// error, write down this wrong ID report
+		if (!ram.HID.length)
+     968:	90 91 c5 01 	lds	r25, 0x01C5
+			checkNHPControlAddressError();
+     96c:	99 23       	and	r25, r25
+     96e:	79 f1       	breq	.+94     	; 0x9ce <checkNHPProtocol+0xb4>
+     970:	60 91 c7 01 	lds	r22, 0x01C7
+		// The Protocol received a valid signal with inverse checksum
+		// Do not write the buff in the loop above or below, filter it out at the end
+	}
+
+	// we already got a pending report
+	else if (ram.HID.ID && (address == (((ram.HID.recvlength + 2) / 2) + 1))){
+     974:	46 2f       	mov	r20, r22
+     976:	50 e0       	ldi	r21, 0x00	; 0
+     978:	90 e0       	ldi	r25, 0x00	; 0
+     97a:	9a 01       	movw	r18, r20
+     97c:	2e 5f       	subi	r18, 0xFE	; 254
+     97e:	3f 4f       	sbci	r19, 0xFF	; 255
+     980:	35 95       	asr	r19
+     982:	27 95       	ror	r18
+     984:	2f 5f       	subi	r18, 0xFF	; 255
+     986:	3f 4f       	sbci	r19, 0xFF	; 255
+     988:	82 17       	cp	r24, r18
+     98a:	93 07       	cpc	r25, r19
+     98c:	01 f5       	brne	.+64     	; 0x9ce <checkNHPProtocol+0xb4>
+     98e:	fa 01       	movw	r30, r20
+     990:	e8 53       	subi	r30, 0x38	; 56
+     992:	fe 4f       	sbci	r31, 0xFE	; 254
+     994:	80 91 12 02 	lds	r24, 0x0212
+		// check if the new Address is in correct order of HID reports.
+		// the first 2 bytes are sent with Address 2 and so on.
+
+		// save the first byte
+		ram.HID.buffer[ram.HID.recvlength++] = (ram.NHP.mWorkData & 0xFF);
+     998:	80 83       	st	Z, r24
+     99a:	e6 2f       	mov	r30, r22
+     99c:	ef 5f       	subi	r30, 0xFF	; 255
+     99e:	e0 93 c7 01 	sts	0x01C7, r30
+     9a2:	80 91 c6 01 	lds	r24, 0x01C6
+     9a6:	8e 17       	cp	r24, r30
+     9a8:	49 f0       	breq	.+18     	; 0x9bc <checkNHPProtocol+0xa2>
+     9aa:	f0 e0       	ldi	r31, 0x00	; 0
+
+		// if there is another byte we need (for odd max HID reports important
+		// to not write over the buff array)
+		if (ram.HID.length != ram.HID.recvlength)
+     9ac:	e8 53       	subi	r30, 0x38	; 56
+     9ae:	fe 4f       	sbci	r31, 0xFE	; 254
+     9b0:	90 91 13 02 	lds	r25, 0x0213
+			ram.HID.buffer[ram.HID.recvlength++] = (ram.NHP.mWorkData >> 8);
+     9b4:	90 83       	st	Z, r25
+     9b6:	6e 5f       	subi	r22, 0xFE	; 254
+     9b8:	60 93 c7 01 	sts	0x01C7, r22
+     9bc:	90 91 c7 01 	lds	r25, 0x01C7
+     9c0:	89 13       	cpse	r24, r25
+     9c2:	0b c0       	rjmp	.+22     	; 0x9da <checkNHPProtocol+0xc0>
+     9c4:	80 e0       	ldi	r24, 0x00	; 0
+
+		// we are ready try to submit the new report to the usb host
+		// dont block here, we flush the report on the next reading if needed
+		if (ram.HID.length == ram.HID.recvlength)
+     9c6:	91 e0       	ldi	r25, 0x01	; 1
+     9c8:	0e 94 f1 11 	call	0x23e2	; 0x23e2 <HID_Device_USBTask>
+     9cc:	06 c0       	rjmp	.+12     	; 0x9da <checkNHPProtocol+0xc0>
+			HID_Device_USBTask(&Device_HID_Interface);
+     9ce:	7b df       	rcall	.-266    	; 0x8c6 <checkNHPControlAddressError>
+     9d0:	60 91 1c 02 	lds	r22, 0x021C
+     9d4:	86 e1       	ldi	r24, 0x16	; 22
+     9d6:	92 e0       	ldi	r25, 0x02	; 2
+
+	// we received a corrupt data packet
+	else{
+		// check if previous reading was a valid Control Address and write it down
+		// if not discard the bytes because we assume it is corrupted data
+		checkNHPControlAddressError();
+     9d8:	4a df       	rcall	.-364    	; 0x86e <writeToCDC>
+     9da:	0f 90       	pop	r0
+
+		// just a normal Protocol outside our control address (or corrupted packet), write it down
+		writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
+     9dc:	df 91       	pop	r29
+     9de:	cf 91       	pop	r28
+     9e0:	a2 ce       	rjmp	.-700    	; 0x726 <resetNHPbuffer>
+     9e2:	0f 90       	pop	r0
+     9e4:	df 91       	pop	r29
+     9e6:	cf 91       	pop	r28
+	}
+
+	// in any case: clear NHP buffer now and start a new reading
+	resetNHPbuffer();
+}
      9e8:	08 95       	ret
 
 000009ea <LEDs_TurnOnLEDs>:
@@ -3790,7 +3701,7 @@ uint8_t NHPreadChecksum(uint8_t input){
     1220:	91 f0       	breq	.+36     	; 0x1246 <NHPreadChecksum+0xaa>
 			// check if previous reading was a valid Control Address and write it down
 			checkNHPControlAddressError();
-    1222:	86 d9       	rcall	.-3316   	; 0x530 <checkNHPControlAddressError>
+    1222:	51 db       	rcall	.-2398   	; 0x8c6 <checkNHPControlAddressError>
     1224:	60 91 1c 02 	lds	r22, 0x021C
 			// write down the last signal but keep lead
 			// substract 1 more because we already added the count
@@ -3798,7 +3709,7 @@ uint8_t NHPreadChecksum(uint8_t input){
     1228:	61 50       	subi	r22, 0x01	; 1
     122a:	86 e1       	ldi	r24, 0x16	; 22
     122c:	92 e0       	ldi	r25, 0x02	; 2
-    122e:	b1 db       	rcall	.-2206   	; 0x992 <writeToCDC>
+    122e:	1f db       	rcall	.-2498   	; 0x86e <writeToCDC>
     1230:	e0 91 1c 02 	lds	r30, 0x021C
 			ram.NHP.readbuffer[0] = ram.NHP.readbuffer[ram.NHP.readlength - 1];
     1234:	f0 e0       	ldi	r31, 0x00	; 0
@@ -3882,7 +3793,7 @@ uint8_t NHPreadChecksum(uint8_t input){
     12be:	60 93 14 02 	sts	0x0214, r22
     12c2:	70 93 15 02 	sts	0x0215, r23
     12c6:	07 c0       	rjmp	.+14     	; 0x12d6 <NHPreadChecksum+0x13a>
-    12c8:	33 d9       	rcall	.-3482   	; 0x530 <checkNHPControlAddressError>
+    12c8:	fe da       	rcall	.-2564   	; 0x8c6 <checkNHPControlAddressError>
     12ca:	60 91 1c 02 	lds	r22, 0x021C
 	}
 		break;
@@ -3895,8 +3806,8 @@ uint8_t NHPreadChecksum(uint8_t input){
 	// invalid input, write down buffer
 	writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
     12d0:	92 e0       	ldi	r25, 0x02	; 2
-    12d2:	5f db       	rcall	.-2370   	; 0x992 <writeToCDC>
-    12d4:	ba da       	rcall	.-2700   	; 0x84a <resetNHPbuffer>
+    12d2:	cd da       	rcall	.-2662   	; 0x86e <writeToCDC>
+    12d4:	28 da       	rcall	.-2992   	; 0x726 <resetNHPbuffer>
     12d6:	80 e0       	ldi	r24, 0x00	; 0
     12d8:	1f 91       	pop	r17
     12da:	0f 91       	pop	r16
@@ -5877,7 +5788,7 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 		USB_INT_Clear(USB_INT_SOFI);
 
 		EVENT_USB_Device_StartOfFrame();
-    1992:	0e 94 8c 02 	call	0x518	; 0x518 <EVENT_USB_Device_StartOfFrame>
+    1992:	0e 94 36 03 	call	0x66c	; 0x66c <EVENT_USB_Device_StartOfFrame>
 					#endif
 					#if defined(USB_CAN_BE_DEVICE)
 					case USB_INT_WAKEUPI:
@@ -5944,7 +5855,7 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 		USB_DeviceState = DEVICE_STATE_Unattached;
     19c6:	10 92 45 02 	sts	0x0245, r1
 		EVENT_USB_Device_Disconnect();
-    19ca:	0e 94 36 02 	call	0x46c	; 0x46c <EVENT_USB_Device_Disconnect>
+    19ca:	0e 94 e0 02 	call	0x5c0	; 0x5c0 <EVENT_USB_Device_Disconnect>
 					case USB_INT_IDTI:
 						return (USBINT & (1 << IDTI));
 					#endif
@@ -6054,7 +5965,7 @@ ISR(USB_GEN_vect, ISR_BLOCK)
 
 		#if defined(USB_SERIES_2_AVR) && !defined(NO_LIMITED_CONTROLLER_CONNECT)
 		EVENT_USB_Device_Connect();
-    1a32:	0e 94 35 02 	call	0x46a	; 0x46a <EVENT_USB_Device_Connect>
+    1a32:	0e 94 df 02 	call	0x5be	; 0x5be <EVENT_USB_Device_Connect>
 					case USB_INT_WAKEUPI:
 						return (UDINT  & (1 << WAKEUPI));
 					case USB_INT_SUSPI:
@@ -6341,7 +6252,7 @@ void USB_Device_ProcessControlRequest(void)
 	#endif
 
 	EVENT_USB_Device_ControlRequest();
-    1b5c:	0e 94 84 02 	call	0x508	; 0x508 <EVENT_USB_Device_ControlRequest>
+    1b5c:	0e 94 2e 03 	call	0x65c	; 0x65c <EVENT_USB_Device_ControlRequest>
 			 *  \return Boolean \c true if the selected endpoint has received a SETUP packet, \c false otherwise.
 			 */
 			static inline bool Endpoint_IsSETUPReceived(void) ATTR_WARN_UNUSED_RESULT ATTR_ALWAYS_INLINE;
@@ -6817,7 +6728,7 @@ static void USB_Device_SetAddress(void)
 
 	if ((DescriptorSize = CALLBACK_USB_GetDescriptor(USB_ControlRequest.wValue, USB_ControlRequest.wIndex,
     1d4a:	60 91 4a 02 	lds	r22, 0x024A
-    1d4e:	0e 94 d4 03 	call	0x7a8	; 0x7a8 <CALLBACK_USB_GetDescriptor>
+    1d4e:	0e 94 42 03 	call	0x684	; 0x684 <CALLBACK_USB_GetDescriptor>
     1d52:	00 97       	sbiw	r24, 0x00	; 0
     1d54:	d9 f1       	breq	.+118    	; 0x1dcc <USB_Device_ProcessControlRequest+0x298>
     1d56:	20 91 e8 00 	lds	r18, 0x00E8
@@ -6940,7 +6851,7 @@ static void USB_Device_SetConfiguration(void)
 	else
 	  USB_DeviceState = (USB_Device_IsAddressSet()) ? DEVICE_STATE_Configured : DEVICE_STATE_Powered;
     1dc4:	80 93 45 02 	sts	0x0245, r24
-    1dc8:	0e 94 37 02 	call	0x46e	; 0x46e <EVENT_USB_Device_ConfigurationChanged>
+    1dc8:	0e 94 e1 02 	call	0x5c2	; 0x5c2 <EVENT_USB_Device_ConfigurationChanged>
     1dcc:	80 91 e8 00 	lds	r24, 0x00E8
     1dd0:	83 ff       	sbrs	r24, 3
 
@@ -8046,7 +7957,7 @@ void HID_Device_ProcessControlRequest(USB_ClassInfo_HID_Device_t* const HIDInter
     2214:	6d 5f       	subi	r22, 0xFD	; 253
     2216:	7f 4f       	sbci	r23, 0xFF	; 255
     2218:	c7 01       	movw	r24, r14
-    221a:	0e 94 3a 04 	call	0x874	; 0x874 <CALLBACK_HID_Device_CreateHIDReport>
+    221a:	0e 94 a8 03 	call	0x750	; 0x750 <CALLBACK_HID_Device_CreateHIDReport>
     221e:	f7 01       	movw	r30, r14
 
 				if (HIDInterfaceInfo->Config.PrevReportINBuffer != NULL)
@@ -8180,7 +8091,7 @@ void HID_Device_ProcessControlRequest(USB_ClassInfo_HID_Device_t* const HIDInter
 				uint16_t ReportSize = USB_ControlRequest.wLength;
 				uint8_t  ReportID   = (USB_ControlRequest.wValue & 0xFF);
 				uint8_t  ReportType = (USB_ControlRequest.wValue >> 8) - 1;
-    22c4:	0e 94 74 04 	call	0x8e8	; 0x8e8 <CALLBACK_HID_Device_ProcessHIDReport>
+    22c4:	0e 94 e2 03 	call	0x7c4	; 0x7c4 <CALLBACK_HID_Device_ProcessHIDReport>
 
 				Endpoint_ClearSETUP();
 				Endpoint_Read_Control_Stream_LE(ReportData, ReportSize);
@@ -8535,7 +8446,7 @@ void HID_Device_USBTask(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo)
     2480:	6d 5f       	subi	r22, 0xFD	; 253
     2482:	7f 4f       	sbci	r23, 0xFF	; 255
     2484:	c7 01       	movw	r24, r14
-    2486:	0e 94 3a 04 	call	0x874	; 0x874 <CALLBACK_HID_Device_CreateHIDReport>
+    2486:	0e 94 a8 03 	call	0x750	; 0x750 <CALLBACK_HID_Device_CreateHIDReport>
     248a:	58 2e       	mov	r5, r24
     248c:	f7 01       	movw	r30, r14
 		                                                             ReportINData, &ReportINSize);
