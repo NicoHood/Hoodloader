@@ -219,3 +219,97 @@ void writeToCDC(uint8_t buffer[], uint8_t length){
 	if (CurrentDTRState)
 		CDC_Device_SendData(&VirtualSerial_CDC_Interface, buffer, length);
 }
+
+
+
+// Checks for a valid protocol input and writes HID report
+void checkNHPProtocol(uint8_t input){
+	uint8_t address = NHPreadChecksum(input);
+
+	// if we have got an address this also means the checksum is correct!
+	// if not the buff is automatically written down
+	if (!address)
+		return;
+
+	// we have a pending HID report, flush it first
+	// TODO timeout? <--
+	flushHID();
+
+	// nearly the same priciple like the Protocol itself: check for control address
+	if ((address == NHP_ADDRESS_CONTROL) && (((ram.NHP.mWorkData >> 8) & 0xFF) == NHP_USAGE_ARDUINOHID)){
+		// check if previous reading was a valid Control Address and write it down
+		checkNHPControlAddressError();
+
+		// get the new report ID and reset the buffer
+		ram.HID.ID = ram.NHP.mWorkData & 0xFF;
+		ram.HID.recvlength = 0;
+		memset(ram.HID.buffer, 0, sizeof(ram.HID.buffer));
+
+		// Determine which interface must have its report generated
+		ram.HID.length = getHIDReportLength(ram.HID.ID);
+
+		// error, write down this wrong ID report
+		if (!ram.HID.length)
+			checkNHPControlAddressError();
+
+		// The Protocol received a valid signal with inverse checksum
+		// Do not write the buff in the loop above or below, filter it out at the end
+	}
+
+	// we already got a pending report
+	else if (ram.HID.ID && (address == (((ram.HID.recvlength + 2) / 2) + 1))){
+		// check if the new Address is in correct order of HID reports.
+		// the first 2 bytes are sent with Address 2 and so on.
+
+		// save the first byte
+		ram.HID.buffer[ram.HID.recvlength++] = (ram.NHP.mWorkData & 0xFF);
+
+		// if there is another byte we need (for odd max HID reports important
+		// to not write over the buff array)
+		if (ram.HID.length != ram.HID.recvlength)
+			ram.HID.buffer[ram.HID.recvlength++] = (ram.NHP.mWorkData >> 8);
+
+		// we are ready try to submit the new report to the usb host
+		// dont block here, we flush the report on the next reading if needed
+		if (ram.HID.length == ram.HID.recvlength)
+			HID_Device_USBTask(&Device_HID_Interface);
+
+		// The Protocol received a valid signal with inverse checksum
+		// Do not write the buff in the loop above or below, filter it out
+	}
+
+	// we received a corrupt data packet
+	else{
+		// check if previous reading was a valid Control Address and write it down
+		// if not discard the bytes because we assume it is corrupted data
+		checkNHPControlAddressError();
+
+		// just a normal Protocol outside our control address (or corrupted packet), write it down
+		writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
+	}
+
+	// in any case: clear NHP buffer now and start a new reading
+	resetNHPbuffer();
+}
+
+void checkNHPControlAddressError(void){
+	// only write if a control address was just before, maybe it was a random valid address
+	// but if we already received some data we handle this as corrupted data and just
+	// discard all the bytes
+	if (ram.HID.ID && !ram.HID.recvlength){
+		// write the cached buffer (recreate protocol)
+		uint8_t buff[6];
+		uint8_t length = NHPwriteChecksum(NHP_ADDRESS_CONTROL, (NHP_USAGE_ARDUINOHID << 8) | ram.HID.ID, buff);
+
+		// Writes the NHP read buffer with the given length
+		// If host is not listening it will discard all bytes to not block any HID reading
+		writeToCDC(buff, length);
+	}
+	// bug in 1.6 - 1.7.2 found
+	flushHID();
+
+	// reset any pending HID reports
+	ram.HID.ID = 0;
+	ram.HID.recvlength = 0; // just to be sure
+	ram.HID.length = 0; // just to be sure
+}

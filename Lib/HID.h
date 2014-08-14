@@ -31,11 +31,6 @@ THE SOFTWARE.
 // HID
 //================================================================================
 
-
-
-
-
-
 extern USB_ClassInfo_HID_Device_t Device_HID_Interface;
 
 void clearHIDReports(void);
@@ -44,9 +39,8 @@ uint8_t getHIDReportLength(uint8_t ID);
 void flushHID(void);
 void checkNHPProtocol(uint8_t input);
 void checkNHPControlAddressError(void);
-void writeToCDC(uint8_t buffer[], uint8_t length);
 void resetNHPbuffer(void);
-
+void writeToCDC(uint8_t buffer[], uint8_t length);
 
 // HID
 void EVENT_USB_Device_ControlRequest(void);
