@@ -251,6 +251,9 @@ Ideas for the future:
 * Different h/c files for better overview!
 * remove older debug/TODO stuff
 * explain how it works better
+* deactivate HID for the first seconds?
+* release keys on reprogramming to not hold any key
+* 16u2 as arduino with special bootloader
 
 Version History
 ===============

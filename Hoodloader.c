@@ -47,8 +47,8 @@ int main(void)
 		selectMode();
 
 		// clear HID reports if chip gets restarted
-		if (!(AVR_RESET_LINE_PIN & AVR_RESET_LINE_MASK))
-			clearHIDReports();
+		//if (!(AVR_RESET_LINE_PIN & AVR_RESET_LINE_MASK))
+		//	clearHIDReports();
 
 		// run main code, depending on the selected mode
 		if (ram.mode == MODE_AVRISP){
@@ -125,8 +125,18 @@ int main(void)
 						checkNHPControlAddressError();
 
 						// write the rest of the cached NHP buffer down
-						writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
-						resetNHPbuffer();
+						uint8_t start = 0;
+						uint8_t length = 0;
+						// only write buffer if its new
+						if (ram.NHP.reset) start += ram.NHP.readlength;
+						else length += ram.NHP.readlength;
+						// also write started leads
+						if (ram.NHP.leadError) length++;
+						if (length) // just to be sure <--
+							writeToCDC(&ram.NHP.readbuffer[start], length);
+						// reset variables
+						ram.NHP.reset = true;
+						ram.NHP.leadError = false;
 					}
 
 					LEDs_TurnOffLEDs(LEDMASK_TX);
@@ -226,14 +236,15 @@ void selectMode(void){
 		// setup for HID and AVRISP mode
 		if (ram.mode == MODE_HID){
 			// HID Setup
-			resetNHPbuffer();
+			ram.NHP.reset = true;
+			ram.NHP.leadError = false;
 			ram.HID.ID = 0;
 		}
 		else{
 			// we have a pending HID report, flush it first
 			flushHID();
 			// clear all reports
-			clearHIDReports();
+			//clearHIDReports();
 
 			if (ram.mode == MODE_AVRISP){
 				// AVR ISP Setup

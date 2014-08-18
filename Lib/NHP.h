@@ -25,63 +25,67 @@ THE SOFTWARE.
 #ifndef NHP_H
 #define NHP_H
 
-#include "Metainclude.h"
-
+#include <stdint.h> //uint_t definitions
+#include <stdbool.h> //bool type
 
 //================================================================================
 // NHP Definitions/Prototypes
 //================================================================================
 
+// Reserved Addresses
+#define NHP_ADDRESS_CONTROL 0x01
+
+// Reserved Usages for control address
+#define NHP_USAGE_ARDUINOHID 0x01
+
+// Header Masks
+#define NHP_MASK_HEADER		0xC0 // B11|000000 the two MSB bits determine the block type
+#define NHP_HEADER_LEAD		0xC0 // B11|000000 11 MSB
+#define NHP_HEADER_DATA_A	0x00 // B00|000000 0X MSB only the first MSB is important
+#define NHP_HEADER_DATA_B	0x40 // B01|000000 0X MSB only the first MSB is important
+#define NHP_HEADER_END		0x80 // B10|000000 01 MSB
+
+// Lead
+#define NHP_MASK_LENGTH		0x38 // B00|111|000
+#define NHP_MASK_COMMAND	0x0F // B0000|1111
+
+// Data
+#define NHP_MASK_DATA_7BIT	0x7F // B0|1111111 // data in data block
+#define NHP_MASK_DATA_4BIT	0x0F // B0000|1111 // data in lead (32 bit)
+#define NHP_MASK_DATA_3BIT	0x07 // B00000|111 // data in lead
+
+// End
+#define NHP_MASK_ADDRESS	0x3F // B00|111111 // 64 bit address in end block
+
+// enum that contains address or errorLevel
+typedef enum{
+	// 1-64 valid addresses
+	NHP_NO_ERR		=  0,
+	NHP_COMMAND		= -1, // special case if you want to use the command
+	NHP_ERR_LEAD	= -2,
+	NHP_ERR_DATA	= -3,
+	NHP_ERR_END		= -4,
+	NHP_ERR_CHECKSUM= -5,
+} NHP_Enum_t;
+
+// protocol data for temporary variables
 typedef struct{
-	// in progress reading data
-	uint8_t mBlocks;
+	// in progress reading data variables
+	uint8_t mBlocks : 3; // 0-7
+	uint8_t readlength : 3; //0-6
+	uint8_t leadError : 1; // true/false
+	uint8_t reset : 1; // true/false
 	uint32_t mWorkData;
 
 	// buffer for read operations
 	uint8_t readbuffer[6];
-	uint8_t readlength;
 }NHP_Data_t;
 
-
-// ErrorLevel
-#define NHP_MASK_INPUT		0x0F
-#define NHP_INPUT_NO		0x00
-#define NHP_INPUT_NEW		0x01
-#define NHP_INPUT_ADDRESS	0x02
-#define NHP_INPUT_COMMAND	0x04
-#define NHP_INPUT_RESET		0x08
-#define NHP_MASK_ERR		0xF0
-#define NHP_ERR_NO			0x00
-#define NHP_ERR_READ		0x10
-#define NHP_ERR_END			0x20
-#define NHP_ERR_DATA		0x40
-#define NHP_ERR_LEAD		0x80
-#define NHP_ERR_LIMIT		20	 //0-255, only for the user function
-
-// Start Mask
-#define NHP_MASK_START		0xC0 //B11|000000 the two MSB bits
-#define NHP_MASK_LEAD		0xC0 //B11|000000
-#define NHP_MASK_DATA		0x00 //B0|0000000 only the first MSB is important
-#define NHP_MASK_END		0x80 //B10|000000
-
-// Content Mask
-#define NHP_MASK_LENGTH		0x38 //B00|111|000
-#define NHP_MASK_COMMAND	0x0F //B0000|1111
-#define NHP_MASK_DATA_7BIT	0x7F //B0|1111111
-#define NHP_MASK_DATA_4BIT	0x0F //B0000|1111
-#define NHP_MASK_DATA_3BIT	0x07 //B00000|111
-#define NHP_MASK_ADDRESS	0x3F //B00|111111
-
-// Reserved Addresses
-#define NHP_ADDRESS_CONTROL 0x01
-
-// Reserved Usages
-#define NHP_USAGE_ARDUINOHID 0x01
-
 // general multifunctional read/write functions for NHP
-uint8_t NHPreadChecksum(uint8_t input);
+int8_t NHPreadChecksum(uint8_t input, NHP_Data_t* protocol);
+int8_t NHPread(uint8_t input, NHP_Data_t* protocol);
+//uint8_t NHPreadChecksum(uint8_t input);
 uint8_t NHPwriteChecksum(uint8_t address, uint16_t indata, uint8_t* buff);
-void resetNHPbuffer(void);
 
 #endif
 

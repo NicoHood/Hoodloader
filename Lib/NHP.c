@@ -23,93 +23,126 @@ THE SOFTWARE.
 
 #include "NHP.h"
 
-
 //================================================================================
 // Read NHP
 //================================================================================
 
-// reads two bytes and check its inverse
-uint8_t NHPreadChecksum(uint8_t input){
+NHP_Enum_t NHPreadChecksum(uint8_t input, NHP_Data_t* protocol){
+	NHP_Enum_t errorLevel = NHPread(input, protocol);
+	// if its an valid address, check the data inverse too
+	if (errorLevel > 0 && (((protocol->mWorkData & 0xFFFF) ^ (protocol->mWorkData >> 16)) != 0xFFFF)){
+		errorLevel = NHP_ERR_CHECKSUM;
+		protocol->reset = true;
+	}
+	return errorLevel;
+}
+
+NHP_Enum_t NHPread(uint8_t input, NHP_Data_t* protocol){
+	// completely reset the protocol after sucessfull reading/error last time
+	if (protocol->reset || protocol->leadError){
+		protocol->mBlocks = 0;
+		// check if previous reading had a lead error, copy that lead byte to the beginning
+		if (protocol->leadError){
+			protocol->readbuffer[0] = protocol->readbuffer[protocol->readlength];
+			protocol->readlength = 1;
+		}
+		else
+			protocol->readlength = 0;
+	}
+
+	// reset leadError indicator every time
+	protocol->leadError = false;
+	protocol->reset = false;
+
 	//write input to the buffer
-	ram.NHP.readbuffer[ram.NHP.readlength] = input;
-	ram.NHP.readlength++;
+	protocol->readbuffer[protocol->readlength++] = input;
 
-	// check the lead/end/data indicator
-	switch (input & NHP_MASK_START){
+	// create errorLevel that will be returned (contain errors or address)
+	NHP_Enum_t errorLevel; //TODO initiaslze as no error?
 
-	case(NHP_MASK_LEAD) :
+
+	// check the header(lead/data/end) indicator
+	switch (input & NHP_MASK_HEADER){
+
+	case(NHP_HEADER_LEAD) :
 	{
 		// read command indicator or block length
 		uint8_t blocks = (input & NHP_MASK_LENGTH) >> 3;
 
-		// ignore command, return 0 write buff down completely
-		if (blocks == 0 || blocks == 1)
+		if (protocol->mBlocks){
+			// we were still reading! Log an error but continue reading with this new lead
+			errorLevel = NHP_ERR_LEAD;
+			// write the buffer without the new lead, move it next reading
+			protocol->readlength--;
+			// set indicator to move this lead byte to the beginning next reading
+			protocol->leadError = true;
+		}
+		else
+			errorLevel = NHP_NO_ERR;
+
+		if (blocks == 0 || blocks == 1){
+			// save command in data variable
+			//protocol->mWorkData = (input & NHP_MASK_COMMAND) + 1;
+
+			// return command indicator
+			errorLevel = NHP_COMMAND;
 			break;
+		}
 
 		else if (blocks == 7){
-			// save block length + first 4 data bits (special case)
-			ram.NHP.mWorkData = input & NHP_MASK_DATA_4BIT;
+			// save block length + first 4 data bits (special 32 bit case)
+			protocol->mWorkData = input & NHP_MASK_DATA_4BIT;
 			blocks -= 2;
 		}
 		else{
 			// save block length + first 3 data bits
-			ram.NHP.mWorkData = input & NHP_MASK_DATA_3BIT;
+			protocol->mWorkData = input & NHP_MASK_DATA_3BIT;
 			blocks--;
 		}
 
-		// we were still reading!  Log an error
-		if (ram.NHP.mBlocks){
-			// check if previous reading was a valid Control Address and write it down
-			checkNHPControlAddressError();
-			// write down the last signal but keep lead
-			// substract 1 more because we already added the count
-			writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength - 1);
-			ram.NHP.readbuffer[0] = ram.NHP.readbuffer[ram.NHP.readlength - 1];
-			ram.NHP.readlength = 1;
-		}
-		// save new block length
-		ram.NHP.mBlocks = blocks;
-		return 0; // everything is okay
+		// save new block length to the protocol data
+		protocol->mBlocks = blocks;
 	}
-						break;
+						  break;
 
-	case(NHP_MASK_END) :
-	{
-		if (ram.NHP.mBlocks == 1){
-			// save data + address
-			// we know its a valid input, left some things out here
-			if (((ram.NHP.mWorkData & 0xFFFF) ^ (ram.NHP.mWorkData >> 16)) == 0xFFFF){
-				uint8_t address = (input & 0x3F) + 1;
-				// do NOT reset for new reading, cause the values might be wrong and need to be written down again.
-				return address;
-			}
-		}
-		// wrong checksum or wrong end, write down buffer
-	}
-					   break;
-
+	case NHP_HEADER_DATA_A:
+	case NHP_HEADER_DATA_B:
 	default:
 	{
-		if (ram.NHP.mBlocks >= 2){
-			ram.NHP.mBlocks--;
+		if (protocol->mBlocks >= 2){
 			// get next 7 bits of data
-			ram.NHP.mWorkData <<= 7;
-			// dont need &NHP_MASK_DATA_7BIT because first bit is zero!
-			ram.NHP.mWorkData |= input;
-			return 0; // everything is okay
+			protocol->mBlocks--;
+			protocol->mWorkData <<= 7;
+			// dont need &NHP_MASK_DATA_7BIT because first MSB bit is zero!
+			protocol->mWorkData |= input;
+			errorLevel = NHP_NO_ERR;
 		}
-		// log an error, expecting an address or header byte
+		else
+			// log an error, expecting a lead or end byte
+			errorLevel = NHP_ERR_DATA;
 	}
 		break;
+
+	case(NHP_HEADER_END) :
+	{
+		if (protocol->mBlocks == 1){
+			// return the address
+			uint8_t address = (input & 0x3F) + 1;
+			errorLevel = address;
+		}
+		else
+			errorLevel = NHP_ERR_END;
+		// wrong checksum or wrong end, write down buffer
+	}
+						 break;
 	} // end switch
 
-	// check if previous reading was a valid Control Address and write it down
-	checkNHPControlAddressError();
+	// reset next reading on valid input/error/command, ignore in progress reading or lead error
+	if (errorLevel != NHP_NO_ERR && errorLevel != NHP_ERR_LEAD)
+		protocol->reset = true;
 
-	// invalid input, write down buffer
-	writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
-	resetNHPbuffer();
-	return 0;
+	// return the errors
+	return errorLevel;
 }
 
 //================================================================================
@@ -155,17 +188,96 @@ uint8_t NHPwriteChecksum(uint8_t address, uint16_t indata, uint8_t* buff){
 	}
 
 	// write lead + length mask
-	buff[0] |= NHP_MASK_LEAD | (blocks << 3);
+	buff[0] |= NHP_HEADER_LEAD | (blocks << 3);
 
 	// write end mask
-	buff[blocks - 1] = NHP_MASK_END | ((address - 1) & NHP_MASK_ADDRESS);
+	buff[blocks - 1] = NHP_HEADER_END | ((address - 1) & NHP_MASK_ADDRESS);
 
 	// return the length
 	return blocks;
 }
 
-
-void resetNHPbuffer(void){
-	ram.NHP.readlength = 0;
-	ram.NHP.mBlocks = 0;
-}
+//
+//// reads two bytes and check its inverse
+//uint8_t NHPreadChecksum(uint8_t input){
+//	//write input to the buffer
+//	ram.NHP.readbuffer[ram.NHP.readlength] = input;
+//	ram.NHP.readlength++;
+//
+//	// check the lead/end/data indicator
+//	switch (input & NHP_MASK_START){
+//
+//	case(NHP_MASK_LEAD) :
+//	{
+//		// read command indicator or block length
+//		uint8_t blocks = (input & NHP_MASK_LENGTH) >> 3;
+//
+//		// ignore command, return 0 write buff down completely
+//		if (blocks == 0 || blocks == 1)
+//			break;
+//
+//		else if (blocks == 7){
+//			// save block length + first 4 data bits (special case)
+//			ram.NHP.mWorkData = input & NHP_MASK_DATA_4BIT;
+//			blocks -= 2;
+//		}
+//		else{
+//			// save block length + first 3 data bits
+//			ram.NHP.mWorkData = input & NHP_MASK_DATA_3BIT;
+//			blocks--;
+//		}
+//
+//		// we were still reading!  Log an error
+//		if (ram.NHP.mBlocks){
+//			// check if previous reading was a valid Control Address and write it down
+//			checkNHPControlAddressError();
+//			// write down the last signal but keep lead
+//			// substract 1 more because we already added the count
+//			writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength - 1);
+//			ram.NHP.readbuffer[0] = ram.NHP.readbuffer[ram.NHP.readlength - 1];
+//			ram.NHP.readlength = 1;
+//		}
+//		// save new block length
+//		ram.NHP.mBlocks = blocks;
+//		return 0; // everything is okay
+//	}
+//						break;
+//
+//	case(NHP_MASK_END) :
+//	{
+//		if (ram.NHP.mBlocks == 1){
+//			// save data + address
+//			// we know its a valid input, left some things out here
+//			if (((ram.NHP.mWorkData & 0xFFFF) ^ (ram.NHP.mWorkData >> 16)) == 0xFFFF){
+//				uint8_t address = (input & 0x3F) + 1;
+//				// do NOT reset for new reading, cause the values might be wrong and need to be written down again.
+//				return address;
+//			}
+//		}
+//		// wrong checksum or wrong end, write down buffer
+//	}
+//					   break;
+//
+//	default:
+//	{
+//		if (ram.NHP.mBlocks >= 2){
+//			ram.NHP.mBlocks--;
+//			// get next 7 bits of data
+//			ram.NHP.mWorkData <<= 7;
+//			// dont need &NHP_MASK_DATA_7BIT because first bit is zero!
+//			ram.NHP.mWorkData |= input;
+//			return 0; // everything is okay
+//		}
+//		// log an error, expecting an address or header byte
+//	}
+//		break;
+//	} // end switch
+//
+//	// check if previous reading was a valid Control Address and write it down
+//	checkNHPControlAddressError();
+//
+//	// invalid input, write down buffer
+//	writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
+//	resetNHPbuffer();
+//	return 0;
+//}

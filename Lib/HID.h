@@ -26,6 +26,11 @@ THE SOFTWARE.
 #define HID_H
 
 #include "Metainclude.h"
+#include "Lib/HID_Reports.h"
+#include "Lib/NHP.h"
+#include "Lib/CDC.h"
+#include "Descriptors.h"
+#include "Lib/Ram.h"
 
 //================================================================================
 // HID

@@ -26,7 +26,9 @@ THE SOFTWARE.
 #define ISP_H
 
 #include "Metainclude.h"
-
+#include "Lib/Ram.h"
+#include "Lib/CDC.h"
+#include "Descriptors.h"
 
 //================================================================================
 // AVRISP

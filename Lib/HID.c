@@ -59,6 +59,7 @@ void clearHIDReports(void){
 }
 
 void flushHID(void){
+	// TODO timeout? <--
 	// try to send until its done
 	while (ram.HID.ID && ram.HID.length == ram.HID.recvlength)
 		HID_Device_USBTask(&Device_HID_Interface);
@@ -214,20 +215,33 @@ void writeToCDC(uint8_t buffer[], uint8_t length){
 		CDC_Device_SendData(&VirtualSerial_CDC_Interface, buffer, length);
 }
 
-
-
-
 // Checks for a valid protocol input and writes HID report
 void checkNHPProtocol(uint8_t input){
-	uint8_t address = NHPreadChecksum(input);
+	NHP_Enum_t address = NHPreadChecksum(input, &ram.NHP);
 
-	// if we have got an address this also means the checksum is correct!
-	// if not the buff is automatically written down
-	if (!address)
+	if (address == 0)
+		// reading in progress, dont disturb
 		return;
+	else if (address < 0){
+		// check if previous reading was a valid Control Address and write it down
+		checkNHPControlAddressError();
+
+		// ignore command
+		uint8_t length = ram.NHP.readlength;
+		if (ram.NHP.leadError && address == NHP_COMMAND){
+			length ++;
+			ram.NHP.leadError = false;
+		}
+
+		// error while reading, write down current buffer
+		writeToCDC(ram.NHP.readbuffer, length);
+
+		// reset buffer. Tell the timeout function that this part is written down
+		ram.NHP.reset = true;
+		return;
+	}
 
 	// we have a pending HID report, flush it first
-	// TODO timeout? <--
 	flushHID();
 
 	// nearly the same priciple like the Protocol itself: check for control address
@@ -282,9 +296,6 @@ void checkNHPProtocol(uint8_t input){
 		// just a normal Protocol outside our control address (or corrupted packet), write it down
 		writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
 	}
-
-	// in any case: clear NHP buffer now and start a new reading
-	resetNHPbuffer();
 }
 
 void checkNHPControlAddressError(void){

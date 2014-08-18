@@ -26,10 +26,13 @@ THE SOFTWARE.
 #define RAM_H
 
 #include "Metainclude.h"
+#include "Lib/NHP.h"
+#include "Lib/HID_Reports.h"
 
 //================================================================================
 // RAM
 //================================================================================
+
 
 // global variable to hold specific ram data
 // because we only have 500 bytes we have to free some memory for different modes

@@ -43,15 +43,17 @@ THE SOFTWARE.
 #include <LUFA/Drivers/Peripheral/Serial.h>
 #include <LUFA/Drivers/Misc/RingBuffer.h>
 
-#include "Descriptors.h"
-
 // own libraries
+/*
 #include "Lib/HID.h"
 #include "Lib/HID_Reports.h"
-#include "Lib/Ram.h"
+
 #include "Lib/ISP.h"
 #include "Lib/NHP.h"
 #include "Lib/CDC.h"
+#include "Lib/Ram.h"
+
+*/
 
 
 #endif

@@ -31,6 +31,7 @@ THE SOFTWARE.
 
 /* Includes: */
 #include "Metainclude.h"
+#include "Lib/HID_Reports.h"
 
 /* Macros: */
 /** Endpoint address of the CDC device-to-host notification IN endpoint. */

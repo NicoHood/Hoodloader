@@ -27,6 +27,13 @@ THE SOFTWARE.
 /* Includes: */
 #include "Metainclude.h"
 
+#include "Descriptors.h"
+#include "Lib/HID.h"
+#include "Lib/ISP.h"
+#include "Lib/NHP.h"
+#include "Lib/CDC.h"
+#include "Lib/Ram.h"
+
 void selectMode(void);
 void SetupHardware(void);
 

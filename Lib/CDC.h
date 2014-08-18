@@ -26,6 +26,7 @@ THE SOFTWARE.
 #define CDC_H
 
 #include "Metainclude.h"
+#include "Descriptors.h"
 
 // CDC Serial
 extern USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface;
