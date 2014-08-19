@@ -26,10 +26,11 @@ THE SOFTWARE.
 #define HID_H
 
 #include "Metainclude.h"
+
+#include "Descriptors.h"
+#include "Lib/CDC.h"
 #include "Lib/HID_Reports.h"
 #include "Lib/NHP.h"
-#include "Lib/CDC.h"
-#include "Descriptors.h"
 #include "Lib/Ram.h"
 
 //================================================================================
@@ -38,16 +39,7 @@ THE SOFTWARE.
 
 extern USB_ClassInfo_HID_Device_t Device_HID_Interface;
 
-void clearHIDReports(void);
-void clearHIDReport(uint8_t ID);
-uint8_t getHIDReportLength(uint8_t ID);
-void flushHID(void);
-void checkNHPProtocol(uint8_t input);
-void checkNHPControlAddressError(void);
-
-void writeToCDC(uint8_t buffer[], uint8_t length);
-
-// HID
+// LUFA HID functions
 void EVENT_USB_Device_ControlRequest(void);
 void EVENT_USB_Device_StartOfFrame(void);
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
@@ -60,6 +52,16 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 	const uint8_t ReportType,
 	const void* ReportData,
 	const uint16_t ReportSize);
+
+
+void clearHIDReports(void);
+void clearHIDReport(uint8_t ID);
+uint8_t getHIDReportLength(uint8_t ID);
+void flushHID(void);
+void checkNHPProtocol(uint8_t input);
+void checkNHPControlAddressError(void);
+
+void writeToCDC(uint8_t buffer[], uint8_t length);
 
 #endif
 

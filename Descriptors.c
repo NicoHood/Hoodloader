@@ -189,7 +189,7 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] =
 #ifdef HID_GAMEPAD1_ENABLE
 	// Gamepad1
 	0x05, 0x01,							// USAGE_PAGE (Generic Desktop)
-	0x09, 0x05,							// USAGE (Game Pad)
+	0x09, 0x04,							// USAGE (Joystick)
 	0xa1, 0x01,							// COLLECTION (Application)
 	0x85, HID_REPORTID_Gamepad1Report,	//   REPORT_ID
 	// 32 Buttons
@@ -242,7 +242,7 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] =
 #ifdef HID_GAMEPAD2_ENABLE
 	// Gamepad2
 	0x05, 0x01,							// USAGE_PAGE (Generic Desktop)
-	0x09, 0x05,							// USAGE (Game Pad)
+	0x09, 0x04,							// USAGE (Joystick)
 	0xa1, 0x01,							// COLLECTION (Application)
 	0x85, HID_REPORTID_Gamepad2Report,	//   REPORT_ID
 	// 32 Buttons

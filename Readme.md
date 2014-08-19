@@ -254,6 +254,7 @@ Ideas for the future:
 * deactivate HID for the first seconds?
 * release keys on reprogramming to not hold any key
 * 16u2 as arduino with special bootloader
+* add phone control/simulator control
 
 Version History
 ===============

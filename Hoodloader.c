@@ -70,7 +70,7 @@ int main(void)
 			}
 
 			// read in bytes from the Serial buffer
-			uint16_t BufferCount = RingBuffer_GetCount(&ram.USARTtoUSB_Buffer);
+			uint16_t BufferCount = LRingBuffer_GetCount(&ram.USARTtoUSB_Buffer);
 			if (BufferCount)
 			{
 				// Turn on TX LED
@@ -95,14 +95,14 @@ int main(void)
 						if (ram.mode == MODE_DEFAULT){
 							// Try to send the next byte of data to the host, abort if there is an error without dequeuing
 							if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
-								RingBuffer_Peek(&ram.USARTtoUSB_Buffer)) != ENDPOINT_READYWAIT_NoError)
+								LRingBuffer_Peek(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data)) != ENDPOINT_READYWAIT_NoError)
 							{
 								break;
 							}
 						}
 
 						// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
-						uint8_t b = RingBuffer_Remove(&ram.USARTtoUSB_Buffer);
+						uint8_t b = LRingBuffer_Remove(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data);
 
 						// main function to proceed HID input checks
 						if (ram.mode == MODE_HID)
@@ -227,7 +227,7 @@ void selectMode(void){
 		// coming from AVR ISP, setup ram properly
 		if (oldMode == MODE_AVRISP || oldMode == MODE_NONE){
 			// Serial tx buffers Setup
-			RingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, sizeof(ram.USARTtoUSB_Buffer_Data));
+			LRingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer);
 			// reset LEDs
 			ram.PulseMSRemaining.TxLEDPulse = 0;
 			ram.PulseMSRemaining.RxLEDPulse = 0;
@@ -305,7 +305,8 @@ ISR(USART1_RX_vect, ISR_BLOCK)
 
 	// only save the byte if AVRISP is off and if usb device is ready
 	if (ram.mode != MODE_AVRISP && USB_DeviceState == DEVICE_STATE_Configured)
-		RingBuffer_Insert(&ram.USARTtoUSB_Buffer, ReceivedByte);
+		//checkNHPProtocol(ReceivedByte);
+		LRingBuffer_Insert(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, ReceivedByte);
 }
 
 /** Event handler for the library USB Control Request reception event. */

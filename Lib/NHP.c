@@ -149,12 +149,14 @@ NHP_Enum_t NHPread(uint8_t input, NHP_Data_t* protocol){
 // Write NHP
 //================================================================================
 
-// writes two bytes with its inverse
-uint8_t NHPwriteChecksum(uint8_t address, uint16_t indata, uint8_t* buff){
-	// create checksum data
-	uint32_t temp = ~indata;
-	uint32_t data = (temp << 16) | indata;
+uint8_t NHPwrite(uint8_t address, uint16_t data, uint8_t* buff){
+	// writes two bytes with its inverse
+	uint32_t temp = ~data;
+	uint32_t checksum = (temp << 16) | data;
+	return NHPwriteChecksum(address, checksum, buff);
+}
 
+uint8_t NHPwriteChecksum(uint8_t address, uint16_t data, uint8_t* buff){
 	// start with the maximum size of blocks
 	uint8_t blocks = 7;
 

@@ -25,8 +25,9 @@ THE SOFTWARE.
 #ifndef NHP_H
 #define NHP_H
 
-#include <stdint.h> //uint_t definitions
-#include <stdbool.h> //bool type
+//#include <stdint.h> //uint_t definitions
+//#include <stdbool.h> //bool type
+#include <LUFA/Common/Common.h>
 
 //================================================================================
 // NHP Definitions/Prototypes
@@ -84,8 +85,7 @@ typedef struct{
 // general multifunctional read/write functions for NHP
 int8_t NHPreadChecksum(uint8_t input, NHP_Data_t* protocol);
 int8_t NHPread(uint8_t input, NHP_Data_t* protocol);
-//uint8_t NHPreadChecksum(uint8_t input);
-uint8_t NHPwriteChecksum(uint8_t address, uint16_t indata, uint8_t* buff);
-
+uint8_t NHPwrite(uint8_t address, uint16_t data, uint8_t* buff);
+uint8_t NHPwriteChecksum(uint8_t address, uint16_t data, uint8_t* buff);
 #endif
 

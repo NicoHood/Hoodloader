@@ -44,27 +44,6 @@ USB_ClassInfo_HID_Device_t Device_HID_Interface =
 };
 
 
-void clearHIDReports(void){
-	// dont do anything if the main flag is empty
-	if (ram.HID.isEmpty[HID_REPORTID_NotAReport]) return;
-
-	// check if every report is empty or not
-	for (int i = 1; i < HID_REPORTID_LastNotAReport; i++){
-
-		if (!ram.HID.isEmpty[i])
-			clearHIDReport(i);
-	}
-	// clear the flag that >0 reports were set
-	ram.HID.isEmpty[HID_REPORTID_NotAReport] = true;
-}
-
-void flushHID(void){
-	// TODO timeout? <--
-	// try to send until its done
-	while (ram.HID.ID && ram.HID.length == ram.HID.recvlength)
-		HID_Device_USBTask(&Device_HID_Interface);
-}
-
 /** HID class driver callback function for the creation of HID reports to the host.
 *
 *  \param[in]     HIDInterfaceInfo  Pointer to the HID class interface configuration structure being referenced
@@ -134,6 +113,27 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 	}
 }
 
+
+void clearHIDReports(void){
+	// dont do anything if the main flag is empty
+	if (ram.HID.isEmpty[HID_REPORTID_NotAReport]) return;
+
+	// check if every report is empty or not
+	for (int i = 1; i < HID_REPORTID_LastNotAReport; i++){
+
+		if (!ram.HID.isEmpty[i])
+			clearHIDReport(i);
+	}
+	// clear the flag that >0 reports were set
+	ram.HID.isEmpty[HID_REPORTID_NotAReport] = true;
+}
+
+void flushHID(void){
+	// TODO timeout? <--
+	// try to send until its done
+	while (ram.HID.ID && ram.HID.length == ram.HID.recvlength)
+		HID_Device_USBTask(&Device_HID_Interface);
+}
 
 void clearHIDReport(uint8_t ID){
 	// RAW HID cannot be cleared
@@ -235,6 +235,8 @@ void checkNHPProtocol(uint8_t input){
 
 		// error while reading, write down current buffer
 		writeToCDC(ram.NHP.readbuffer, length);
+		//for (int i = 0; i < length; i++)
+		//	RingBuffer_Insert(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer[i]);
 
 		// reset buffer. Tell the timeout function that this part is written down
 		ram.NHP.reset = true;

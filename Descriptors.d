@@ -102,9 +102,7 @@ Descriptors.o: Descriptors.c Descriptors.h Metainclude.h \
  lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/Serial_AVR8.h \
  lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../../Common/Common.h \
  lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../Misc/TerminalCodes.h \
- lufa-LUFA-140302/LUFA/../LUFA/Drivers/Misc/RingBuffer.h \
- lufa-LUFA-140302/LUFA/../LUFA/Drivers/Misc/../../Common/Common.h \
- Lib/HID_Reports.h
+ Lib/LightweightRingBuff.h Lib/HID_Reports.h
 
 Descriptors.h:
 
@@ -320,8 +318,6 @@ lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../../Common/Common.h:
 
 lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../Misc/TerminalCodes.h:
 
-lufa-LUFA-140302/LUFA/../LUFA/Drivers/Misc/RingBuffer.h:
-
-lufa-LUFA-140302/LUFA/../LUFA/Drivers/Misc/../../Common/Common.h:
+Lib/LightweightRingBuff.h:
 
 Lib/HID_Reports.h:

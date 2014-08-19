@@ -49,10 +49,10 @@ typedef struct{
 		// normal mode if HID is on
 		struct{
 			// Circular buffer to hold data from the serial port before it is sent to the host.
-			RingBuffer_t USARTtoUSB_Buffer;
+			LRingBuffer_t USARTtoUSB_Buffer;
 
 			// Underlying data buffer for \ref USARTtoUSB_Buffer, where the stored bytes are located.
-			uint8_t      USARTtoUSB_Buffer_Data[128];
+			uint8_t USARTtoUSB_Buffer_Data[LIGHTWEIGHT_RING_BUFFER_SIZE];
 
 			// Pulse generation counters to keep track of the number of milliseconds remaining for each pulse type
 			struct{

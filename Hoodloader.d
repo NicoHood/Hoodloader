@@ -102,11 +102,9 @@ Hoodloader.o: Hoodloader.c Hoodloader.h Metainclude.h \
  lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/Serial_AVR8.h \
  lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../../Common/Common.h \
  lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../Misc/TerminalCodes.h \
- lufa-LUFA-140302/LUFA/../LUFA/Drivers/Misc/RingBuffer.h \
- lufa-LUFA-140302/LUFA/../LUFA/Drivers/Misc/../../Common/Common.h \
- Descriptors.h Lib/HID_Reports.h Lib/HID.h Metainclude.h \
- Lib/HID_Reports.h Lib/NHP.h Lib/CDC.h Descriptors.h Lib/Ram.h Lib/ISP.h \
- Lib/NHP.h Lib/CDC.h Lib/Ram.h
+ Lib/LightweightRingBuff.h Descriptors.h Lib/HID_Reports.h Lib/HID.h \
+ Metainclude.h Descriptors.h Lib/CDC.h Lib/HID_Reports.h Lib/NHP.h \
+ Lib/Ram.h Lib/ISP.h Lib/NHP.h Lib/CDC.h Lib/Ram.h
 
 Hoodloader.h:
 
@@ -322,9 +320,7 @@ lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../../Common/Common.h:
 
 lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../Misc/TerminalCodes.h:
 
-lufa-LUFA-140302/LUFA/../LUFA/Drivers/Misc/RingBuffer.h:
-
-lufa-LUFA-140302/LUFA/../LUFA/Drivers/Misc/../../Common/Common.h:
+Lib/LightweightRingBuff.h:
 
 Descriptors.h:
 
@@ -334,13 +330,13 @@ Lib/HID.h:
 
 Metainclude.h:
 
-Lib/HID_Reports.h:
-
-Lib/NHP.h:
+Descriptors.h:
 
 Lib/CDC.h:
 
-Descriptors.h:
+Lib/HID_Reports.h:
+
+Lib/NHP.h:
 
 Lib/Ram.h:
 

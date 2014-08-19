@@ -41,7 +41,8 @@ THE SOFTWARE.
 
 #include <LUFA/Version.h>
 #include <LUFA/Drivers/Peripheral/Serial.h>
-#include <LUFA/Drivers/Misc/RingBuffer.h>
+//#include <LUFA/Drivers/Misc/RingBuffer.h>
+#include "Lib/LightweightRingBuff.h"
 
 // own libraries
 /*
