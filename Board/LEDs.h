@@ -44,6 +44,15 @@ extern "C" {
 #error Do not include this file directly. Include LUFA/Drivers/Board/LEDS.h instead.
 #endif
 
+	// Pulse generation counters to keep track of the number of milliseconds remaining for each pulse type
+#define TX_RX_LED_PULSE_MS 3
+	typedef struct{
+		uint8_t TxLEDPulse : 2; // Milliseconds remaining for data Tx LED pulse
+		uint8_t RxLEDPulse : 2; // Milliseconds remaining for data Rx LED pulse
+		uint8_t PModePulse : 2;
+		uint8_t ErrorPulse : 2;
+	}LEDPulseMSRemaining;
+
 	/* Public Interface - May be used in end-application: */
 	/* Macros: */
 	/** LED mask for the first LED on the board. */
@@ -57,8 +66,6 @@ extern "C" {
 
 	/** LED mask for the none of the board LEDs */
 #define LEDS_NO_LEDS     0
-
-#define TX_RX_LED_PULSE_MS 3
 
 	// LED mask for the library LED driver, to indicate TX activity.
 #define LEDMASK_TX               LEDS_LED1

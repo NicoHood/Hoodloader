@@ -45,20 +45,31 @@ typedef struct{
 		MODE_AVRISP,
 	}mode;
 
+	// Circular buffer to hold data from the serial port before it is sent to the host.
+	LRingBuffer_t USARTtoUSB_Buffer;
+
+	// if baud == AVRISP_BAUD AVRISP mode
+	struct{
+		int error; //TODO improve types
+		int pmode;
+		int _addr; // here
+		struct{
+			int pagesize;
+			int eepromsize;
+		} param;
+	} isp;
+
+	// Pulse generation counters to keep track of the number of milliseconds remaining for each pulse type
+	LEDPulseMSRemaining PulseMSRemaining;
+
 	union{
+		// isp data buffer
+		uint8_t ispBuffer[256];
+
 		// normal mode if HID is on
 		struct{
-			// Circular buffer to hold data from the serial port before it is sent to the host.
-			LRingBuffer_t USARTtoUSB_Buffer;
-
 			// Underlying data buffer for \ref USARTtoUSB_Buffer, where the stored bytes are located.
 			uint8_t USARTtoUSB_Buffer_Data[LIGHTWEIGHT_RING_BUFFER_SIZE];
-
-			// Pulse generation counters to keep track of the number of milliseconds remaining for each pulse type
-			struct{
-				uint8_t TxLEDPulse; // Milliseconds remaining for data Tx LED pulse
-				uint8_t RxLEDPulse; // Milliseconds remaining for data Rx LED pulse
-			}PulseMSRemaining;
 
 			// variables to save hid states
 			struct{
@@ -77,19 +88,6 @@ typedef struct{
 			// NHP needed as Serial Protocol to receive HID data
 			NHP_Data_t NHP;
 		};
-
-		// if baud == AVRISP_BAUD AVRISP mode
-		struct{
-			int error; //TODO improve types
-			int pmode;
-			int _addr; // here
-			struct{
-				int pagesize;
-				int eepromsize;
-			} param;
-
-			uint8_t buff[256];
-		} isp;
 	};
 }ram_t;
 

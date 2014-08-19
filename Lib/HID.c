@@ -201,8 +201,9 @@ uint8_t getHIDReportLength(uint8_t ID){
 
 
 void writeToCDC(uint8_t buffer[], uint8_t length){
+	// TODO CDC task causes bug on slower pcs 1.6 - 1.7 <--
 	// refresh DTR state
-	CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
+	//CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
 
 	// Check if a packet is already enqueued to the host - if so, we shouldn't try to send more data
 	// until it completes as there is a chance nothing is listening and a lengthy timeout could occur
@@ -217,6 +218,7 @@ void writeToCDC(uint8_t buffer[], uint8_t length){
 
 // Checks for a valid protocol input and writes HID report
 void checkNHPProtocol(uint8_t input){
+
 	NHP_Enum_t address = NHPreadChecksum(input, &ram.NHP);
 
 	if (address == 0)
@@ -283,7 +285,7 @@ void checkNHPProtocol(uint8_t input){
 		// we are ready try to submit the new report to the usb host
 		// dont block here, we flush the report on the next reading if needed
 		if (ram.HID.length == ram.HID.recvlength)
-			HID_Device_USBTask(&Device_HID_Interface);
+			flushHID();
 
 		// The Protocol received a valid signal with inverse checksum
 		// Do not write the buff in the loop above or below, filter it out

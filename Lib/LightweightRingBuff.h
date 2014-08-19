@@ -286,8 +286,9 @@ extern "C" {
 		Buffer->Count++;
 
 		// cut off if its out of bounds
-		// todo check full, reset?
-		Buffer->Index &= (LIGHTWEIGHT_RING_BUFFER_SIZE - 1);
+		if (Buffer->Index == LIGHTWEIGHT_RING_BUFFER_SIZE)
+			Buffer->Index = 0;
+		//Buffer->Index &= (LIGHTWEIGHT_RING_BUFFER_SIZE - 1);
 
 		SetGlobalInterruptMask(CurrentGlobalInt);
 	}

@@ -77,8 +77,6 @@ int main(void)
 				LEDs_TurnOnLEDs(LEDMASK_TX);
 				ram.PulseMSRemaining.TxLEDPulse = TX_RX_LED_PULSE_MS;
 
-
-
 				Endpoint_SelectEndpoint(VirtualSerial_CDC_Interface.Config.DataINEndpoint.Address);
 
 				// Check if a packet is already enqueued to the host - if so, we shouldn't try to send more data
@@ -93,6 +91,7 @@ int main(void)
 					while (BytesToSend--)
 					{
 						if (ram.mode == MODE_DEFAULT){
+					
 							// Try to send the next byte of data to the host, abort if there is an error without dequeuing
 							if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
 								LRingBuffer_Peek(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data)) != ENDPOINT_READYWAIT_NoError)
@@ -148,8 +147,8 @@ int main(void)
 			}
 
 			// get new reports from the PC side and try to send pending reports
-			if (ram.mode == MODE_HID)
-				HID_Device_USBTask(&Device_HID_Interface);
+			//if (ram.mode == MODE_HID)
+			//	HID_Device_USBTask(&Device_HID_Interface);
 
 		}
 

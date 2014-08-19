@@ -160,7 +160,7 @@ uint8_t getch() {
 void fill(int n) {
 	// fill the buffer with the number of bytes passed in from CDC Serial 
 	for (int x = 0; x < n; x++)
-		ram.isp.buff[x] = getch();
+		ram.ispBuffer[x] = getch();
 }
 
 void get_parameters(uint8_t c) {
@@ -199,8 +199,8 @@ void set_parameters(void) {
 	// following are 16 bits (big endian)
 #define beget16(addr) (*addr * 256 + *(addr+1) )
 	//param.eeprompoll = beget16(&buff[10]);
-	ram.isp.param.pagesize = beget16(&ram.isp.buff[12]);
-	ram.isp.param.eepromsize = beget16(&ram.isp.buff[14]);
+	ram.isp.param.pagesize = beget16(&ram.ispBuffer[12]);
+	ram.isp.param.eepromsize = beget16(&ram.ispBuffer[14]);
 
 	// 32 bits flashsize (big endian)
 	//param.flashsize = buff[16] * 0x01000000
@@ -362,7 +362,7 @@ void universal(void) {
 	uint8_t ch;
 
 	fill(4);
-	ch = spi_transaction(ram.isp.buff[0], ram.isp.buff[1], ram.isp.buff[2], ram.isp.buff[3]);
+	ch = spi_transaction(ram.ispBuffer[0], ram.ispBuffer[1], ram.ispBuffer[2], ram.ispBuffer[3]);
 	breply(ch);
 }
 
@@ -455,7 +455,7 @@ uint8_t write_eeprom_chunk(int start, int length) {
 	LEDs_TurnOffLEDs(LEDS_PMODE);
 	for (int x = 0; x < length; x++) {
 		int addr = start + x;
-		spi_transaction(0xC0, (addr >> 8) & 0xFF, addr & 0xFF, ram.isp.buff[x]);
+		spi_transaction(0xC0, (addr >> 8) & 0xFF, addr & 0xFF, ram.ispBuffer[x]);
 		_delay_ms(45);
 	}
 	LEDs_TurnOnLEDs(LEDS_PMODE);
@@ -482,8 +482,8 @@ uint8_t write_flash_pages(int length) {
 			commit(page);
 			page = current_page();
 		}
-		flash(LOW, ram.isp._addr, ram.isp.buff[x++]);
-		flash(HIGH, ram.isp._addr, ram.isp.buff[x++]);
+		flash(LOW, ram.isp._addr, ram.ispBuffer[x++]);
+		flash(HIGH, ram.isp._addr, ram.ispBuffer[x++]);
 		ram.isp._addr++;
 	}
 	commit(page);
