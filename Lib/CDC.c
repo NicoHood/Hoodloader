@@ -61,10 +61,6 @@ USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface =
 */
 void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo)
 {
-	// enable Serial buffer again
-	if (!LRingBuffer_IsEnabled(&ram.USARTtoUSB_Buffer))
-		LRingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer);
-
 	uint8_t ConfigMask = 0;
 
 	switch (CDCInterfaceInfo->State.LineEncoding.ParityType)
@@ -113,7 +109,12 @@ void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCI
 	if (CDCInterfaceInfo->State.LineEncoding.BaudRateBPS == AVRISP_BAUD){
 		Serial_Init(115200, true);
 		SerialInitHID();
+		// disable the buffer until pmode has started
+		LRingBuffer_DisableBuffer(&ram.USARTtoUSB_Buffer);
 	}
+	// enable Serial buffer again if needed (failed ISP or so)
+	else if (!LRingBuffer_IsEnabled(&ram.USARTtoUSB_Buffer))
+		LRingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer);
 
 }
 

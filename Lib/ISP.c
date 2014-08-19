@@ -396,12 +396,6 @@ void end_pmode(void) {
 	AVR_SPI_DDR &= ~(1 << AVR_SS); // INPUT
 	ram.isp.pmode = 0;
 
-	// configure Serial with HID baud to work after reprogramming
-	if (VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS == AVRISP_BAUD){
-		Serial_Init(115200, true);
-		SerialInitHID();
-	} //TODO remove (changed by cdc interrupt)
-
 	// enable Serial buffer again
 	if (!LRingBuffer_IsEnabled(&ram.USARTtoUSB_Buffer))
 		LRingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer);

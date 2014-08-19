@@ -96,6 +96,11 @@ int main(void)
 		uint16_t BufferCount = LRingBuffer_GetCount(&ram.USARTtoUSB_Buffer);
 		if (BufferCount)
 		{
+			/*if (BufferCount>1) //TODO remove
+				LEDs_TurnOnLEDs(LEDMASK_RX);
+			else
+				LEDs_TurnOffLEDs(LEDMASK_RX);*/
+
 			// Turn on TX LED
 			LEDs_TurnOnLEDs(LEDMASK_TX);
 			ram.PulseMSRemaining.TxLEDPulse = TX_RX_LED_PULSE_MS;

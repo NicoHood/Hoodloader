@@ -255,10 +255,20 @@ Ideas for the future:
 * release keys on reprogramming to not hold any key
 * 16u2 as arduino with special bootloader
 * add phone control/simulator control
+* move SS to reset pin
 
 Version History
 ===============
 ```
+1.8.0 Beta Release (xx.08.2014)
+* Fixed programming bug in slow PCs (1.6 - 1.7.3)
+* Cutted huge main file into libraries
+* Improved ram usage
+* Fixed a bug in Serial Buffer + rewrote the whole lib
+* Separated NHP from ram
+* HID working after ISP
+* removed deactivation function due to ISP mode
+
 1.7.3 Beta Release (10.08.2014)
 * Fixed HID flush bug (1.6 - 1.7.2)
 
