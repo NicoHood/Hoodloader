@@ -103,8 +103,8 @@ Hoodloader.o: Hoodloader.c Hoodloader.h Metainclude.h \
  lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../../Common/Common.h \
  lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../Misc/TerminalCodes.h \
  Lib/LightweightRingBuff.h Descriptors.h Lib/HID_Reports.h Lib/HID.h \
- Metainclude.h Descriptors.h Lib/CDC.h Lib/HID_Reports.h Lib/NHP.h \
- Lib/Ram.h Lib/ISP.h Lib/NHP.h Lib/CDC.h Lib/Ram.h
+ Metainclude.h Descriptors.h Lib/CDC.h Lib/Ram.h Lib/NHP.h \
+ Lib/HID_Reports.h Lib/ISP.h Lib/ISP.h Lib/NHP.h Lib/CDC.h Lib/Ram.h
 
 Hoodloader.h:
 
@@ -334,11 +334,13 @@ Descriptors.h:
 
 Lib/CDC.h:
 
-Lib/HID_Reports.h:
+Lib/Ram.h:
 
 Lib/NHP.h:
 
-Lib/Ram.h:
+Lib/HID_Reports.h:
+
+Lib/ISP.h:
 
 Lib/ISP.h:
 

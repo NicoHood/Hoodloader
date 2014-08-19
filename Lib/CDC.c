@@ -61,6 +61,10 @@ USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface =
 */
 void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo)
 {
+	// enable Serial buffer again
+	if (!LRingBuffer_IsEnabled(&ram.USARTtoUSB_Buffer))
+		LRingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer);
+
 	uint8_t ConfigMask = 0;
 
 	switch (CDCInterfaceInfo->State.LineEncoding.ParityType)
@@ -104,6 +108,13 @@ void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCI
 	UCSR1A = (CDCInterfaceInfo->State.LineEncoding.BaudRateBPS == 57600) ? 0 : (1 << U2X1);
 	UCSR1B = ((1 << RXCIE1) | (1 << TXEN1) | (1 << RXEN1));
 	PORTD &= ~(1 << PD3); // And turn OFF Tx once USART has been reconfigured (this is overridden by TXEN)
+
+	// configure Serial with HID baud to work after reprogramming
+	if (CDCInterfaceInfo->State.LineEncoding.BaudRateBPS == AVRISP_BAUD){
+		Serial_Init(115200, true);
+		SerialInitHID();
+	}
+
 }
 
 /** Event handler for the CDC Class driver Host-to-Device Line Encoding Changed event.
@@ -121,6 +132,24 @@ void EVENT_CDC_Device_ControLineStateChanged(USB_ClassInfo_CDC_Device_t* const C
 		AVR_RESET_LINE_PORT |= AVR_RESET_LINE_MASK;
 		LEDs_SetAllLEDs(LEDS_NO_LEDS); //<--new
 	}
+}
+
+// change Serial baud to 115200 for HID
+void SerialInitHID(void){
+	/* Must turn off USART before reconfiguring it, otherwise incorrect operation may occur */
+	// Added for correct Serial connection at baud 115200 <--
+	// TODO PD3 ??
+	PORTD |= (1 << PD3); // Turn ON Tx while USART is being reconfigured
+	UCSR1B = 0;
+	UCSR1A = 0;
+	UCSR1C = 0;
+
+	// these are values for baud 115200. i just read them manual from change
+	// its needed to start with baud 115200 on powerup
+	UCSR1C = ((1 << UCSZ11) | (1 << UCSZ10)); //C: 0x06
+	UCSR1A = (1 << U2X1); //A: 0x02
+	UCSR1B = ((1 << RXCIE1) | (1 << TXEN1) | (1 << RXEN1)); //B: 0x98
+	PORTD &= ~(1 << PD3); // And turn OFF Tx once USART has been reconfigured (this is overridden by TXEN)
 }
 
 

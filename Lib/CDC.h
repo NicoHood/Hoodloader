@@ -27,6 +27,8 @@ THE SOFTWARE.
 
 #include "Metainclude.h"
 #include "Descriptors.h"
+#include "Lib/Ram.h"
+#include "Lib/ISP.h"
 
 // CDC Serial
 extern USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface;
@@ -34,6 +36,8 @@ extern USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface;
 void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo);
 void EVENT_CDC_Device_ControLineStateChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo);
 
+
+void SerialInitHID(void);
 
 #endif
 

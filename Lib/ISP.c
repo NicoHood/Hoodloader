@@ -28,7 +28,7 @@ THE SOFTWARE.
 // AVRISP
 //================================================================================
 
-void avrisp(void){
+void avrisp(int ReceivedByte){
 	// is pmode active?
 	if (ram.isp.pmode) LEDs_TurnOnLEDs(LEDS_PMODE);
 	else LEDs_TurnOffLEDs(LEDS_PMODE);
@@ -38,7 +38,6 @@ void avrisp(void){
 	else LEDs_TurnOffLEDs(LEDS_ERR);
 
 	// read in bytes from the CDC interface
-	int16_t ReceivedByte = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
 	if (!(ReceivedByte < 0)){
 		switch (ReceivedByte) {
 		case STK_GET_SYNC:
@@ -244,6 +243,9 @@ void replyOK(void) {
 }
 
 void start_pmode(void) {
+	// do not write into Serial buffer, we need this ram now
+	LRingBuffer_DisableBuffer(&ram.USARTtoUSB_Buffer);
+
 	spi_init();
 	// following delays may not work on all targets...
 	DDRB |= (1 << AVR_SS); // OUTPUT
@@ -393,6 +395,21 @@ void end_pmode(void) {
 	AVR_SPI_DDR &= ~(1 << AVR_SCK); // INPUT
 	AVR_SPI_DDR &= ~(1 << AVR_SS); // INPUT
 	ram.isp.pmode = 0;
+
+	// configure Serial with HID baud to work after reprogramming
+	if (VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS == AVRISP_BAUD){
+		Serial_Init(115200, true);
+		SerialInitHID();
+	} //TODO remove (changed by cdc interrupt)
+
+	// enable Serial buffer again
+	if (!LRingBuffer_IsEnabled(&ram.USARTtoUSB_Buffer))
+		LRingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer);
+
+	// HID Setup
+	ram.NHP.reset = true;
+	ram.NHP.leadError = false;
+	ram.HID.ID = 0;
 
 	//LEDs_TurnOnLEDs(LEDS_ALL_LEDS);
 	//_delay_ms(200);

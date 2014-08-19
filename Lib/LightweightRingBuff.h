@@ -276,7 +276,7 @@ extern "C" {
 		GlobalInterruptDisable();
 
 		// check if buffer is disabled or already full
-		if (!Buffer->Enabled || Buffer->Count == LIGHTWEIGHT_RING_BUFFER_SIZE){
+		if ((!Buffer->Enabled) || (Buffer->Count == LIGHTWEIGHT_RING_BUFFER_SIZE)){
 			SetGlobalInterruptMask(CurrentGlobalInt);
 			return;
 		}
@@ -312,7 +312,7 @@ extern "C" {
 		GlobalInterruptDisable();
 
 		// check if buffer is disabled or empty
-		if (!Buffer->Enabled || Buffer->Count == 0){
+		if ((!Buffer->Enabled) || (Buffer->Count == 0)){
 			SetGlobalInterruptMask(CurrentGlobalInt);
 			return -1;
 		}
@@ -341,7 +341,7 @@ extern "C" {
 		GlobalInterruptDisable();
 
 		// check if buffer is disabled or empty
-		if (!Buffer->Enabled || Buffer->Count == 0){
+		if ((!Buffer->Enabled) || (Buffer->Count == 0)){
 			SetGlobalInterruptMask(CurrentGlobalInt);
 			return -1;
 		}

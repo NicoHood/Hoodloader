@@ -218,6 +218,8 @@ void writeToCDC(uint8_t buffer[], uint8_t length){
 
 // Checks for a valid protocol input and writes HID report
 void checkNHPProtocol(uint8_t input){
+	// set new timeout mark
+	ram.PulseMSRemaining.NHPTimeout = NHP_TIMEOUT_MS;
 
 	NHP_Enum_t address = NHPreadChecksum(input, &ram.NHP);
 

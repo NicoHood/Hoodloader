@@ -38,12 +38,12 @@ THE SOFTWARE.
 // because we only have 500 bytes we have to free some memory for different modes
 typedef struct{
 	// indicates what mode we are in
-	enum{
-		MODE_NONE,
-		MODE_DEFAULT,
-		MODE_HID,
-		MODE_AVRISP,
-	}mode;
+	//enum{
+	//	MODE_NONE,
+	//	MODE_DEFAULT,
+	//	MODE_HID,
+	//	MODE_AVRISP,
+	//}mode;
 
 	// Circular buffer to hold data from the serial port before it is sent to the host.
 	LRingBuffer_t USARTtoUSB_Buffer;
@@ -60,7 +60,13 @@ typedef struct{
 	} isp;
 
 	// Pulse generation counters to keep track of the number of milliseconds remaining for each pulse type
-	LEDPulseMSRemaining PulseMSRemaining;
+#define NHP_TIMEOUT_MS 3
+	struct{
+		uint8_t TxLEDPulse : 2; // Milliseconds remaining for data Tx LED pulse
+		uint8_t RxLEDPulse : 2; // Milliseconds remaining for data Rx LED pulse
+		uint8_t NHPTimeout : 2;
+		uint8_t PModePulse : 2;
+	} PulseMSRemaining;
 
 	union{
 		// isp data buffer

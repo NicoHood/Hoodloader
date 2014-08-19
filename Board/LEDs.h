@@ -46,12 +46,6 @@ extern "C" {
 
 	// Pulse generation counters to keep track of the number of milliseconds remaining for each pulse type
 #define TX_RX_LED_PULSE_MS 3
-	typedef struct{
-		uint8_t TxLEDPulse : 2; // Milliseconds remaining for data Tx LED pulse
-		uint8_t RxLEDPulse : 2; // Milliseconds remaining for data Rx LED pulse
-		uint8_t PModePulse : 2;
-		uint8_t ErrorPulse : 2;
-	}LEDPulseMSRemaining;
 
 	/* Public Interface - May be used in end-application: */
 	/* Macros: */

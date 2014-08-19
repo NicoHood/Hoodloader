@@ -90,7 +90,7 @@ THE SOFTWARE.
 #define LOW 0
 #define HIGH 1
 
-void avrisp(void);
+void avrisp(int ReceivedByte);
 
 void sendCDCbyte(uint8_t b);
 uint8_t getch(void);
