@@ -17,19 +17,19 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   6 .debug_aranges 000008c8  00000000  00000000  00003ef9  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_info   0000e84f  00000000  00000000  000047c1  2**0
+  7 .debug_info   0000e848  00000000  00000000  000047c1  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_abbrev 00003bf9  00000000  00000000  00013010  2**0
+  8 .debug_abbrev 00003bf0  00000000  00000000  00013009  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_line   000059c2  00000000  00000000  00016c09  2**0
+  9 .debug_line   000059c3  00000000  00000000  00016bf9  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_frame  000015d0  00000000  00000000  0001c5cc  2**2
+ 10 .debug_frame  000015d0  00000000  00000000  0001c5bc  2**2
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_str    00004990  00000000  00000000  0001db9c  2**0
+ 11 .debug_str    00004990  00000000  00000000  0001db8c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_loc    000088d2  00000000  00000000  0002252c  2**0
+ 12 .debug_loc    000088d2  00000000  00000000  0002251c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_ranges 00000a68  00000000  00000000  0002adfe  2**0
+ 13 .debug_ranges 00000a68  00000000  00000000  0002adee  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -701,8 +701,8 @@ uint8_t USB_ProcessHIDReport(const uint8_t* ReportData,
 			case HID_RI_USAGE_MAXIMUM(0):
 				UsageMinMax.Maximum = ReportItemData;
 				break;
-     3fc:	88 e0       	ldi	r24, 0x08	; 8
-     3fe:	92 e0       	ldi	r25, 0x02	; 2
+     3fc:	8c ee       	ldi	r24, 0xEC	; 236
+     3fe:	91 e0       	ldi	r25, 0x01	; 1
      400:	0e 94 a2 13 	call	0x2744	; 0x2744 <memset>
      404:	e6 e3       	ldi	r30, 0x36	; 54
      406:	f1 e0       	ldi	r31, 0x01	; 1
@@ -718,7 +718,7 @@ uint8_t USB_ProcessHIDReport(const uint8_t* ReportData,
      410:	91 83       	std	Z+1, r25	; 0x01
      412:	80 83       	st	Z, r24
      414:	12 82       	std	Z+2, r1	; 0x02
-     416:	80 e8       	ldi	r24, 0x80	; 128
+     416:	84 e6       	ldi	r24, 0x64	; 100
      418:	83 83       	std	Z+3, r24	; 0x03
      41a:	14 82       	std	Z+4, r1	; 0x04
 				}
@@ -729,8 +729,8 @@ uint8_t USB_ProcessHIDReport(const uint8_t* ReportData,
 					CurrCollectionPath = &ParserData->CollectionPaths[1];
      41c:	2f bf       	out	0x3f, r18	; 63
      41e:	10 92 3b 01 	sts	0x013B, r1
-     422:	82 e1       	ldi	r24, 0x12	; 18
-     424:	92 e0       	ldi	r25, 0x02	; 2
+     422:	86 ef       	ldi	r24, 0xF6	; 246
+     424:	91 e0       	ldi	r25, 0x01	; 1
      426:	3f d7       	rcall	.+3710   	; 0x12a6 <NHPreset>
 
 					while (CurrCollectionPath->Parent != NULL)
@@ -1006,7 +1006,7 @@ uint8_t USB_ProcessHIDReport(const uint8_t* ReportData,
      5c4:	90 93 45 01 	sts	0x0145, r25
      5c8:	81 11       	cpse	r24, r1
      5ca:	41 c0       	rjmp	.+130    	; 0x64e <main+0x25a>
-     5cc:	90 91 12 02 	lds	r25, 0x0212
+     5cc:	90 91 f6 01 	lds	r25, 0x01F6
      5d0:	e9 2f       	mov	r30, r25
      5d2:	e6 95       	lsr	r30
      5d4:	e6 95       	lsr	r30
@@ -1024,8 +1024,8 @@ uint8_t USB_ProcessHIDReport(const uint8_t* ReportData,
      5f0:	f0 e0       	ldi	r31, 0x00	; 0
 
 					if (ParserData->TotalReportItems == HID_MAX_REPORTITEMS)
-     5f2:	e9 5e       	subi	r30, 0xE9	; 233
-     5f4:	fd 4f       	sbci	r31, 0xFD	; 253
+     5f2:	e5 50       	subi	r30, 0x05	; 5
+     5f4:	fe 4f       	sbci	r31, 0xFE	; 254
      5f6:	60 81       	ld	r22, Z
      5f8:	86 e3       	ldi	r24, 0x36	; 54
 					  return HID_PARSE_InsufficientReportItems;
@@ -1033,11 +1033,11 @@ uint8_t USB_ProcessHIDReport(const uint8_t* ReportData,
      5fc:	b5 de       	rcall	.-662    	; 0x368 <LRingBuffer_Append.constprop.4>
 
 					memcpy(&ParserData->ReportItems[ParserData->TotalReportItems],
-     5fe:	00 91 12 02 	lds	r16, 0x0212
+     5fe:	00 91 f6 01 	lds	r16, 0x01F6
      602:	07 ff       	sbrs	r16, 7
      604:	05 c0       	rjmp	.+10     	; 0x610 <main+0x21c>
-     606:	82 e1       	ldi	r24, 0x12	; 18
-     608:	92 e0       	ldi	r25, 0x02	; 2
+     606:	86 ef       	ldi	r24, 0xF6	; 246
+     608:	91 e0       	ldi	r25, 0x01	; 1
      60a:	4d d6       	rcall	.+3226   	; 0x12a6 <NHPreset>
      60c:	b0 d1       	rcall	.+864    	; 0x96e <checkNHPControlAddressError>
      60e:	1f c0       	rjmp	.+62     	; 0x64e <main+0x25a>
@@ -1061,7 +1061,7 @@ uint8_t USB_ProcessHIDReport(const uint8_t* ReportData,
      62c:	f7 01       	movw	r30, r14
      62e:	ec 0f       	add	r30, r28
      630:	fd 1f       	adc	r31, r29
-     632:	ef 51       	subi	r30, 0x1F	; 31
+     632:	eb 53       	subi	r30, 0x3B	; 59
      634:	ff 4f       	sbci	r31, 0xFF	; 255
      636:	60 81       	ld	r22, Z
      638:	86 e3       	ldi	r24, 0x36	; 54
@@ -1721,11 +1721,11 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
      8a0:	e8 01       	movw	r28, r16
 	// only send report if there is actually a new report
 	if (ram.HID.ID && ram.HID.length == ram.HID.recvlength){
-     8a2:	e0 91 c6 01 	lds	r30, 0x01C6
+     8a2:	e0 91 aa 01 	lds	r30, 0x01AA
      8a6:	ee 23       	and	r30, r30
      8a8:	29 f1       	breq	.+74     	; 0x8f4 <CALLBACK_HID_Device_CreateHIDReport+0x64>
-     8aa:	40 91 c7 01 	lds	r20, 0x01C7
-     8ae:	20 91 c8 01 	lds	r18, 0x01C8
+     8aa:	40 91 ab 01 	lds	r20, 0x01AB
+     8ae:	20 91 ac 01 	lds	r18, 0x01AC
      8b2:	42 13       	cpse	r20, r18
      8b4:	1f c0       	rjmp	.+62     	; 0x8f4 <CALLBACK_HID_Device_CreateHIDReport+0x64>
 		// set a general and specific flag that a report was made, ignore rawHID
@@ -1734,35 +1734,35 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
      8b8:	39 f0       	breq	.+14     	; 0x8c8 <CALLBACK_HID_Device_CreateHIDReport+0x38>
 			ram.HID.isEmpty[HID_REPORTID_NotAReport] = true;
      8ba:	51 e0       	ldi	r21, 0x01	; 1
-     8bc:	50 93 08 02 	sts	0x0208, r21
+     8bc:	50 93 ec 01 	sts	0x01EC, r21
 			ram.HID.isEmpty[ram.HID.ID] = true;
      8c0:	f0 e0       	ldi	r31, 0x00	; 0
-     8c2:	e8 5f       	subi	r30, 0xF8	; 248
-     8c4:	fd 4f       	sbci	r31, 0xFD	; 253
+     8c2:	e4 51       	subi	r30, 0x14	; 20
+     8c4:	fe 4f       	sbci	r31, 0xFE	; 254
      8c6:	50 83       	st	Z, r21
 		}
 
 		//write report and reset ID
 		memcpy(ReportData, ram.HID.buffer, ram.HID.length);
-     8c8:	e9 ec       	ldi	r30, 0xC9	; 201
+     8c8:	ed ea       	ldi	r30, 0xAD	; 173
      8ca:	f1 e0       	ldi	r31, 0x01	; 1
      8cc:	50 e0       	ldi	r21, 0x00	; 0
      8ce:	bf 01       	movw	r22, r30
      8d0:	0e 94 99 13 	call	0x2732	; 0x2732 <memcpy>
 		*ReportID = ram.HID.ID;
-     8d4:	80 91 c6 01 	lds	r24, 0x01C6
+     8d4:	80 91 aa 01 	lds	r24, 0x01AA
      8d8:	f7 01       	movw	r30, r14
      8da:	80 83       	st	Z, r24
 		*ReportSize = ram.HID.length;
-     8dc:	80 91 c7 01 	lds	r24, 0x01C7
+     8dc:	80 91 ab 01 	lds	r24, 0x01AB
      8e0:	88 83       	st	Y, r24
      8e2:	19 82       	std	Y+1, r1	; 0x01
 		ram.HID.ID = 0;
-     8e4:	10 92 c6 01 	sts	0x01C6, r1
+     8e4:	10 92 aa 01 	sts	0x01AA, r1
 		ram.HID.recvlength = 0; //just to be sure if you call HID_Task by accident again
-     8e8:	10 92 c8 01 	sts	0x01C8, r1
+     8e8:	10 92 ac 01 	sts	0x01AC, r1
 		ram.HID.length = 0; //just to be sure if you call HID_Task by accident again
-     8ec:	10 92 c7 01 	sts	0x01C7, r1
+     8ec:	10 92 ab 01 	sts	0x01AB, r1
 
 		// always return true, because we cannot compare with >1 report due to ram limit
 		// this will forcewrite the report every time
@@ -1855,11 +1855,11 @@ void flushHID(void){
 	// TODO timeout? <--
 	// try to send until its done
 	while (ram.HID.ID && ram.HID.length == ram.HID.recvlength)
-     932:	80 91 c6 01 	lds	r24, 0x01C6
+     932:	80 91 aa 01 	lds	r24, 0x01AA
      936:	88 23       	and	r24, r24
      938:	31 f0       	breq	.+12     	; 0x946 <flushHID+0x1e>
-     93a:	90 91 c7 01 	lds	r25, 0x01C7
-     93e:	80 91 c8 01 	lds	r24, 0x01C8
+     93a:	90 91 ab 01 	lds	r25, 0x01AB
+     93e:	80 91 ac 01 	lds	r24, 0x01AC
      942:	98 17       	cp	r25, r24
      944:	91 f3       	breq	.-28     	; 0x92a <flushHID+0x2>
      946:	08 95       	ret
@@ -1871,7 +1871,7 @@ void flushHID(void){
 }
 
 uint8_t getHIDReportLength(uint8_t ID){
-     948:	e0 91 c6 01 	lds	r30, 0x01C6
+     948:	e0 91 aa 01 	lds	r30, 0x01AA
      94c:	e1 50       	subi	r30, 0x01	; 1
      94e:	e9 30       	cpi	r30, 0x09	; 9
      950:	28 f4       	brcc	.+10     	; 0x95c <getHIDReportLength+0x14>
@@ -1898,11 +1898,11 @@ uint8_t getHIDReportLength(uint8_t ID){
 void HIDreset(void){
 	// reset any pending HID reports
 	ram.HID.ID = 0;
-     960:	10 92 c6 01 	sts	0x01C6, r1
+     960:	10 92 aa 01 	sts	0x01AA, r1
 	ram.HID.recvlength = 0; // just to be sure
-     964:	10 92 c8 01 	sts	0x01C8, r1
+     964:	10 92 ac 01 	sts	0x01AC, r1
 	ram.HID.length = 0; // just to be sure
-     968:	10 92 c7 01 	sts	0x01C7, r1
+     968:	10 92 ab 01 	sts	0x01AB, r1
      96c:	08 95       	ret
 
 0000096e <checkNHPControlAddressError>:
@@ -1924,10 +1924,10 @@ void checkNHPControlAddressError(void){
 	// but if we already received some data we handle this as corrupted data and just
 	// discard all the bytes
 	if (ram.HID.ID && !ram.HID.recvlength){
-     97e:	60 91 c6 01 	lds	r22, 0x01C6
+     97e:	60 91 aa 01 	lds	r22, 0x01AA
      982:	66 23       	and	r22, r22
      984:	c1 f0       	breq	.+48     	; 0x9b6 <checkNHPControlAddressError+0x48>
-     986:	80 91 c8 01 	lds	r24, 0x01C8
+     986:	80 91 ac 01 	lds	r24, 0x01AC
      98a:	81 11       	cpse	r24, r1
      98c:	14 c0       	rjmp	.+40     	; 0x9b6 <checkNHPControlAddressError+0x48>
 		// write the cached buffer (recreate protocol)
@@ -1985,8 +1985,8 @@ void checkNHPProtocol(uint8_t input){
 	ram.PulseMSRemaining.NHPTimeout = NHP_TIMEOUT_MS;
 
 	NHP_Enum_t address = NHPreadChecksum(input, &ram.NHP);
-     9d6:	62 e1       	ldi	r22, 0x12	; 18
-     9d8:	72 e0       	ldi	r23, 0x02	; 2
+     9d6:	66 ef       	ldi	r22, 0xF6	; 246
+     9d8:	71 e0       	ldi	r23, 0x01	; 1
      9da:	18 d5       	rcall	.+2608   	; 0x140c <NHPreadChecksum>
      9dc:	88 23       	and	r24, r24
 
@@ -2006,21 +2006,21 @@ void checkNHPProtocol(uint8_t input){
 	// nearly the same priciple like the Protocol itself: check for control address
 	if ((address == NHP_ADDRESS_CONTROL) && (((ram.NHP.mWorkData >> 8) & 0xFF) == NHP_USAGE_ARDUINOHID)){
      9e8:	c1 f4       	brne	.+48     	; 0xa1a <checkNHPProtocol+0x4e>
-     9ea:	90 91 14 02 	lds	r25, 0x0214
+     9ea:	90 91 f8 01 	lds	r25, 0x01F8
      9ee:	91 30       	cpi	r25, 0x01	; 1
      9f0:	a1 f4       	brne	.+40     	; 0xa1a <checkNHPProtocol+0x4e>
      9f2:	bd df       	rcall	.-134    	; 0x96e <checkNHPControlAddressError>
 		// check if previous reading was a valid Control Address and write it down
 		checkNHPControlAddressError();
-     9f4:	80 91 13 02 	lds	r24, 0x0213
+     9f4:	80 91 f7 01 	lds	r24, 0x01F7
 
 		// get the new report ID and reset the buffer
 		ram.HID.ID = ram.NHP.mWorkData & 0xFF;
-     9f8:	80 93 c6 01 	sts	0x01C6, r24
-     9fc:	10 92 c8 01 	sts	0x01C8, r1
+     9f8:	80 93 aa 01 	sts	0x01AA, r24
+     9fc:	10 92 ac 01 	sts	0x01AC, r1
 		ram.HID.recvlength = 0;
      a00:	9f e3       	ldi	r25, 0x3F	; 63
-     a02:	e9 ec       	ldi	r30, 0xC9	; 201
+     a02:	ed ea       	ldi	r30, 0xAD	; 173
 		memset(ram.HID.buffer, 0, sizeof(ram.HID.buffer));
      a04:	f1 e0       	ldi	r31, 0x01	; 1
      a06:	df 01       	movw	r26, r30
@@ -2028,7 +2028,7 @@ void checkNHPProtocol(uint8_t input){
      a0a:	9a 95       	dec	r25
      a0c:	e9 f7       	brne	.-6      	; 0xa08 <checkNHPProtocol+0x3c>
      a0e:	9c df       	rcall	.-200    	; 0x948 <getHIDReportLength>
-     a10:	80 93 c7 01 	sts	0x01C7, r24
+     a10:	80 93 ab 01 	sts	0x01AB, r24
 
 		// Determine which interface must have its report generated
 		ram.HID.length = getHIDReportLength(ram.HID.ID);
@@ -2038,7 +2038,7 @@ void checkNHPProtocol(uint8_t input){
 
 		// error, write down this wrong ID report
 		if (!ram.HID.length)
-     a1a:	90 91 c6 01 	lds	r25, 0x01C6
+     a1a:	90 91 aa 01 	lds	r25, 0x01AA
 			checkNHPControlAddressError();
      a1e:	99 23       	and	r25, r25
      a20:	69 f1       	breq	.+90     	; 0xa7c <checkNHPProtocol+0xb0>
@@ -2048,7 +2048,7 @@ void checkNHPProtocol(uint8_t input){
 
 	// we already got a pending report
 	else if (ram.HID.ID && (address == (((ram.HID.recvlength + 2) / 2) + 1))){
-     a22:	60 91 c8 01 	lds	r22, 0x01C8
+     a22:	60 91 ac 01 	lds	r22, 0x01AC
      a26:	46 2f       	mov	r20, r22
      a28:	50 e0       	ldi	r21, 0x00	; 0
      a2a:	99 27       	eor	r25, r25
@@ -2065,9 +2065,9 @@ void checkNHPProtocol(uint8_t input){
      a40:	93 07       	cpc	r25, r19
      a42:	e1 f4       	brne	.+56     	; 0xa7c <checkNHPProtocol+0xb0>
      a44:	fa 01       	movw	r30, r20
-     a46:	e7 53       	subi	r30, 0x37	; 55
+     a46:	e3 55       	subi	r30, 0x53	; 83
      a48:	fe 4f       	sbci	r31, 0xFE	; 254
-     a4a:	80 91 13 02 	lds	r24, 0x0213
+     a4a:	80 91 f7 01 	lds	r24, 0x01F7
 		// check if the new Address is in correct order of HID reports.
 		// the first 2 bytes are sent with Address 2 and so on.
 
@@ -2076,8 +2076,8 @@ void checkNHPProtocol(uint8_t input){
      a4e:	80 83       	st	Z, r24
      a50:	e6 2f       	mov	r30, r22
      a52:	ef 5f       	subi	r30, 0xFF	; 255
-     a54:	e0 93 c8 01 	sts	0x01C8, r30
-     a58:	80 91 c7 01 	lds	r24, 0x01C7
+     a54:	e0 93 ac 01 	sts	0x01AC, r30
+     a58:	80 91 ab 01 	lds	r24, 0x01AB
      a5c:	8e 17       	cp	r24, r30
      a5e:	49 f0       	breq	.+18     	; 0xa72 <checkNHPProtocol+0xa6>
 
@@ -2085,14 +2085,14 @@ void checkNHPProtocol(uint8_t input){
 		// to not write over the buff array)
 		if (ram.HID.length != ram.HID.recvlength)
      a60:	f0 e0       	ldi	r31, 0x00	; 0
-     a62:	e7 53       	subi	r30, 0x37	; 55
+     a62:	e3 55       	subi	r30, 0x53	; 83
      a64:	fe 4f       	sbci	r31, 0xFE	; 254
-     a66:	90 91 14 02 	lds	r25, 0x0214
+     a66:	90 91 f8 01 	lds	r25, 0x01F8
 			ram.HID.buffer[ram.HID.recvlength++] = (ram.NHP.mWorkData >> 8);
      a6a:	90 83       	st	Z, r25
      a6c:	6e 5f       	subi	r22, 0xFE	; 254
-     a6e:	60 93 c8 01 	sts	0x01C8, r22
-     a72:	90 91 c8 01 	lds	r25, 0x01C8
+     a6e:	60 93 ac 01 	sts	0x01AC, r22
+     a72:	90 91 ac 01 	lds	r25, 0x01AC
      a76:	89 13       	cpse	r24, r25
      a78:	18 c0       	rjmp	.+48     	; 0xaaa <checkNHPProtocol+0xde>
 
@@ -2101,7 +2101,7 @@ void checkNHPProtocol(uint8_t input){
 		if (ram.HID.length == ram.HID.recvlength)
      a7a:	56 cf       	rjmp	.-340    	; 0x928 <flushHID>
      a7c:	78 df       	rcall	.-272    	; 0x96e <checkNHPControlAddressError>
-     a7e:	40 91 12 02 	lds	r20, 0x0212
+     a7e:	40 91 f6 01 	lds	r20, 0x01F6
 			flushHID();
      a82:	46 95       	lsr	r20
      a84:	46 95       	lsr	r20
@@ -2116,12 +2116,12 @@ void checkNHPProtocol(uint8_t input){
 
 		// just a normal Protocol outside our control address (or corrupted packet), write it down
 		LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer, ram.NHP.readlength);
-     a8a:	67 e1       	ldi	r22, 0x17	; 23
-     a8c:	72 e0       	ldi	r23, 0x02	; 2
+     a8a:	6b ef       	ldi	r22, 0xFB	; 251
+     a8c:	71 e0       	ldi	r23, 0x01	; 1
      a8e:	86 e3       	ldi	r24, 0x36	; 54
      a90:	91 e0       	ldi	r25, 0x01	; 1
      a92:	bc de       	rcall	.-648    	; 0x80c <LRingBuffer_Append_Buffer.constprop.0>
-     a94:	80 91 12 02 	lds	r24, 0x0212
+     a94:	80 91 f6 01 	lds	r24, 0x01F6
      a98:	86 95       	lsr	r24
      a9a:	86 95       	lsr	r24
      a9c:	86 95       	lsr	r24
@@ -2571,7 +2571,7 @@ void end_pmode(void) {
 		Buffer->Index = 0;
      c7c:	12 82       	std	Z+2, r1	; 0x02
 		Buffer->Size = Size;
-     c7e:	80 e8       	ldi	r24, 0x80	; 128
+     c7e:	84 e6       	ldi	r24, 0x64	; 100
      c80:	83 83       	std	Z+3, r24	; 0x03
 		Buffer->Count = 0;
      c82:	14 82       	std	Z+4, r1	; 0x04

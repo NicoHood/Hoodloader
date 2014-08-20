@@ -96,11 +96,6 @@
 /* Includes: */
 #include <LUFA/Common/Common.h>
 
-// hardcoded ringbuffersize for better ram usage
-// this frees us out, start, end, size variables
-// use 128, 64 or 32 byte
-#define LIGHTWEIGHT_RING_BUFFER_SIZE 128
-
 /* Enable C linkage for C++ Compilers: */
 #if defined(__cplusplus)
 extern "C" {
@@ -230,7 +225,7 @@ extern "C" {
 	static inline uint8_t LRingBuffer_GetFreeCount(LRingBuffer_t* const Buffer) ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(1);
 	static inline uint8_t LRingBuffer_GetFreeCount(LRingBuffer_t* const Buffer)
 	{
-		return (LIGHTWEIGHT_RING_BUFFER_SIZE - LRingBuffer_GetCount(Buffer));
+		return (Buffer->Size - LRingBuffer_GetCount(Buffer));
 	}
 
 	/** Atomically determines if the specified ring buffer contains any data. This should
@@ -262,7 +257,7 @@ extern "C" {
 	static inline bool LRingBuffer_IsFull(LRingBuffer_t* const Buffer) ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(1);
 	static inline bool LRingBuffer_IsFull(LRingBuffer_t* const Buffer)
 	{
-		return (LRingBuffer_GetCount(Buffer) == LIGHTWEIGHT_RING_BUFFER_SIZE);
+		return (LRingBuffer_GetCount(Buffer) == Buffer->Size);
 	}
 
 

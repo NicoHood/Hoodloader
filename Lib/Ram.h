@@ -77,7 +77,7 @@ typedef struct{
 		// normal mode if HID is on
 		struct{
 			// Underlying data buffer for \ref USARTtoUSB_Buffer, where the stored bytes are located.
-			uint8_t USARTtoUSB_Buffer_Data[LIGHTWEIGHT_RING_BUFFER_SIZE];
+			uint8_t USARTtoUSB_Buffer_Data[100];
 
 			// variables to save hid states
 			struct{
