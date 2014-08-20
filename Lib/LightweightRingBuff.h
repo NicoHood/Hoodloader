@@ -114,8 +114,8 @@ extern "C" {
 	 */
 	typedef struct
 	{
-		uint8_t Index : 7; // 0-127 Current storage location in the circular buffer.
-		uint8_t Enabled : 1; // true / false
+		uint8_t Index; // 0-127 Current storage location in the circular buffer.
+		uint8_t Enabled; // true / false
 		uint8_t Count; // range: 0 - LIGHTWEIGHT_RING_BUFFER_SIZE
 	} LRingBuffer_t;
 
@@ -293,6 +293,38 @@ extern "C" {
 		SetGlobalInterruptMask(CurrentGlobalInt);
 	}
 
+	static inline void LRingBuffer_Append(LRingBuffer_t* Buffer, uint8_t* DataPtr,
+		const uint8_t Data) ATTR_NON_NULL_PTR_ARG(1);
+	static inline void LRingBuffer_Append(LRingBuffer_t* Buffer, uint8_t* DataPtr,
+		const uint8_t Data)
+	{
+		GCC_FORCE_POINTER_ACCESS(Buffer);
+
+		uint_reg_t CurrentGlobalInt = GetGlobalInterruptMask();
+		GlobalInterruptDisable();
+
+		// check if buffer is disabled
+		if ((!Buffer->Enabled)){
+			SetGlobalInterruptMask(CurrentGlobalInt);
+			return;
+		}
+
+		// save new data to the first item
+		uint8_t pos = (Buffer->Index - Buffer->Count - 1)&(LIGHTWEIGHT_RING_BUFFER_SIZE - 1);
+		DataPtr[pos] = Data;
+
+		// increase Counter if its not full. This will overwrite newer bytes if its already full!
+		if (Buffer->Count != LIGHTWEIGHT_RING_BUFFER_SIZE)
+			Buffer->Count++;
+
+		// cut off if its out of bounds
+		if (Buffer->Index == LIGHTWEIGHT_RING_BUFFER_SIZE)
+			Buffer->Index = 0;
+		//Buffer->Index &= (LIGHTWEIGHT_RING_BUFFER_SIZE - 1);
+
+		SetGlobalInterruptMask(CurrentGlobalInt);
+	}
+
 	/** Removes an element from the ring buffer.
 	 *
 	 *  \warning Only one execution thread (main program thread or an ISR) may remove from a single buffer
@@ -328,6 +360,28 @@ extern "C" {
 		return Data;
 	}
 
+	static inline int LRingBuffer_Peek_Pos(LRingBuffer_t* Buffer, uint8_t* const DataPtr, const uint8_t position) ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(1);
+	static inline int LRingBuffer_Peek_Pos(LRingBuffer_t* Buffer, uint8_t* const DataPtr, const uint8_t position)
+	{
+		uint_reg_t CurrentGlobalInt = GetGlobalInterruptMask();
+		GlobalInterruptDisable();
+
+		// check if buffer is disabled or empty
+		if ((!Buffer->Enabled) || (Buffer->Count == 0) || position > (Buffer->Count - 1)){
+			SetGlobalInterruptMask(CurrentGlobalInt);
+			return -1;
+		}
+
+		// get last item position
+		uint8_t pos = (Buffer->Index - Buffer->Count + position)&(LIGHTWEIGHT_RING_BUFFER_SIZE - 1);
+
+		uint8_t Data = DataPtr[pos];
+
+		SetGlobalInterruptMask(CurrentGlobalInt);
+
+		return Data;
+	}
+
 	/** Returns the next element stored in the ring buffer, without removing it.
 	 *
 	 *  \param[in,out] Buffer  Pointer to a ring buffer structure to retrieve from.
@@ -337,23 +391,7 @@ extern "C" {
 	static inline int LRingBuffer_Peek(LRingBuffer_t* Buffer, uint8_t* const DataPtr) ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(1);
 	static inline int LRingBuffer_Peek(LRingBuffer_t* Buffer, uint8_t* const DataPtr)
 	{
-		uint_reg_t CurrentGlobalInt = GetGlobalInterruptMask();
-		GlobalInterruptDisable();
-
-		// check if buffer is disabled or empty
-		if ((!Buffer->Enabled) || (Buffer->Count == 0)){
-			SetGlobalInterruptMask(CurrentGlobalInt);
-			return -1;
-		}
-
-		// get last item position
-		uint8_t pos = (Buffer->Index - Buffer->Count)&(LIGHTWEIGHT_RING_BUFFER_SIZE - 1);
-
-		uint8_t Data = DataPtr[pos];
-
-		SetGlobalInterruptMask(CurrentGlobalInt);
-
-		return Data;
+		return LRingBuffer_Peek_Pos(Buffer, DataPtr, 0);
 	}
 
 	/* Disable C linkage for C++ Compilers: */

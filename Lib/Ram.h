@@ -48,6 +48,8 @@ typedef struct{
 	// Circular buffer to hold data from the serial port before it is sent to the host.
 	LRingBuffer_t USARTtoUSB_Buffer;
 
+	uint8_t skipNHP;
+
 	// if baud == AVRISP_BAUD AVRISP mode
 	struct{
 		int error; //TODO improve types
@@ -93,6 +95,7 @@ typedef struct{
 
 			// NHP needed as Serial Protocol to receive HID data
 			NHP_Data_t NHP;
+			
 		};
 	};
 }ram_t;

@@ -201,6 +201,13 @@ uint8_t getHIDReportLength(uint8_t ID){
 
 
 void writeToCDC(uint8_t buffer[], uint8_t length){
+	for (int i = 0; i < length; i++){
+		LRingBuffer_Append(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, buffer[length-i-1]);
+	}
+	ram.skipNHP = length;
+	return;
+
+
 	// TODO CDC task causes bug on slower pcs 1.6 - 1.7 <--
 	// refresh DTR state
 	//CDC_Device_USBTask(&VirtualSerial_CDC_Interface);

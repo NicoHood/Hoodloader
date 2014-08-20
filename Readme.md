@@ -263,6 +263,8 @@ Ideas for the future:
 * move SS to reset pin
 * fix nhp bug remove old flush functions
 * create tables for leonardo and uno/mega
+* SPI HID input?
+* fix programmers.txt installation
 
 Version History
 ===============

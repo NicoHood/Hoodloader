@@ -40,6 +40,10 @@ int main(void)
 	// Serial tx buffers Setup
 	LRingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer);
 
+	//NHP setup
+	ram.skipNHP = 0;
+	NHPreset(&ram.NHP);
+
 	// reset LEDs
 	ram.PulseMSRemaining.TxLEDPulse = 0;
 	ram.PulseMSRemaining.RxLEDPulse = 0;
@@ -47,8 +51,6 @@ int main(void)
 	LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
 
 	// HID Setup
-	ram.NHP.reset = true;
-	ram.NHP.leadError = false;
 	ram.HID.ID = 0;
 
 	// AVR ISP Setup
@@ -118,20 +120,29 @@ int main(void)
 				/// Read bytes from the USART receive buffer into the USB IN endpoint */
 				while (BytesToSend--)
 				{
+					//uint8_t k = LRingBuffer_Remove(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data);
+					//LRingBuffer_Append(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, k);
 
-					// Try to send the next byte of data to the host, abort if there is an error without dequeuing
-					//if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
-					//	LRingBuffer_Peek(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data)) != ENDPOINT_READYWAIT_NoError)
-					//{
-					//	break;
-					//}
-					//}
+					if (ram.skipNHP){
+						bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
+						if (CurrentDTRState)
+						// Try to send the next byte of data to the host, abort if there is an error without dequeuing
+						if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
+							LRingBuffer_Peek(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data)) != ENDPOINT_READYWAIT_NoError)
+						{
+							break;
+						}
+						// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
+						LRingBuffer_Remove(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data);
+						ram.skipNHP--;
+					}
+					else{
+						// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
+						uint8_t b = LRingBuffer_Remove(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data);
 
-					// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
-					uint8_t b = LRingBuffer_Remove(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data);
-
-					// main function to proceed HID input checks
-					checkNHPProtocol(b);
+						// main function to proceed HID input checks
+						checkNHPProtocol(b);
+					}
 				}
 			}
 		}
@@ -174,9 +185,10 @@ int main(void)
 					if (length) // just to be sure <--
 						writeToCDC(&ram.NHP.readbuffer[start], length);
 
+					//ram.skipNHP = ram.NHP.readlength + ram.NHP.leadError;
+
 					// reset variables
-					ram.NHP.reset = true;
-					ram.NHP.leadError = false;
+					NHPreset(&ram.NHP);
 				}
 			}
 

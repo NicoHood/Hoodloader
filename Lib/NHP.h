@@ -83,6 +83,7 @@ typedef struct{
 }NHP_Data_t;
 
 // general multifunctional read/write functions for NHP
+void NHPreset(NHP_Data_t* protocol);
 int8_t NHPreadChecksum(uint8_t input, NHP_Data_t* protocol);
 int8_t NHPread(uint8_t input, NHP_Data_t* protocol);
 uint8_t NHPwrite(uint8_t address, uint16_t data, uint8_t* buff);

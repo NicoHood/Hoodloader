@@ -27,6 +27,12 @@ THE SOFTWARE.
 // Read NHP
 //================================================================================
 
+void NHPreset(NHP_Data_t* protocol){
+	// reset variables
+	protocol->reset = true;
+	protocol->leadError = false;
+}
+
 NHP_Enum_t NHPreadChecksum(uint8_t input, NHP_Data_t* protocol){
 	NHP_Enum_t errorLevel = NHPread(input, protocol);
 	// if its an valid address, check the data inverse too
