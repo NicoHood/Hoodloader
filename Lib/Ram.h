@@ -63,11 +63,14 @@ typedef struct{
 
 	// Pulse generation counters to keep track of the number of milliseconds remaining for each pulse type
 #define NHP_TIMEOUT_MS 3
-	struct{
-		uint8_t TxLEDPulse : 2; // Milliseconds remaining for data Tx LED pulse
-		uint8_t RxLEDPulse : 2; // Milliseconds remaining for data Rx LED pulse
-		uint8_t NHPTimeout : 2;
-		uint8_t PModePulse : 2;
+	union{
+		uint8_t whole;
+		struct{
+			uint8_t TxLEDPulse : 2; // Milliseconds remaining for data Tx LED pulse
+			uint8_t RxLEDPulse : 2; // Milliseconds remaining for data Rx LED pulse
+			uint8_t NHPTimeout : 2;
+			uint8_t PModePulse : 2;
+		};
 	} PulseMSRemaining;
 
 	union{

@@ -61,26 +61,31 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 	uint16_t* const ReportSize)
 {
 	// only send report if there is actually a new report
-	if (ram.HID.ID && ram.HID.length == ram.HID.recvlength){
-		// set a general and specific flag that a report was made, ignore rawHID
-		if (ram.HID.ID != HID_REPORTID_RawKeyboardReport){
-			ram.HID.isEmpty[HID_REPORTID_NotAReport] = true;
-			ram.HID.isEmpty[ram.HID.ID] = true;
-		}
+	//if (ram.HID.ID){
+	//TODO remove this
 
-		//write report and reset ID
-		memcpy(ReportData, ram.HID.buffer, ram.HID.length);
-		*ReportID = ram.HID.ID;
-		*ReportSize = ram.HID.length;
-		ram.HID.ID = 0;
-		ram.HID.recvlength = 0; //just to be sure if you call HID_Task by accident again
-		ram.HID.length = 0; //just to be sure if you call HID_Task by accident again
-
-		// always return true, because we cannot compare with >1 report due to ram limit
-		// this will forcewrite the report every time
-		return true;
+	// set a general and specific flag that a report was made, ignore rawHID
+	if (ram.HID.ID != HID_REPORTID_RawKeyboardReport){
+		ram.HID.isEmpty[HID_REPORTID_NotAReport] = false;
+		ram.HID.isEmpty[ram.HID.ID] = false;
 	}
-	else return false;
+
+	//write report
+	memcpy(ReportData, ram.HID.buffer, ram.HID.length);
+	*ReportID = ram.HID.ID;
+	*ReportSize = ram.HID.length;
+
+	// reset ID
+	ram.HID.ID = 0;
+	ram.HID.recvlength = 0; //just to be sure if you call HID_Task by accident again
+	ram.HID.length = 0; //just to be sure if you call HID_Task by accident again
+
+	// always return true, because we cannot compare with >1 report due to ram limit
+	// this will forcewrite the report every time
+	return true;
+
+	//}
+	//else return false;
 }
 
 /** HID class driver callback function for the processing of HID reports from the host.
@@ -119,25 +124,16 @@ void clearHIDReports(void){
 	if (ram.HID.isEmpty[HID_REPORTID_NotAReport]) return;
 
 	// check if every report is empty or not
-	for (int i = 1; i < HID_REPORTID_LastNotAReport; i++){
-
-		if (!ram.HID.isEmpty[i])
+	for (int i = 1; i < HID_REPORTID_LastNotAReport; i++)
 			clearHIDReport(i);
-	}
-	// clear the flag that >0 reports were set
+	
+	// clear the main flag that all reports are empty
 	ram.HID.isEmpty[HID_REPORTID_NotAReport] = true;
 }
 
-void flushHID(void){
-	// TODO timeout? <--
-	// try to send until its done
-	while (ram.HID.ID && ram.HID.length == ram.HID.recvlength)
-		HID_Device_USBTask(&Device_HID_Interface);
-}
-
 void clearHIDReport(uint8_t ID){
-	// RAW HID cannot be cleared
-	if (ID == HID_REPORTID_RawKeyboardReport) return;
+	// return if already cleared, RAW HID cannot be cleared
+	if (ram.HID.isEmpty[ID] || ID == HID_REPORTID_RawKeyboardReport) return;
 
 	// get length of the report if its a valid report
 	uint8_t length = getHIDReportLength(ID);
@@ -154,6 +150,14 @@ void clearHIDReport(uint8_t ID){
 	// save new empty state
 	ram.HID.isEmpty[ID] = true;
 }
+
+void flushHID(void){
+	// TODO timeout? <--
+	// try to send until its done
+	while (ram.HID.ID && ram.HID.length == ram.HID.recvlength)
+		HID_Device_USBTask(&Device_HID_Interface);
+}
+
 
 uint8_t getHIDReportLength(uint8_t ID){
 	// Get the length of the report
@@ -224,7 +228,9 @@ void checkNHPProtocol(uint8_t input){
 		// get the new report ID and reset the buffer
 		ram.HID.ID = ram.NHP.mWorkData & 0xFF;
 		ram.HID.recvlength = 0;
-		memset(ram.HID.buffer, 0, sizeof(ram.HID.buffer));
+
+		// TODO remove this cleaning
+		//memset(ram.HID.buffer, 0, sizeof(ram.HID.buffer));
 
 		// Determine which interface must have its report generated
 		ram.HID.length = getHIDReportLength(ram.HID.ID);
@@ -232,9 +238,6 @@ void checkNHPProtocol(uint8_t input){
 		// error, write down this wrong ID report
 		if (!ram.HID.length)
 			checkNHPControlAddressError();
-
-		// The Protocol received a valid signal with inverse checksum
-		// Do not write the buff in the loop above or below, filter it out at the end
 	}
 
 	// we already got a pending report
@@ -293,4 +296,7 @@ void HIDreset(void){
 	ram.HID.ID = 0;
 	ram.HID.recvlength = 0; // just to be sure
 	ram.HID.length = 0; // just to be sure
+
+	// all reports are empty by default
+	memset(&ram.HID.isEmpty, true, sizeof(ram.HID.isEmpty));
 }

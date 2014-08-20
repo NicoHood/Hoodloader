@@ -281,8 +281,8 @@ void start_pmode(void) {
 void end_pmode(void) {
 	AVR_SPI_DDR &= ~(1 << AVR_MISO); // INPUT
 	AVR_SPI_DDR &= ~(1 << AVR_MOSI); // INPUT
-	AVR_SPI_DDR &= ~(1 << AVR_SCK); // INPUT
-	AVR_SPI_DDR &= ~(1 << AVR_SS); // INPUT
+	AVR_SPI_DDR &= ~(1 << AVR_SCK);  // INPUT
+	AVR_SPI_DDR &= ~(1 << AVR_SS);   // INPUT
 
 	// set hardware SS to input so we can use SPI slave mode
 	AVR_SPI_DDR &= ~(1 << AVR_HARDWARE_SS); // INPUT
@@ -295,6 +295,9 @@ void end_pmode(void) {
 
 	// HID Setup
 	HIDreset();
+
+	ram.skipNHP = 0;
+	NHPreset(&ram.NHP);
 }
 
 void spi_init(void) {

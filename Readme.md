@@ -262,18 +262,21 @@ Ideas for the future (Todo list):
 * SPI HID input?
 * fix programmers.txt installation
 * get Raw HID working
+* reduce gamepad report size, add 4 gamepads
+* shrink HID functions
 
 Version History
 ===============
 ```
 1.8.0 Beta Release (xx.08.2014)
-* Fixed programming bug in slow PCs (1.6 - 1.7.3)
+* Fixed programming bug on slow PCs (1.6 - 1.7.3)
 * Cutted huge main file into libraries
 * Improved ram usage
 * Fixed a bug in Serial Buffer + rewrote the lib with new functions
 * Separated NHP from ram
 * HID working after ISP programming
 * moved HID deactivation function to PB5 (next to AREF PIN)
+* Fixed Gamepad 1+2 bug on Linux (has a weird button limit and works better as "joystick" device)
 
 1.7.3 Beta Release (10.08.2014)
 * Fixed HID flush bug (1.6 - 1.7.2)

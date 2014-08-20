@@ -32,11 +32,6 @@ THE SOFTWARE.
 */
 int main(void)
 {
-	//ram.mode = MODE_DEFAULT;
-
-	// all reports are empty by default
-	memset(&ram.HID.isEmpty, true, sizeof(ram.HID.isEmpty));
-
 	// Serial tx buffers Setup
 	LRingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, sizeof(ram.USARTtoUSB_Buffer_Data));
 
@@ -45,10 +40,7 @@ int main(void)
 	NHPreset(&ram.NHP);
 
 	// reset LEDs
-	ram.PulseMSRemaining.TxLEDPulse = 0;
-	ram.PulseMSRemaining.RxLEDPulse = 0;
-	ram.PulseMSRemaining.NHPTimeout = 0;
-	LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
+	ram.PulseMSRemaining.whole = 0;
 
 	// HID Setup
 	HIDreset();
@@ -62,6 +54,7 @@ int main(void)
 
 	for (;;)
 	{
+		//clearHIDReports();
 		// clear HID reports if chip gets restarted
 		//TODO
 		//if (!(AVR_RESET_LINE_PIN & AVR_RESET_LINE_MASK))
@@ -116,6 +109,9 @@ int main(void)
 					// ignoe HID check if: we need to write a pending NHP buff, its deactivated or not the right baud
 					uint32_t baud = VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS;
 					if (ram.skipNHP || (baud != AVRISP_BAUD && baud != 0 && baud != 115200) || (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK))){
+						// set new timeout mark
+						if (ram.skipNHP)
+							ram.PulseMSRemaining.NHPTimeout = NHP_TIMEOUT_MS;
 
 						// Try to send the next bytes to the host, if DTR is set to not block serial reading in HID mode
 						// outside HID mode always write the byte (!ram.skipNHP) is only null outside hid mode
@@ -140,7 +136,7 @@ int main(void)
 					else
 						// main function to proceed HID input checks
 						checkNHPProtocol(LRingBuffer_Remove(&ram.USARTtoUSB_Buffer));
-					
+
 				}
 			}
 		}
@@ -156,15 +152,18 @@ int main(void)
 			// if reading has timed out write the buffers down the serial
 			if (ram.PulseMSRemaining.NHPTimeout && !(--ram.PulseMSRemaining.NHPTimeout)){
 				// write the rest of the cached NHP buffer down
-				ram.skipNHP += ram.NHP.readlength + ram.NHP.leadError;
 
 				// write started leads
-				if (ram.NHP.leadError)
+				if (ram.NHP.leadError){
 					LRingBuffer_Append(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer[ram.NHP.readlength]);
+					ram.skipNHP += ram.NHP.leadError;
+				}
 
 				// write buffer if it contains in progress reading data
-				if (!ram.NHP.reset)
+				if (!ram.NHP.reset){
 					LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer, ram.NHP.readlength);
+					ram.skipNHP += ram.NHP.readlength;
+				}
 
 				// reset variables
 				NHPreset(&ram.NHP);
