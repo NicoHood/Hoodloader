@@ -51,7 +51,7 @@ typedef struct{
 	// if baud == AVRISP_BAUD AVRISP mode
 	struct{
 		int error; //TODO improve types
-		int pmode;
+		bool pmode;
 		int _addr; // here
 		struct{
 			int pagesize;

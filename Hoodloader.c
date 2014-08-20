@@ -98,7 +98,7 @@ int main(void)
 		{
 			/*if (BufferCount>1) //TODO remove
 				LEDs_TurnOnLEDs(LEDMASK_RX);
-			else
+				else
 				LEDs_TurnOffLEDs(LEDMASK_RX);*/
 
 			// Turn on TX LED
@@ -147,22 +147,37 @@ int main(void)
 			// if reading has timed out write the buffers down the serial
 			if (ram.PulseMSRemaining.NHPTimeout && !(--ram.PulseMSRemaining.NHPTimeout)){
 				//TODO check if in hid mode <--
+				// only write buffer if not in pmode (overwrites NHP values)
+				if (!ram.isp.pmode){
 					// check if previous reading was a valid Control Address and write it down
 					checkNHPControlAddressError();
 
 					// write the rest of the cached NHP buffer down
-					uint8_t start = 0;
-					uint8_t length = 0;
-					// only write buffer if its new
-					if (ram.NHP.reset) start += ram.NHP.readlength;
-					else length += ram.NHP.readlength;
-					// also write started leads
-					if (ram.NHP.leadError) length++;
+					uint8_t start;
+					uint8_t length;
+
+					// write buffer if it contains in progress reading data
+					if (!ram.NHP.reset){
+						start = 0;
+						length = ram.NHP.readlength;
+					}
+					// write started leads
+					else if (ram.NHP.leadError){
+						start = ram.NHP.readlength;
+						length = 1;
+					}
+					else{
+						start = 0; // not needed
+						length = 0;
+					}
+
 					if (length) // just to be sure <--
 						writeToCDC(&ram.NHP.readbuffer[start], length);
+
 					// reset variables
 					ram.NHP.reset = true;
 					ram.NHP.leadError = false;
+				}
 			}
 
 			// Turn off TX LED(s) once the TX pulse period has elapsed

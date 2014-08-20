@@ -38,29 +38,26 @@ NHP_Enum_t NHPreadChecksum(uint8_t input, NHP_Data_t* protocol){
 }
 
 NHP_Enum_t NHPread(uint8_t input, NHP_Data_t* protocol){
-	// completely reset the protocol after sucessfull reading/error last time
-	if (protocol->reset || protocol->leadError){
-		protocol->mBlocks = 0;
-		// check if previous reading had a lead error, copy that lead byte to the beginning
-		if (protocol->leadError){
-			protocol->readbuffer[0] = protocol->readbuffer[protocol->readlength];
-			protocol->readlength = 1;
-		}
-		else
-			protocol->readlength = 0;
-	}
+	// check if previous reading had a lead error, copy that lead byte to the beginning
+	if (protocol->leadError){
+		protocol->readbuffer[0] = protocol->readbuffer[protocol->readlength];
+		protocol->readlength = 1;
 
-	// reset leadError indicator every time
-	protocol->leadError = false;
-	protocol->reset = false;
+		// reset leadError indicator
+		protocol->leadError = false;
+	}
+	// completely reset the protocol after sucessfull reading/error last time
+	else if (protocol->reset){
+		protocol->mBlocks = 0;
+		protocol->readlength = 0;
+	}
 
 	//write input to the buffer
 	protocol->readbuffer[protocol->readlength++] = input;
 
-	// create errorLevel that will be returned (contain errors or address)
-	NHP_Enum_t errorLevel; //TODO initiaslze as no error?
-
-
+	// create errorLevel that will be returned (contains errors or address)
+	NHP_Enum_t errorLevel;
+	
 	// check the header(lead/data/end) indicator
 	switch (input & NHP_MASK_HEADER){
 
@@ -83,6 +80,10 @@ NHP_Enum_t NHPread(uint8_t input, NHP_Data_t* protocol){
 		if (blocks == 0 || blocks == 1){
 			// save command in data variable
 			//protocol->mWorkData = (input & NHP_MASK_COMMAND) + 1;
+
+			// ignore command
+			protocol->readlength += protocol->leadError;
+			protocol->leadError = false;
 
 			// return command indicator
 			errorLevel = NHP_COMMAND;
@@ -137,9 +138,12 @@ NHP_Enum_t NHPread(uint8_t input, NHP_Data_t* protocol){
 						 break;
 	} // end switch
 
-	// reset next reading on valid input/error/command, ignore in progress reading or lead error
-	if (errorLevel != NHP_NO_ERR && errorLevel != NHP_ERR_LEAD)
+	// reset next reading on valid input/error/command
+	if (errorLevel != NHP_NO_ERR)
 		protocol->reset = true;
+	// ignore in progress reading
+	else
+		protocol->reset = false;
 
 	// return the errors
 	return errorLevel;

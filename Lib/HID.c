@@ -230,20 +230,8 @@ void checkNHPProtocol(uint8_t input){
 		// check if previous reading was a valid Control Address and write it down
 		checkNHPControlAddressError();
 
-		// ignore command
-		uint8_t length = ram.NHP.readlength;
-		if (ram.NHP.leadError && address == NHP_COMMAND){
-			length ++;
-			ram.NHP.leadError = false;
-		}
-
-		// error while reading, write down current buffer
-		writeToCDC(ram.NHP.readbuffer, length);
-		//for (int i = 0; i < length; i++)
-		//	RingBuffer_Insert(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer[i]);
-
-		// reset buffer. Tell the timeout function that this part is written down
-		ram.NHP.reset = true;
+		// error while reading, write down current buffer (except possible new leads)
+		writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
 		return;
 	}
 

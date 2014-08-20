@@ -258,7 +258,7 @@ void start_pmode(void) {
 	DDRB &= ~(1 << AVR_MISO); // INPUT
 	DDRB |= (1 << AVR_MOSI); // OUTPUT
 	spi_transaction(0xAC, 0x53, 0x00, 0x00);
-	ram.isp.pmode = 1;
+	ram.isp.pmode = true;
 }
 
 void spi_init(void) {
@@ -394,7 +394,7 @@ void end_pmode(void) {
 
 	AVR_SPI_DDR &= ~(1 << AVR_SCK); // INPUT
 	AVR_SPI_DDR &= ~(1 << AVR_SS); // INPUT
-	ram.isp.pmode = 0;
+	ram.isp.pmode = false;
 
 	// enable Serial buffer again
 	if (!LRingBuffer_IsEnabled(&ram.USARTtoUSB_Buffer))

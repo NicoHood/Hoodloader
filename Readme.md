@@ -248,14 +248,21 @@ Ideas for the future:
 * Design new Arduino with I2C and SPI connection
 * Pmode timeout!
 * general timeout function for hid and other
-* Different h/c files for better overview!
 * remove older debug/TODO stuff
 * explain how it works better
 * deactivate HID for the first seconds? move the pin
 * release keys on reprogramming to not hold any key
 * 16u2 as arduino with special bootloader
 * add phone control/simulator control
+* Add more devices (even more?)
+* Add Midi (no more free Endpoints)
+* Add Led/SPI support (discarded, not needed, too slow)
+* Add HID rumble support (very hard)
+* Add Xbox Support (too hard)
+* Add Report Out function (for Keyboard Leds etc, maybe the 4 pin header?)
 * move SS to reset pin
+* fix nhp bug remove old flush functions
+* create tables for leonardo and uno/mega
 
 Version History
 ===============
