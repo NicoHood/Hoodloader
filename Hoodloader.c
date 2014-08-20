@@ -224,13 +224,12 @@ void SetupHardware(void)
 	AVR_RESET_LINE_PORT |= AVR_RESET_LINE_MASK;
 	AVR_RESET_LINE_DDR |= AVR_RESET_LINE_MASK;
 
-	// set hardware SS to output so we can use SPI master mode
-	AVR_SPI_DDR |= (1 << AVR_HARDWARE_SS);
+	// set hardware SS to input so we can use SPI slave mode
+	AVR_SPI_DDR &= ~(1 << AVR_HARDWARE_SS); // INPUT
 
-	// Hardwaresetup to turn off the HID function with shorting the MOSI pin with GND next to it
-	// do not short this pin in AVRISP mode!!!
-	AVR_NO_HID_DDR &= ~(1 << AVR_NO_HID); // INPUT
-	AVR_NO_HID_PORT |= (1 << AVR_NO_HID); // PULLUP
+	// Hardwaresetup to turn off the HID function with shorting the pin to GND
+	AVR_NO_HID_DDR &= ~AVR_NO_HID_MASK; // INPUT
+	AVR_NO_HID_PORT |= AVR_NO_HID_MASK; // PULLUP
 }
 
 //================================================================================

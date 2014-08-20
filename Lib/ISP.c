@@ -246,19 +246,50 @@ void start_pmode(void) {
 	// do not write into Serial buffer, we need this ram now
 	LRingBuffer_DisableBuffer(&ram.USARTtoUSB_Buffer);
 
+	// set hardware SS to output so we can use SPI master mode
+	AVR_SPI_DDR |= (1 << AVR_HARDWARE_SS);
+	AVR_SPI_PORT |= (1 << AVR_HARDWARE_SS);
+
 	spi_init();
+
 	// following delays may not work on all targets...
-	DDRB |= (1 << AVR_SS); // OUTPUT
-	PORTB |= (1 << AVR_SS); // HIGH
-	DDRB |= (1 << AVR_SCK); // OUTPUT
-	PORTB &= ~(1 << AVR_SCK); // LOW
+	AVR_SPI_DDR |= (1 << AVR_SS); // OUTPUT
+	AVR_SPI_PORT |= (1 << AVR_SS); // HIGH
+
+	AVR_SPI_DDR |= (1 << AVR_SCK); // OUTPUT
+	AVR_SPI_PORT &= ~(1 << AVR_SCK); // LOW
 	_delay_ms(50 + EXTRA_SPI_DELAY);
-	PORTB &= ~(1 << AVR_SS); // LOW
+
+	AVR_SPI_PORT &= ~(1 << AVR_SS); // LOW
+
 	_delay_ms(50 + EXTRA_SPI_DELAY); // extra delay added from adafruit <--
-	DDRB &= ~(1 << AVR_MISO); // INPUT
-	DDRB |= (1 << AVR_MOSI); // OUTPUT
+	AVR_SPI_DDR &= ~(1 << AVR_MISO); // INPUT
+	AVR_SPI_DDR |= (1 << AVR_MOSI); // OUTPUT
+
 	spi_transaction(0xAC, 0x53, 0x00, 0x00);
 	ram.isp.pmode = true;
+	return;
+}
+
+void end_pmode(void) {
+	AVR_SPI_DDR &= ~(1 << AVR_MISO); // INPUT
+	AVR_SPI_DDR &= ~(1 << AVR_MOSI); // INPUT
+	AVR_SPI_DDR &= ~(1 << AVR_SCK); // INPUT
+	AVR_SPI_DDR &= ~(1 << AVR_SS); // INPUT
+
+	// set hardware SS to input so we can use SPI slave mode
+	AVR_SPI_DDR &= ~(1 << AVR_HARDWARE_SS); // INPUT
+
+	ram.isp.pmode = false;
+
+	// enable Serial buffer again
+	if (!LRingBuffer_IsEnabled(&ram.USARTtoUSB_Buffer))
+		LRingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer);
+
+	// HID Setup
+	ram.NHP.reset = true;
+	ram.NHP.leadError = false;
+	ram.HID.ID = 0;
 }
 
 void spi_init(void) {
@@ -382,32 +413,6 @@ void read_signature(void) {
 	uint8_t low = spi_transaction(0x30, 0x00, 0x02, 0x00);
 	sendCDCbyte(low);
 	sendCDCbyte(STK_OK);
-}
-
-void end_pmode(void) {
-	AVR_SPI_DDR &= ~(1 << AVR_MISO); // INPUT
-	AVR_SPI_DDR &= ~(1 << AVR_MOSI); // INPUT
-
-	// Hardwaresetup to turn off the HID function with shorting the MOSI pin with GND next to it
-	// do not short this pin in AVRISP mode!!!
-	AVR_SPI_DDR |= (1 << AVR_MOSI); // PULLUP
-
-	AVR_SPI_DDR &= ~(1 << AVR_SCK); // INPUT
-	AVR_SPI_DDR &= ~(1 << AVR_SS); // INPUT
-	ram.isp.pmode = false;
-
-	// enable Serial buffer again
-	if (!LRingBuffer_IsEnabled(&ram.USARTtoUSB_Buffer))
-		LRingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer);
-
-	// HID Setup
-	ram.NHP.reset = true;
-	ram.NHP.leadError = false;
-	ram.HID.ID = 0;
-
-	//LEDs_TurnOnLEDs(LEDS_ALL_LEDS);
-	//_delay_ms(200);
-	//LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
 }
 
 void read_page(void) {

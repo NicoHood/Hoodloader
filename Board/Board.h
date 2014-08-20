@@ -70,12 +70,29 @@ extern "C" {
 #define AVR_NO_HID_PORT PORTB
 #define AVR_NO_HID_DDR DDRB
 #define AVR_NO_HID_PIN PINB
-#define AVR_NO_HID 2 // 2 == MOSI
+#define AVR_NO_HID 5
+#define AVR_NO_HID_MASK (1 << AVR_NO_HID)
 
 #define AVR_RESET_LINE_PORT PORTD
 #define AVR_RESET_LINE_DDR DDRD
 #define AVR_RESET_LINE_PIN PIND
 #define AVR_RESET_LINE_MASK (1 << 7)
+
+	// hardware configuration
+#define AVR_SPI_PIN PINB
+#define AVR_SPI_PORT PORTB
+#define AVR_SPI_DDR DDRB
+#define AVR_MOSI 2
+#define AVR_MISO 3
+#define AVR_SCK 1
+	// the "real" SS pin is not connected on a normal Arduino so we use another pin as SS.
+	// the hardware SS pin still needs to be in output mode to enable SPI master mode.
+	// SS is the pin thats close to the TX Led (bottom right)
+#define AVR_SS 4
+#define AVR_HARDWARE_SS 0
+
+#define LOW 0
+#define HIGH 1
 
 	/* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)

@@ -69,26 +69,10 @@ THE SOFTWARE.
 #define STK_READ_PAGE 0x74
 #define STK_READ_SIGN 0x75
 
-// hardware configuration
-#define AVR_SPI_PIN PINB
-#define AVR_SPI_PORT PORTB
-#define AVR_SPI_DDR DDRB
-#define AVR_MOSI 2
-#define AVR_MISO 3
-#define AVR_SCK 1
-// the "real" SS pin is not connected on a normal Arduino so we use another pin as SS.
-// the hardware SS pin still needs to be in output mode to enable SPI master mode.
-// SS is the pin thats close to the TX Led (bottom right)
-#define AVR_SS 4
-#define AVR_HARDWARE_SS 0
-
 #define AVRISP_BAUD 1
-
 #define LEDS_PMODE LEDS_LED1
 #define LEDS_ERR LEDS_LED2
 
-#define LOW 0
-#define HIGH 1
 
 void avrisp(int ReceivedByte);
 

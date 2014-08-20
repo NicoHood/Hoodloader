@@ -112,11 +112,12 @@ void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCI
 		// disable the buffer until pmode has started
 		LRingBuffer_DisableBuffer(&ram.USARTtoUSB_Buffer);
 	}
-	// enable Serial buffer again if needed (failed ISP or so)
-	else if (!LRingBuffer_IsEnabled(&ram.USARTtoUSB_Buffer))
-		LRingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer);
 
-}
+	// end pmode if needed and setup Serial + HID again (on errors)
+	if (ram.isp.pmode)
+		//TODO pmode break to get out of this loop
+		end_pmode();
+	}
 
 /** Event handler for the CDC Class driver Host-to-Device Line Encoding Changed event.
 *
