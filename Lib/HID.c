@@ -199,30 +199,6 @@ uint8_t getHIDReportLength(uint8_t ID){
 	return 0;
 }
 
-
-void writeToCDC(uint8_t buffer[], uint8_t length){
-	for (int i = 0; i < length; i++){
-		LRingBuffer_Append(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, buffer[length-i-1]);
-	}
-	ram.skipNHP = length;
-	return;
-
-
-	// TODO CDC task causes bug on slower pcs 1.6 - 1.7 <--
-	// refresh DTR state
-	//CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
-
-	// Check if a packet is already enqueued to the host - if so, we shouldn't try to send more data
-	// until it completes as there is a chance nothing is listening and a lengthy timeout could occur
-	Endpoint_SelectEndpoint(VirtualSerial_CDC_Interface.Config.DataINEndpoint.Address);
-	while (!Endpoint_IsINReady());
-
-	// Try to send the next bytes to the host, abort if DTR isnt set to not block serial reading
-	bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
-	if (CurrentDTRState)
-		CDC_Device_SendData(&VirtualSerial_CDC_Interface, buffer, length);
-}
-
 // Checks for a valid protocol input and writes HID report
 void checkNHPProtocol(uint8_t input){
 	// set new timeout mark
@@ -238,7 +214,8 @@ void checkNHPProtocol(uint8_t input){
 		checkNHPControlAddressError();
 
 		// error while reading, write down current buffer (except possible new leads)
-		writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
+		LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, ram.NHP.readbuffer, ram.NHP.readlength);
+		ram.skipNHP += ram.NHP.readlength;
 		return;
 	}
 
@@ -295,7 +272,8 @@ void checkNHPProtocol(uint8_t input){
 		checkNHPControlAddressError();
 
 		// just a normal Protocol outside our control address (or corrupted packet), write it down
-		writeToCDC(ram.NHP.readbuffer, ram.NHP.readlength);
+		LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, ram.NHP.readbuffer, ram.NHP.readlength);
+		ram.skipNHP += ram.NHP.readlength;
 	}
 }
 
@@ -309,12 +287,14 @@ void checkNHPControlAddressError(void){
 		uint8_t length = NHPwriteChecksum(NHP_ADDRESS_CONTROL, (NHP_USAGE_ARDUINOHID << 8) | ram.HID.ID, buff);
 
 		// Writes the NHP read buffer with the given length
-		// If host is not listening it will discard all bytes to not block any HID reading
-		writeToCDC(buff, length);
+		LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, buff, length);
+		ram.skipNHP += length;
 	}
-	// bug in 1.6 - 1.7.2 found
-	flushHID();
 
+	HIDreset();
+}
+
+void HIDreset(void){
 	// reset any pending HID reports
 	ram.HID.ID = 0;
 	ram.HID.recvlength = 0; // just to be sure

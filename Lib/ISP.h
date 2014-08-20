@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include "Metainclude.h"
 #include "Lib/Ram.h"
 #include "Lib/CDC.h"
+#include "Lib/HID.h"
 #include "Descriptors.h"
 
 //================================================================================
@@ -73,7 +74,7 @@ THE SOFTWARE.
 #define LEDS_PMODE LEDS_LED1
 #define LEDS_ERR LEDS_LED2
 
-
+void avrispReset(void);
 void avrisp(int ReceivedByte);
 
 void sendCDCbyte(uint8_t b);

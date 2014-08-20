@@ -107,10 +107,11 @@ void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCI
 
 	// configure Serial with HID baud to work after reprogramming
 	if (CDCInterfaceInfo->State.LineEncoding.BaudRateBPS == AVRISP_BAUD){
-		Serial_Init(115200, true);
-		SerialInitHID();
+				SerialInitHID();
 		// disable the buffer until pmode has started
 		LRingBuffer_DisableBuffer(&ram.USARTtoUSB_Buffer);
+
+		avrispReset();
 	}
 
 	// end pmode if needed and setup Serial + HID again (on errors)
@@ -138,6 +139,8 @@ void EVENT_CDC_Device_ControLineStateChanged(USB_ClassInfo_CDC_Device_t* const C
 
 // change Serial baud to 115200 for HID
 void SerialInitHID(void){
+	Serial_Init(115200, true);
+
 	/* Must turn off USART before reconfiguring it, otherwise incorrect operation may occur */
 	// Added for correct Serial connection at baud 115200 <--
 	// TODO PD3 ??

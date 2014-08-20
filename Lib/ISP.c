@@ -28,6 +28,13 @@ THE SOFTWARE.
 // AVRISP
 //================================================================================
 
+void avrispReset(void){
+	ram.isp.error = 0;
+	ram.isp.pmode = false;
+	ram.isp._addr = 0; // just to be sure
+}
+
+
 void avrisp(int ReceivedByte){
 	// is pmode active?
 	if (ram.isp.pmode) LEDs_TurnOnLEDs(LEDS_PMODE);
@@ -287,9 +294,7 @@ void end_pmode(void) {
 		LRingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer);
 
 	// HID Setup
-	ram.NHP.reset = true;
-	ram.NHP.leadError = false;
-	ram.HID.ID = 0;
+	HIDreset();
 }
 
 void spi_init(void) {

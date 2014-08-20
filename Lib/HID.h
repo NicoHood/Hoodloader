@@ -60,8 +60,7 @@ uint8_t getHIDReportLength(uint8_t ID);
 void flushHID(void);
 void checkNHPProtocol(uint8_t input);
 void checkNHPControlAddressError(void);
-
-void writeToCDC(uint8_t buffer[], uint8_t length);
+void HIDreset(void);
 
 #endif
 

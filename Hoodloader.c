@@ -51,12 +51,10 @@ int main(void)
 	LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
 
 	// HID Setup
-	ram.HID.ID = 0;
+	HIDreset();
 
 	// AVR ISP Setup
-	ram.isp.error = 0;
-	ram.isp.pmode = 0;
-	ram.isp._addr = 0; // just to be sure
+	avrispReset();
 
 	SetupHardware();
 
@@ -98,11 +96,6 @@ int main(void)
 		uint16_t BufferCount = LRingBuffer_GetCount(&ram.USARTtoUSB_Buffer);
 		if (BufferCount)
 		{
-			/*if (BufferCount>1) //TODO remove
-				LEDs_TurnOnLEDs(LEDMASK_RX);
-				else
-				LEDs_TurnOffLEDs(LEDMASK_RX);*/
-
 			// Turn on TX LED
 			LEDs_TurnOnLEDs(LEDMASK_TX);
 			ram.PulseMSRemaining.TxLEDPulse = TX_RX_LED_PULSE_MS;
@@ -120,29 +113,33 @@ int main(void)
 				/// Read bytes from the USART receive buffer into the USB IN endpoint */
 				while (BytesToSend--)
 				{
-					//uint8_t k = LRingBuffer_Remove(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data);
-					//LRingBuffer_Append(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, k);
+					// ignoe HID check if: we need to write a pending NHP buff, its deactivated or not the right baud
+					uint32_t baud = VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS;
+					if (ram.skipNHP || (baud != AVRISP_BAUD && baud != 0 && baud != 115200) || (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK))){
 
-					if (ram.skipNHP){
+						// Try to send the next bytes to the host, if DTR is set to not block serial reading in HID mode
+						// outside HID mode always write the byte
 						bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
-						if (CurrentDTRState)
-						// Try to send the next byte of data to the host, abort if there is an error without dequeuing
-						if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
-							LRingBuffer_Peek(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data)) != ENDPOINT_READYWAIT_NoError)
-						{
-							break;
+						if (CurrentDTRState || !ram.skipNHP){
+
+							// Try to send the next byte of data to the host, abort if there is an error without dequeuing
+							if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
+								LRingBuffer_Peek(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data)) != ENDPOINT_READYWAIT_NoError)
+							{
+								break;
+							}
 						}
 						// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
 						LRingBuffer_Remove(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data);
-						ram.skipNHP--;
-					}
-					else{
-						// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
-						uint8_t b = LRingBuffer_Remove(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data);
 
-						// main function to proceed HID input checks
-						checkNHPProtocol(b);
+						// Dequeue the NHP buffer byte
+						if (ram.skipNHP)
+							ram.skipNHP--;
 					}
+					else
+						// main function to proceed HID input checks
+						checkNHPProtocol(LRingBuffer_Remove(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data));
+					
 				}
 			}
 		}
@@ -157,39 +154,23 @@ int main(void)
 
 			// if reading has timed out write the buffers down the serial
 			if (ram.PulseMSRemaining.NHPTimeout && !(--ram.PulseMSRemaining.NHPTimeout)){
-				//TODO check if in hid mode <--
-				// only write buffer if not in pmode (overwrites NHP values)
-				if (!ram.isp.pmode){
-					// check if previous reading was a valid Control Address and write it down
-					checkNHPControlAddressError();
+				// write the rest of the cached NHP buffer down
+				ram.skipNHP += ram.NHP.readlength + ram.NHP.leadError;
 
-					// write the rest of the cached NHP buffer down
-					uint8_t start;
-					uint8_t length;
+				// write started leads
+				if (ram.NHP.leadError)
+					LRingBuffer_Append(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, ram.NHP.readbuffer[ram.NHP.readlength]);
 
-					// write buffer if it contains in progress reading data
-					if (!ram.NHP.reset){
-						start = 0;
-						length = ram.NHP.readlength;
-					}
-					// write started leads
-					else if (ram.NHP.leadError){
-						start = ram.NHP.readlength;
-						length = 1;
-					}
-					else{
-						start = 0; // not needed
-						length = 0;
-					}
+				// write buffer if it contains in progress reading data
+				if (!ram.NHP.reset)
+					LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, ram.NHP.readbuffer, ram.NHP.readlength);
 
-					if (length) // just to be sure <--
-						writeToCDC(&ram.NHP.readbuffer[start], length);
+				// reset variables
+				NHPreset(&ram.NHP);
 
-					//ram.skipNHP = ram.NHP.readlength + ram.NHP.leadError;
-
-					// reset variables
-					NHPreset(&ram.NHP);
-				}
+				// check if previous reading was a valid Control Address and write it down
+				// this needs to be appended after the normal protocol!
+				checkNHPControlAddressError();
 			}
 
 			// Turn off TX LED(s) once the TX pulse period has elapsed
@@ -222,8 +203,8 @@ void SetupHardware(void)
 	wdt_disable();
 
 	/* Hardware Initialization */
-	Serial_Init(115200, true);
 
+	// start Serial at HID baud to recognize new keypresses
 	SerialInitHID();
 
 	LEDs_Init();

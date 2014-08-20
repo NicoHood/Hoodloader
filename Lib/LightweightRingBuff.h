@@ -317,12 +317,24 @@ extern "C" {
 		if (Buffer->Count != LIGHTWEIGHT_RING_BUFFER_SIZE)
 			Buffer->Count++;
 
-		// cut off if its out of bounds
-		if (Buffer->Index == LIGHTWEIGHT_RING_BUFFER_SIZE)
-			Buffer->Index = 0;
-		//Buffer->Index &= (LIGHTWEIGHT_RING_BUFFER_SIZE - 1);
+		// move the index if its full
+		else {
+			if (Buffer->Index == 0)
+				Buffer->Index = LIGHTWEIGHT_RING_BUFFER_SIZE;
+			Buffer->Index--;
+		}
 
 		SetGlobalInterruptMask(CurrentGlobalInt);
+	}
+
+	static inline void LRingBuffer_Append_Buffer(LRingBuffer_t* Buffer, uint8_t* DataPtr,
+		const uint8_t* InBuff, const uint8_t InLength) ATTR_NON_NULL_PTR_ARG(1);
+	static inline void LRingBuffer_Append_Buffer(LRingBuffer_t* Buffer, uint8_t* DataPtr,
+		const uint8_t* InBuff, const uint8_t InLength)
+	{
+		// append all bytes, last byte first
+		for (int i = 0; i < InLength; i++)
+			LRingBuffer_Append(Buffer, DataPtr, InBuff[InLength - i - 1]);
 	}
 
 	/** Removes an element from the ring buffer.
