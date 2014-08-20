@@ -139,9 +139,6 @@ void clearHIDReport(uint8_t ID){
 	// RAW HID cannot be cleared
 	if (ID == HID_REPORTID_RawKeyboardReport) return;
 
-	// we have a pending HID report, flush it first
-	flushHID();
-
 	// get length of the report if its a valid report
 	uint8_t length = getHIDReportLength(ID);
 	if (!length) return;
@@ -214,13 +211,10 @@ void checkNHPProtocol(uint8_t input){
 		checkNHPControlAddressError();
 
 		// error while reading, write down current buffer (except possible new leads)
-		LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, ram.NHP.readbuffer, ram.NHP.readlength);
+		LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer, ram.NHP.readlength);
 		ram.skipNHP += ram.NHP.readlength;
 		return;
 	}
-
-	// we have a pending HID report, flush it first
-	flushHID();
 
 	// nearly the same priciple like the Protocol itself: check for control address
 	if ((address == NHP_ADDRESS_CONTROL) && (((ram.NHP.mWorkData >> 8) & 0xFF) == NHP_USAGE_ARDUINOHID)){
@@ -272,7 +266,7 @@ void checkNHPProtocol(uint8_t input){
 		checkNHPControlAddressError();
 
 		// just a normal Protocol outside our control address (or corrupted packet), write it down
-		LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, ram.NHP.readbuffer, ram.NHP.readlength);
+		LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer, ram.NHP.readlength);
 		ram.skipNHP += ram.NHP.readlength;
 	}
 }
@@ -287,7 +281,7 @@ void checkNHPControlAddressError(void){
 		uint8_t length = NHPwriteChecksum(NHP_ADDRESS_CONTROL, (NHP_USAGE_ARDUINOHID << 8) | ram.HID.ID, buff);
 
 		// Writes the NHP read buffer with the given length
-		LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, buff, length);
+		LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, buff, length);
 		ram.skipNHP += length;
 	}
 

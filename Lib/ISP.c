@@ -291,7 +291,7 @@ void end_pmode(void) {
 
 	// enable Serial buffer again
 	if (!LRingBuffer_IsEnabled(&ram.USARTtoUSB_Buffer))
-		LRingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer);
+		LRingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, sizeof(ram.USARTtoUSB_Buffer_Data));
 
 	// HID Setup
 	HIDreset();

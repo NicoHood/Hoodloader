@@ -241,30 +241,27 @@ Using the Hoodloader on a 8u2 you need to use the Lite Version and DFU wont work
 
 Feel free to open an Issue on Github if you find a bug. Or message me via my [blog](http://nicohood.wordpress.com/)!
 
-Ideas for the future:
+Ideas for the future (Todo list):
 =====================
-* bug: programmed via ISP, then use HID wont work. -> dont block serial 100%, just dont use a ringbuffer??
 * Save if HID report!=0 and release after every restart
 * Design new Arduino with I2C and SPI connection
 * Pmode timeout!
 * general timeout function for hid and other
 * remove older debug/TODO stuff
 * explain how it works better
-* deactivate HID for the first seconds? move the pin
 * release keys on reprogramming to not hold any key
-* 16u2 as arduino with special bootloader
-* add phone control/simulator control
+* Add phone control/flight simulator control (anyone who needs it?)
 * Add more devices (even more?)
 * Add Midi (no more free Endpoints)
 * Add Led/SPI support (discarded, not needed, too slow)
 * Add HID rumble support (very hard)
 * Add Xbox Support (too hard)
 * Add Report Out function (for Keyboard Leds etc, maybe the 4 pin header?)
-* move SS to reset pin
-* fix nhp bug remove old flush functions
+* remove old flush functions
 * create tables for leonardo and uno/mega
 * SPI HID input?
 * fix programmers.txt installation
+* get Raw HID working
 
 Version History
 ===============
@@ -273,10 +270,10 @@ Version History
 * Fixed programming bug in slow PCs (1.6 - 1.7.3)
 * Cutted huge main file into libraries
 * Improved ram usage
-* Fixed a bug in Serial Buffer + rewrote the whole lib
+* Fixed a bug in Serial Buffer + rewrote the lib with new functions
 * Separated NHP from ram
-* HID working after ISP
-* removed deactivation function due to ISP mode
+* HID working after ISP programming
+* moved HID deactivation function to PB5 (next to AREF PIN)
 
 1.7.3 Beta Release (10.08.2014)
 * Fixed HID flush bug (1.6 - 1.7.2)

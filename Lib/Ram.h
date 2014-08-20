@@ -48,7 +48,7 @@ typedef struct{
 	// Circular buffer to hold data from the serial port before it is sent to the host.
 	LRingBuffer_t USARTtoUSB_Buffer;
 
-	uint8_t skipNHP;
+	uint8_t skipNHP; // up to 12 bytes (address error + nhp error)
 
 	// if baud == AVRISP_BAUD AVRISP mode
 	struct{

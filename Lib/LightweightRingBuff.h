@@ -114,9 +114,10 @@ extern "C" {
 	 */
 	typedef struct
 	{
-		uint8_t Index; // 0-127 Current storage location in the circular buffer.
-		uint8_t Enabled; // true / false
-		uint8_t Count; // range: 0 - LIGHTWEIGHT_RING_BUFFER_SIZE
+		uint8_t* Base; // Pointer to the first address of the buffer
+		uint8_t Index; // Current storage location in the circular buffer.
+		uint8_t Size;  // Size of the buffer's underlying storage array
+		uint8_t Count; // Number of bytes currently stored in the buffer
 	} LRingBuffer_t;
 
 
@@ -129,16 +130,19 @@ extern "C" {
 	 *  \param[out] DataPtr  Pointer to a global array that will hold the data stored into the ring buffer.
 	 *  \param[out] Size     Maximum number of bytes that can be stored in the underlying data array.
 	 */
-	static inline void LRingBuffer_InitBuffer(LRingBuffer_t* Buffer) ATTR_NON_NULL_PTR_ARG(1);
-	static inline void LRingBuffer_InitBuffer(LRingBuffer_t* Buffer)
+	static inline void LRingBuffer_InitBuffer(LRingBuffer_t* Buffer,
+		uint8_t* const DataPtr, const uint8_t Size) ATTR_NON_NULL_PTR_ARG(1) ATTR_NON_NULL_PTR_ARG(2);
+	static inline void LRingBuffer_InitBuffer(LRingBuffer_t* Buffer,
+		uint8_t* const DataPtr, const uint8_t Size)
 	{
 		GCC_FORCE_POINTER_ACCESS(Buffer);
 
 		uint_reg_t CurrentGlobalInt = GetGlobalInterruptMask();
 		GlobalInterruptDisable();
 
+		Buffer->Base = DataPtr;
 		Buffer->Index = 0;
-		Buffer->Enabled = true;
+		Buffer->Size = Size;
 		Buffer->Count = 0;
 
 		SetGlobalInterruptMask(CurrentGlobalInt);
@@ -152,8 +156,9 @@ extern "C" {
 		uint_reg_t CurrentGlobalInt = GetGlobalInterruptMask();
 		GlobalInterruptDisable();
 
+		Buffer->Base = NULL;
 		Buffer->Index = 0;
-		Buffer->Enabled = false;
+		Buffer->Size = 0;
 		Buffer->Count = 0;
 
 		SetGlobalInterruptMask(CurrentGlobalInt);
@@ -167,7 +172,11 @@ extern "C" {
 		uint_reg_t CurrentGlobalInt = GetGlobalInterruptMask();
 		GlobalInterruptDisable();
 
-		state = Buffer->Enabled;
+		// check if Base points to a buffer
+		if (Buffer->Base == NULL)
+			state = false;
+		else
+			state = true;
 
 		SetGlobalInterruptMask(CurrentGlobalInt);
 
@@ -196,10 +205,11 @@ extern "C" {
 		uint_reg_t CurrentGlobalInt = GetGlobalInterruptMask();
 		GlobalInterruptDisable();
 
-		if (!Buffer->Enabled)
-			Count = 0;
-		else
+		// only return a count if Buffer is enabled
+		if (Buffer->Base)
 			Count = Buffer->Count;
+		else
+			Count = 0;
 
 		SetGlobalInterruptMask(CurrentGlobalInt);
 		return Count;
@@ -265,10 +275,8 @@ extern "C" {
 	 *  \param[in,out] Buffer  Pointer to a ring buffer structure to insert into.
 	 *  \param[in]     Data    Data element to insert into the buffer.
 	 */
-	static inline void LRingBuffer_Insert(LRingBuffer_t* Buffer, uint8_t* DataPtr,
-		const uint8_t Data) ATTR_NON_NULL_PTR_ARG(1);
-	static inline void LRingBuffer_Insert(LRingBuffer_t* Buffer, uint8_t* DataPtr,
-		const uint8_t Data)
+	static inline void LRingBuffer_Insert(LRingBuffer_t* Buffer, const uint8_t Data) ATTR_NON_NULL_PTR_ARG(1);
+	static inline void LRingBuffer_Insert(LRingBuffer_t* Buffer, const uint8_t Data)
 	{
 		GCC_FORCE_POINTER_ACCESS(Buffer);
 
@@ -276,27 +284,23 @@ extern "C" {
 		GlobalInterruptDisable();
 
 		// check if buffer is disabled or already full
-		if ((!Buffer->Enabled) || (Buffer->Count == LIGHTWEIGHT_RING_BUFFER_SIZE)){
+		if ((Buffer->Base == NULL) || (Buffer->Count == Buffer->Size)){
 			SetGlobalInterruptMask(CurrentGlobalInt);
 			return;
 		}
 
-		// save new data
-		DataPtr[Buffer->Index++] = Data;
-		Buffer->Count++;
-
-		// cut off if its out of bounds
-		if (Buffer->Index == LIGHTWEIGHT_RING_BUFFER_SIZE)
+		// save new data to the current index and return to its beginning if it reaches the bound
+		Buffer->Base[Buffer->Index++] = Data;
+		if (Buffer->Index == Buffer->Size)
 			Buffer->Index = 0;
-		//Buffer->Index &= (LIGHTWEIGHT_RING_BUFFER_SIZE - 1);
+
+		Buffer->Count++;
 
 		SetGlobalInterruptMask(CurrentGlobalInt);
 	}
 
-	static inline void LRingBuffer_Append(LRingBuffer_t* Buffer, uint8_t* DataPtr,
-		const uint8_t Data) ATTR_NON_NULL_PTR_ARG(1);
-	static inline void LRingBuffer_Append(LRingBuffer_t* Buffer, uint8_t* DataPtr,
-		const uint8_t Data)
+	static inline void LRingBuffer_Append(LRingBuffer_t* Buffer, const uint8_t Data) ATTR_NON_NULL_PTR_ARG(1);
+	static inline void LRingBuffer_Append(LRingBuffer_t* Buffer, const uint8_t Data)
 	{
 		GCC_FORCE_POINTER_ACCESS(Buffer);
 
@@ -304,37 +308,37 @@ extern "C" {
 		GlobalInterruptDisable();
 
 		// check if buffer is disabled
-		if ((!Buffer->Enabled)){
+		if ((!Buffer->Base)){
 			SetGlobalInterruptMask(CurrentGlobalInt);
 			return;
 		}
 
-		// save new data to the first item
-		uint8_t pos = (Buffer->Index - Buffer->Count - 1)&(LIGHTWEIGHT_RING_BUFFER_SIZE - 1);
-		DataPtr[pos] = Data;
+		// save new data before the first item
+		int pos = Buffer->Index - Buffer->Count - 1;
+		if (pos < 0)
+			pos = Buffer->Size + pos;
+		Buffer->Base[pos] = Data;
 
-		// increase Counter if its not full. This will overwrite newer bytes if its already full!
-		if (Buffer->Count != LIGHTWEIGHT_RING_BUFFER_SIZE)
-			Buffer->Count++;
-
-		// move the index if its full
-		else {
+		// correct index position if its full 
+		if (Buffer->Count == Buffer->Size){
 			if (Buffer->Index == 0)
-				Buffer->Index = LIGHTWEIGHT_RING_BUFFER_SIZE;
+				Buffer->Index = Buffer->Size;
 			Buffer->Index--;
 		}
+		// increase Counter if its not full. This will overwrite newer bytes if its already full!
+		else Buffer->Count++;
 
 		SetGlobalInterruptMask(CurrentGlobalInt);
 	}
 
-	static inline void LRingBuffer_Append_Buffer(LRingBuffer_t* Buffer, uint8_t* DataPtr,
-		const uint8_t* InBuff, const uint8_t InLength) ATTR_NON_NULL_PTR_ARG(1);
-	static inline void LRingBuffer_Append_Buffer(LRingBuffer_t* Buffer, uint8_t* DataPtr,
-		const uint8_t* InBuff, const uint8_t InLength)
+	static inline void LRingBuffer_Append_Buffer(LRingBuffer_t* Buffer,
+		uint8_t* const DataPtr, const uint8_t Size) ATTR_NON_NULL_PTR_ARG(1) ATTR_NON_NULL_PTR_ARG(2);
+	static inline void LRingBuffer_Append_Buffer(LRingBuffer_t* Buffer,
+		uint8_t* const DataPtr, const uint8_t Size)
 	{
 		// append all bytes, last byte first
-		for (int i = 0; i < InLength; i++)
-			LRingBuffer_Append(Buffer, DataPtr, InBuff[InLength - i - 1]);
+		for (int i = 0; i < Size; i++)
+			LRingBuffer_Append(Buffer, DataPtr[Size - i - 1]);
 	}
 
 	/** Removes an element from the ring buffer.
@@ -347,24 +351,28 @@ extern "C" {
 	 *
 	 *  \return Next data element stored in the buffer.
 	 */
-	static inline int LRingBuffer_Remove(LRingBuffer_t* Buffer, uint8_t* DataPtr) ATTR_NON_NULL_PTR_ARG(1);
-	static inline int LRingBuffer_Remove(LRingBuffer_t* Buffer, uint8_t* DataPtr)
+	static inline int LRingBuffer_Remove(LRingBuffer_t* Buffer) ATTR_NON_NULL_PTR_ARG(1);
+	static inline int LRingBuffer_Remove(LRingBuffer_t* Buffer)
 	{
 		GCC_FORCE_POINTER_ACCESS(Buffer);
+
+		uint8_t Data;
 
 		uint_reg_t CurrentGlobalInt = GetGlobalInterruptMask();
 		GlobalInterruptDisable();
 
 		// check if buffer is disabled or empty
-		if ((!Buffer->Enabled) || (Buffer->Count == 0)){
+		if ((Buffer->Base == NULL) || (Buffer->Count == 0)){
 			SetGlobalInterruptMask(CurrentGlobalInt);
 			return -1;
 		}
 
 		// get last item position
-		uint8_t pos = (Buffer->Index - Buffer->Count)&(LIGHTWEIGHT_RING_BUFFER_SIZE - 1);
+		int pos = Buffer->Index - Buffer->Count;
+		if (pos < 0)
+			pos = Buffer->Size + pos;
 
-		uint8_t Data = DataPtr[pos];
+		Data = Buffer->Base[pos];
 		Buffer->Count--;
 
 		SetGlobalInterruptMask(CurrentGlobalInt);
@@ -372,22 +380,26 @@ extern "C" {
 		return Data;
 	}
 
-	static inline int LRingBuffer_Peek_Pos(LRingBuffer_t* Buffer, uint8_t* const DataPtr, const uint8_t position) ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(1);
-	static inline int LRingBuffer_Peek_Pos(LRingBuffer_t* Buffer, uint8_t* const DataPtr, const uint8_t position)
+	static inline int LRingBuffer_Peek_Pos(LRingBuffer_t* Buffer, const uint8_t position) ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(1);
+	static inline int LRingBuffer_Peek_Pos(LRingBuffer_t* Buffer, const uint8_t position)
 	{
+		uint8_t Data;
+
 		uint_reg_t CurrentGlobalInt = GetGlobalInterruptMask();
 		GlobalInterruptDisable();
 
-		// check if buffer is disabled or empty
-		if ((!Buffer->Enabled) || (Buffer->Count == 0) || position > (Buffer->Count - 1)){
+		// check if buffer is disabled, empty, or not full enough
+		if ((Buffer->Base == NULL) || (Buffer->Count == 0) || position > (Buffer->Count - 1)){
 			SetGlobalInterruptMask(CurrentGlobalInt);
 			return -1;
 		}
 
 		// get last item position
-		uint8_t pos = (Buffer->Index - Buffer->Count + position)&(LIGHTWEIGHT_RING_BUFFER_SIZE - 1);
+		int pos = Buffer->Index - Buffer->Count + position;
+		if (pos < 0)
+			pos = Buffer->Size + pos;
 
-		uint8_t Data = DataPtr[pos];
+		Data = Buffer->Base[pos];
 
 		SetGlobalInterruptMask(CurrentGlobalInt);
 
@@ -400,10 +412,10 @@ extern "C" {
 	 *
 	 *  \return Next data element stored in the buffer.
 	 */
-	static inline int LRingBuffer_Peek(LRingBuffer_t* Buffer, uint8_t* const DataPtr) ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(1);
-	static inline int LRingBuffer_Peek(LRingBuffer_t* Buffer, uint8_t* const DataPtr)
+	static inline int LRingBuffer_Peek(LRingBuffer_t* Buffer) ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(1);
+	static inline int LRingBuffer_Peek(LRingBuffer_t* Buffer)
 	{
-		return LRingBuffer_Peek_Pos(Buffer, DataPtr, 0);
+		return LRingBuffer_Peek_Pos(Buffer, 0);
 	}
 
 	/* Disable C linkage for C++ Compilers: */

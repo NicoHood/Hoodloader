@@ -38,7 +38,7 @@ int main(void)
 	memset(&ram.HID.isEmpty, true, sizeof(ram.HID.isEmpty));
 
 	// Serial tx buffers Setup
-	LRingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer);
+	LRingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, sizeof(ram.USARTtoUSB_Buffer_Data));
 
 	//NHP setup
 	ram.skipNHP = 0;
@@ -118,19 +118,20 @@ int main(void)
 					if (ram.skipNHP || (baud != AVRISP_BAUD && baud != 0 && baud != 115200) || (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK))){
 
 						// Try to send the next bytes to the host, if DTR is set to not block serial reading in HID mode
-						// outside HID mode always write the byte
+						// outside HID mode always write the byte (!ram.skipNHP) is only null outside hid mode
+						// discard the byte if host is not connected (needed to get new HID bytes and empty buffer)
 						bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
 						if (CurrentDTRState || !ram.skipNHP){
 
 							// Try to send the next byte of data to the host, abort if there is an error without dequeuing
 							if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
-								LRingBuffer_Peek(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data)) != ENDPOINT_READYWAIT_NoError)
+								LRingBuffer_Peek(&ram.USARTtoUSB_Buffer)) != ENDPOINT_READYWAIT_NoError)
 							{
 								break;
 							}
 						}
 						// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
-						LRingBuffer_Remove(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data);
+						LRingBuffer_Remove(&ram.USARTtoUSB_Buffer);
 
 						// Dequeue the NHP buffer byte
 						if (ram.skipNHP)
@@ -138,7 +139,7 @@ int main(void)
 					}
 					else
 						// main function to proceed HID input checks
-						checkNHPProtocol(LRingBuffer_Remove(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data));
+						checkNHPProtocol(LRingBuffer_Remove(&ram.USARTtoUSB_Buffer));
 					
 				}
 			}
@@ -159,11 +160,11 @@ int main(void)
 
 				// write started leads
 				if (ram.NHP.leadError)
-					LRingBuffer_Append(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, ram.NHP.readbuffer[ram.NHP.readlength]);
+					LRingBuffer_Append(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer[ram.NHP.readlength]);
 
 				// write buffer if it contains in progress reading data
 				if (!ram.NHP.reset)
-					LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, ram.NHP.readbuffer, ram.NHP.readlength);
+					LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer, ram.NHP.readlength);
 
 				// reset variables
 				NHPreset(&ram.NHP);
@@ -265,7 +266,7 @@ ISR(USART1_RX_vect, ISR_BLOCK)
 
 	// save new byte to the buffer (automatically discards if its disabled or full)
 	if (USB_DeviceState == DEVICE_STATE_Configured)
-		LRingBuffer_Insert(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, ReceivedByte);
+		LRingBuffer_Insert(&ram.USARTtoUSB_Buffer, ReceivedByte);
 }
 
 /** Event handler for the library USB Control Request reception event. */
