@@ -98,7 +98,7 @@ extern "C" {
 #error Do not include this file directly. Include LUFA/Drivers/Board/Buttons.h instead.
 #endif
 
-#define BUTTONS_BUTTON1 (1<<5)
+#define BUTTONS_BUTTON1 (1<<2)
 
 	/* Pseudo-Functions for Doxygen: */
 	#if !defined(__DOXYGEN__)

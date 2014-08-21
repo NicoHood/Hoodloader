@@ -21,15 +21,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   8 .debug_abbrev 00002b24  00000000  00000000  0000c685  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_line   00004273  00000000  00000000  0000f1a9  2**0
+  9 .debug_line   000044f3  00000000  00000000  0000f1a9  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_frame  00000f40  00000000  00000000  0001341c  2**2
+ 10 .debug_frame  00000f40  00000000  00000000  0001369c  2**2
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_str    00003bac  00000000  00000000  0001435c  2**0
+ 11 .debug_str    00003c72  00000000  00000000  000145dc  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_loc    000068c3  00000000  00000000  00017f08  2**0
+ 12 .debug_loc    000068c3  00000000  00000000  0001824e  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_ranges 00000808  00000000  00000000  0001e7cb  2**0
+ 13 .debug_ranges 00000808  00000000  00000000  0001eb11  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -430,8 +430,8 @@ void USB_SetHIDReportItemInfo(uint8_t* ReportData,
      194:	8b b1       	in	r24, 0x0b	; 11
      196:	80 63       	ori	r24, 0x30	; 48
      198:	8b b9       	out	0x0b, r24	; 11
-     19a:	25 98       	cbi	0x04, 5	; 4
-     19c:	2d 9a       	sbi	0x05, 5	; 5
+     19a:	22 98       	cbi	0x04, 2	; 4
+     19c:	2a 9a       	sbi	0x05, 2	; 5
      19e:	e3 c2       	rjmp	.+1478   	; 0x766 <USB_Init>
 
 000001a0 <main>:
@@ -499,7 +499,7 @@ void USB_SetHIDReportItemInfo(uint8_t* ReportData,
 000001f4 <CALLBACK_HID_Device_CreateHIDReport>:
      1f4:	0f 93       	push	r16
      1f6:	1f 93       	push	r17
-     1f8:	1d 9b       	sbis	0x03, 5	; 3
+     1f8:	1a 9b       	sbis	0x03, 2	; 3
      1fa:	03 c0       	rjmp	.+6      	; 0x202 <CALLBACK_HID_Device_CreateHIDReport+0xe>
      1fc:	8b b1       	in	r24, 0x0b	; 11
      1fe:	8f 7c       	andi	r24, 0xCF	; 207
