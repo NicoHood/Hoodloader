@@ -161,7 +161,7 @@ void flushHID(void){
 
 uint8_t getHIDReportLength(uint8_t ID){
 	// Get the length of the report
-	switch (ram.HID.ID){
+	switch (ID){
 	case HID_REPORTID_MouseReport:
 		return sizeof(HID_MouseReport_Data_t);
 		break;
@@ -257,20 +257,18 @@ void checkNHPProtocol(uint8_t input){
 		// dont block here, we flush the report on the next reading if needed
 		if (ram.HID.length == ram.HID.recvlength)
 			flushHID();
-
-		// The Protocol received a valid signal with inverse checksum
-		// Do not write the buff in the loop above or below, filter it out
 	}
 
 	// we received a corrupt data packet
 	else{
-		// check if previous reading was a valid Control Address and write it down
-		// if not discard the bytes because we assume it is corrupted data
-		checkNHPControlAddressError();
-
 		// just a normal Protocol outside our control address (or corrupted packet), write it down
 		LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer, ram.NHP.readlength);
 		ram.skipNHP += ram.NHP.readlength;
+
+		// check if previous reading was a valid Control Address and write it down
+		// if not discard the bytes because we assume it is corrupted data
+		// this needs to be appended after the normal protocol!
+		checkNHPControlAddressError();
 	}
 }
 
@@ -288,7 +286,10 @@ void checkNHPControlAddressError(void){
 		ram.skipNHP += length;
 	}
 
-	HIDreset();
+	// reset any pending HID reports
+	ram.HID.ID = 0;
+	ram.HID.recvlength = 0; // just to be sure
+	ram.HID.length = 0; // just to be sure
 }
 
 void HIDreset(void){

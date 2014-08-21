@@ -250,6 +250,11 @@ void replyOK(void) {
 }
 
 void start_pmode(void) {
+	// TODO needed? <--
+	// clear all pending HID reports
+	//if (!ram.isp.pmode)
+	//clearHIDReports();
+
 	// do not write into Serial buffer, we need this ram now
 	LRingBuffer_DisableBuffer(&ram.USARTtoUSB_Buffer);
 

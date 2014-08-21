@@ -54,11 +54,10 @@ int main(void)
 
 	for (;;)
 	{
-		//clearHIDReports();
-		// clear HID reports if chip gets restarted
-		//TODO
-		//if (!(AVR_RESET_LINE_PIN & AVR_RESET_LINE_MASK))
-		//	clearHIDReports();
+		// TODO
+		// try to clear HID reports if HID is disabled by hardware
+		if (!ram.isp.pmode && (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK)))
+			clearHIDReports();
 
 		//================================================================================
 		// CDC: read in bytes from the CDC interface
@@ -109,9 +108,12 @@ int main(void)
 					// ignoe HID check if: we need to write a pending NHP buff, its deactivated or not the right baud
 					uint32_t baud = VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS;
 					if (ram.skipNHP || (baud != AVRISP_BAUD && baud != 0 && baud != 115200) || (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK))){
-						// set new timeout mark
+						// set new timeout mark <-- needed? TODO
 						if (ram.skipNHP)
 							ram.PulseMSRemaining.NHPTimeout = NHP_TIMEOUT_MS;
+						// if HID disabled try to clean reports if there are any
+						else
+							clearHIDReports();
 
 						// Try to send the next bytes to the host, if DTR is set to not block serial reading in HID mode
 						// outside HID mode always write the byte (!ram.skipNHP) is only null outside hid mode
@@ -153,7 +155,7 @@ int main(void)
 			if (ram.PulseMSRemaining.NHPTimeout && !(--ram.PulseMSRemaining.NHPTimeout)){
 				// write the rest of the cached NHP buffer down
 
-				// write started leads
+				// write started lead
 				if (ram.NHP.leadError){
 					LRingBuffer_Append(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer[ram.NHP.readlength]);
 					ram.skipNHP += ram.NHP.leadError;

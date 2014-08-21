@@ -107,7 +107,7 @@ void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCI
 
 	// configure Serial with HID baud to work after reprogramming
 	if (CDCInterfaceInfo->State.LineEncoding.BaudRateBPS == AVRISP_BAUD){
-				SerialInitHID();
+		SerialInitHID();
 		// disable the buffer until pmode has started
 		LRingBuffer_DisableBuffer(&ram.USARTtoUSB_Buffer);
 
@@ -118,7 +118,10 @@ void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCI
 	if (ram.isp.pmode)
 		//TODO pmode break to get out of this loop
 		end_pmode();
-	}
+	// clear HID reports if chip gets restarted
+	else
+	clearHIDReports();
+}
 
 /** Event handler for the CDC Class driver Host-to-Device Line Encoding Changed event.
 *
@@ -135,6 +138,10 @@ void EVENT_CDC_Device_ControLineStateChanged(USB_ClassInfo_CDC_Device_t* const C
 		AVR_RESET_LINE_PORT |= AVR_RESET_LINE_MASK;
 		LEDs_SetAllLEDs(LEDS_NO_LEDS); //<--new
 	}
+	// TODO needed? <--
+	// clear all pending HID reports
+	//if (!ram.isp.pmode)
+	//clearHIDReports();
 }
 
 // change Serial baud to 115200 for HID
