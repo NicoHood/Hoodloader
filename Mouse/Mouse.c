@@ -1,10 +1,10 @@
 /*
-             LUFA Library
-     Copyright (C) Dean Camera, 2014.
+			 LUFA Library
+			 Copyright (C) Dean Camera, 2014.
 
-  dean [at] fourwalledcubicle [dot] com
-           www.lufa-lib.org
-*/
+			 dean [at] fourwalledcubicle [dot] com
+			 www.lufa-lib.org
+			 */
 
 /*
   Copyright 2014  Dean Camera (dean [at] fourwalledcubicle [dot] com)
@@ -26,7 +26,7 @@
   in an action of contract, negligence or other tortious action,
   arising out of or in connection with the use or performance of
   this software.
-*/
+  */
 
 /** \file
  *
@@ -44,20 +44,20 @@ static uint8_t PrevMouseHIDReportBuffer[sizeof(USB_MouseReport_Data_t)];
  *  within a device can be differentiated from one another.
  */
 USB_ClassInfo_HID_Device_t Mouse_HID_Interface =
+{
+	.Config =
 	{
-		.Config =
-			{
-				.InterfaceNumber              = INTERFACE_ID_Mouse,
-				.ReportINEndpoint             =
-					{
-						.Address              = MOUSE_EPADDR,
-						.Size                 = MOUSE_EPSIZE,
-						.Banks                = 1,
-					},
-				.PrevReportINBuffer           = PrevMouseHIDReportBuffer,
-				.PrevReportINBufferSize       = sizeof(PrevMouseHIDReportBuffer),
-			},
-	};
+		.InterfaceNumber = INTERFACE_ID_Mouse,
+		.ReportINEndpoint =
+		{
+			.Address = MOUSE_EPADDR,
+			.Size = MOUSE_EPSIZE,
+			.Banks = 1,
+		},
+		.PrevReportINBuffer = PrevMouseHIDReportBuffer,
+		.PrevReportINBufferSize = sizeof(PrevMouseHIDReportBuffer),
+	},
+};
 
 
 /** Main program entry point. This routine contains the overall program flow, including initial
@@ -153,14 +153,14 @@ void EVENT_USB_Device_StartOfFrame(void)
  *  \return Boolean \c true to force the sending of the report, \c false to let the library determine if it needs to be sent
  */
 bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
-                                         uint8_t* const ReportID,
-                                         const uint8_t ReportType,
-                                         void* ReportData,
-                                         uint16_t* const ReportSize)
+	uint8_t* const ReportID,
+	const uint8_t ReportType,
+	void* ReportData,
+	uint16_t* const ReportSize)
 {
 	USB_MouseReport_Data_t* MouseReport = (USB_MouseReport_Data_t*)ReportData;
 
-	uint8_t JoyStatus_LCL    = Joystick_GetStatus();
+	uint8_t JoyStatus_LCL = Joystick_GetStatus();
 	uint8_t ButtonStatus_LCL = Buttons_GetStatus();
 
 	//if (JoyStatus_LCL & JOY_UP)
@@ -180,13 +180,13 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 
 	if (ButtonStatus_LCL & BUTTONS_BUTTON1){
 
-LEDs_TurnOnLEDs(LEDS_ALL_LEDS);
+		LEDs_TurnOnLEDs(LEDS_ALL_LEDS);
 	}
 	else{
 		MouseReport->Button |= (1 << 0);
-LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
+		LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
 	}
-		
+	*ReportID = HID_REPORTID_MouseReport;
 
 	*ReportSize = sizeof(USB_MouseReport_Data_t);
 	return true;
@@ -201,10 +201,10 @@ LEDs_TurnOffLEDs(LEDS_ALL_LEDS);
  *  \param[in] ReportSize  Size in bytes of the received HID report
  */
 void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
-                                          const uint8_t ReportID,
-                                          const uint8_t ReportType,
-                                          const void* ReportData,
-                                          const uint16_t ReportSize)
+	const uint8_t ReportID,
+	const uint8_t ReportType,
+	const void* ReportData,
+	const uint16_t ReportSize)
 {
 	// Unused (but mandatory for the HID class driver) in this demo, since there are no Host->Device reports
 }
