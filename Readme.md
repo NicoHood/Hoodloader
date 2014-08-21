@@ -268,6 +268,11 @@ Ideas for the future (Todo list):
 * compile for different drivers/ids
 * HID reset with/without theis empty?
 * Center gamepads with 0 to suit with clear reports
+* add clear reports command for hid begin
+* fix ubuntu bug
+* check nhp if everything is okay
+* new dfu loader to reset 16u2 easier
+* fix pc restart bug
 
 Version History
 ===============
@@ -281,6 +286,7 @@ Version History
 * HID working after ISP programming
 * moved HID deactivation function to PB5 (next to AREF PIN)
 * Fixed Gamepad 1+2 bug on Linux (has a weird button limit and works better as "joystick" device)
+* Added automated clear report function on reset
 
 1.7.3 Beta Release (10.08.2014)
 * Fixed HID flush bug (1.6 - 1.7.2)

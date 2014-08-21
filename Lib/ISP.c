@@ -141,6 +141,7 @@ void avrisp(int ReceivedByte){
 }
 
 void sendCDCbyte(uint8_t b){
+	//TODO improve this
 	// try to send until sucess
 	while (CDC_Device_SendByte(&VirtualSerial_CDC_Interface, b) != ENDPOINT_READYWAIT_NoError){
 		CDC_Device_USBTask(&VirtualSerial_CDC_Interface);

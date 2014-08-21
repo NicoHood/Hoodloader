@@ -52,6 +52,13 @@ int main(void)
 
 	GlobalInterruptEnable();
 
+	//while (1){
+
+	//	CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
+	//	USB_USBTask();
+	//}
+
+
 	for (;;)
 	{
 		// TODO
@@ -119,7 +126,7 @@ int main(void)
 						// outside HID mode always write the byte (!ram.skipNHP) is only null outside hid mode
 						// discard the byte if host is not connected (needed to get new HID bytes and empty buffer)
 						bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
-						if (CurrentDTRState || !ram.skipNHP){
+						if (CurrentDTRState || (!ram.skipNHP)){
 
 							// Try to send the next byte of data to the host, abort if there is an error without dequeuing
 							if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
@@ -154,25 +161,27 @@ int main(void)
 			// if reading has timed out write the buffers down the serial
 			if (ram.PulseMSRemaining.NHPTimeout && !(--ram.PulseMSRemaining.NHPTimeout)){
 				// write the rest of the cached NHP buffer down
+				if (!ram.isp.pmode){
 
-				// write started lead
-				if (ram.NHP.leadError){
-					LRingBuffer_Append(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer[ram.NHP.readlength]);
-					ram.skipNHP += ram.NHP.leadError;
+					// write started lead
+					if (ram.NHP.leadError){
+						LRingBuffer_Append(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer[ram.NHP.readlength]);
+						ram.skipNHP += ram.NHP.leadError;
+					}
+
+					// write buffer if it contains in progress reading data
+					if (!ram.NHP.reset){
+						LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer, ram.NHP.readlength);
+						ram.skipNHP += ram.NHP.readlength;
+					}
+
+					// reset variables
+					NHPreset(&ram.NHP);
+
+					// check if previous reading was a valid Control Address and write it down
+					// this needs to be appended after the normal protocol!
+					checkNHPControlAddressError();
 				}
-
-				// write buffer if it contains in progress reading data
-				if (!ram.NHP.reset){
-					LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer, ram.NHP.readlength);
-					ram.skipNHP += ram.NHP.readlength;
-				}
-
-				// reset variables
-				NHPreset(&ram.NHP);
-
-				// check if previous reading was a valid Control Address and write it down
-				// this needs to be appended after the normal protocol!
-				checkNHPControlAddressError();
 			}
 
 			// Turn off TX LED(s) once the TX pulse period has elapsed
