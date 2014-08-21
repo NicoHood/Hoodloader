@@ -75,7 +75,7 @@ typedef struct{
 
 	union{
 		// isp data buffer
-		uint8_t ispBuffer[256];
+		uint8_t ispBuffer[258];
 
 		// normal mode if HID is on
 		struct{

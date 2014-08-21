@@ -94,22 +94,39 @@ int main(void)
 
 	for (;;)
 	{
+		// TODO
+		// try to clear HID reports if HID is disabled by hardware
+		if (!ram.isp.pmode && (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK)))
+			clearHIDReports();
+
 		//================================================================================
 		// CDC: read in bytes from the CDC interface
 		//================================================================================
 
 		int16_t ReceivedByte = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
 		if (!(ReceivedByte < 0)){
-			// Turn on RX LED
-			LEDs_TurnOnLEDs(LEDMASK_RX);
-			ram.PulseMSRemaining.RxLEDPulse = TX_RX_LED_PULSE_MS;
+			if (VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS == AVRISP_BAUD){
+#if (PRODUCTID != HOODLOADER_LITE_PID)
+				// only run this on a 16u2 with enough flash
+				// avrisp can disable the serial buffer to free programming byte information
+				avrisp(ReceivedByte);
+#endif
+			}
+			else{
+				// Turn on RX LED
+				LEDs_TurnOnLEDs(LEDMASK_RX);
+				ram.PulseMSRemaining.RxLEDPulse = TX_RX_LED_PULSE_MS;
 
-			// Send byte directly
-			Serial_SendByte(ReceivedByte);
+				// Send byte directly
+				Serial_SendByte(ReceivedByte);
+			}
 		}
 
 
 
+		//================================================================================
+		// Serial: read in bytes from the Serial buffer
+		//================================================================================
 		uint16_t BufferCount = LRingBuffer_GetCount(&ram.USARTtoUSB_Buffer);
 		if (BufferCount)
 		{
@@ -119,36 +136,94 @@ int main(void)
 
 			Endpoint_SelectEndpoint(VirtualSerial_CDC_Interface.Config.DataINEndpoint.Address);
 
-			/* Check if a packet is already enqueued to the host - if so, we shouldn't try to send more data
-			* until it completes as there is a chance nothing is listening and a lengthy timeout could occur */
+			// Check if a packet is already enqueued to the host - if so, we shouldn't try to send more data
+			// until it completes as there is a chance nothing is listening and a lengthy timeout could occur
 			if (Endpoint_IsINReady())
 			{
-				/* Never send more than one bank size less one byte to the host at a time, so that we don't block
-				* while a Zero Length Packet (ZLP) to terminate the transfer is sent if the host isn't listening */
+				// Never send more than one bank size less one byte to the host at a time, so that we don't block
+				// while a Zero Length Packet (ZLP) to terminate the transfer is sent if the host isn't listening
 				uint8_t BytesToSend = MIN(BufferCount, (CDC_TXRX_EPSIZE - 1));
 
-				/* Read bytes from the USART receive buffer into the USB IN endpoint */
+				/// Read bytes from the USART receive buffer into the USB IN endpoint */
 				while (BytesToSend--)
 				{
+					// ignoe HID check if: we need to write a pending NHP buff, its deactivated or not the right baud
+					uint32_t baud = VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS;
+					if (1 || ram.skipNHP || (baud != AVRISP_BAUD && baud != 0 && baud != 115200) || (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK))){
+						// set new timeout mark <-- needed? TODO
+						if (ram.skipNHP)
+							ram.PulseMSRemaining.NHPTimeout = NHP_TIMEOUT_MS;
+						// if HID disabled try to clean reports if there are any
+						else
+							clearHIDReports();
 
+						// Try to send the next bytes to the host, if DTR is set to not block serial reading in HID mode
+						// outside HID mode always write the byte (!ram.skipNHP) is only null outside hid mode
+						// discard the byte if host is not connected (needed to get new HID bytes and empty buffer)
+						bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
+						if (CurrentDTRState || (!ram.skipNHP)){
 
-					// Try to send the next byte of data to the host, abort if there is an error without dequeuing
-					if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
-						LRingBuffer_Peek(&ram.USARTtoUSB_Buffer)) != ENDPOINT_READYWAIT_NoError)
-					{
-						break;
+							// Try to send the next byte of data to the host, abort if there is an error without dequeuing
+							if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
+								LRingBuffer_Peek(&ram.USARTtoUSB_Buffer)) != ENDPOINT_READYWAIT_NoError)
+							{
+								break;
+							}
+						}
+						// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
+						LRingBuffer_Remove(&ram.USARTtoUSB_Buffer);
+
+						// Dequeue the NHP buffer byte
+						if (ram.skipNHP)
+							ram.skipNHP--;
 					}
-			
-				// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
-				LRingBuffer_Remove(&ram.USARTtoUSB_Buffer);
+					else{
+// main function to proceed HID input checks
+						 checkNHPProtocol(LRingBuffer_Remove(&ram.USARTtoUSB_Buffer));
+						//uint8_t b = LRingBuffer_Remove(&ram.USARTtoUSB_Buffer);
+						//LRingBuffer_Append(&ram.USARTtoUSB_Buffer, b);
+						//ram.skipNHP = 1;
+					}
+						
+
 				}
 			}
 		}
 
 
+		//================================================================================
+		// Timer: check if the led/timeout flush timer has expired
+		//================================================================================
+
 		if (TIFR0 & (1 << TOV0)){
 			// reset the timer
 			TIFR0 |= (1 << TOV0);
+
+			// if reading has timed out write the buffers down the serial
+			if (ram.PulseMSRemaining.NHPTimeout && !(--ram.PulseMSRemaining.NHPTimeout)){
+				// write the rest of the cached NHP buffer down
+				if (!ram.isp.pmode){
+
+					// write started lead
+					if (ram.NHP.leadError){
+						LRingBuffer_Append(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer[ram.NHP.readlength]);
+						ram.skipNHP += ram.NHP.leadError;
+					}
+
+					// write buffer if it contains in progress reading data
+					if (!ram.NHP.reset){
+						LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer, ram.NHP.readlength);
+						ram.skipNHP += ram.NHP.readlength;
+					}
+
+					// reset variables
+					NHPreset(&ram.NHP);
+
+					// check if previous reading was a valid Control Address and write it down
+					// this needs to be appended after the normal protocol!
+					checkNHPControlAddressError();
+				}
+			}
 
 			// Turn off TX LED(s) once the TX pulse period has elapsed
 			if (ram.PulseMSRemaining.TxLEDPulse && !(--ram.PulseMSRemaining.TxLEDPulse))
