@@ -45,7 +45,7 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] =
 #define HID_MOUSE_ENABLE 54
 #define HID_KEYBOARD_ENABLE 65
 #define HID_RAWKEYBOARD_ENABLE 30
-//#define HID_MEDIA_ENABLE 25
+#define HID_MEDIA_ENABLE 25
 #define HID_SYSTEM_ENABLE 24
 #define HID_GAMEPAD1_ENABLE 71
 #define HID_GAMEPAD2_ENABLE 71
@@ -152,19 +152,52 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] =
 	0xC0,									// end collection
 #endif
 
+	////Media Keys
+	//0x05, 0x0C, // usage page (consumer device)
+	//0x09, 0x01, // usage -- consumer control
+	//0xA1, 0x01, // collection (application)
+	//0x85, HID_REPORTID_MediaReport, // report id
+	//0x05, 0x0C, // usage page (consumer)
+	//0x19, 0x00, // usage minimum (0)
+	//0x2A, 0xFF, 0x03, //usage maximum (3ff)
+	//0x95, 0x01, //report count (1)
+	//0x75, 0x10, //report size (16)
+	//0x15, 0x00, //logical minimum
+	//0x27, 0xFF, 0x03, //logical maximum (3ff)
+	//0x00, 0x00,
+
+	//0x81, 0x00, //input
+	//0xC0,//end collection
+
+	//0x05, 0x0C, // Usage Page(Consumer Devices) 	05 0C
+	//0x09, 0x01, // Usage(Consumer Control) 	09 01
+	//0xA1, 0x01, // Collection(Application) 	A1 01
+	//0x85, 0x04, // Report ID(4) 	85 04
+	//0x15, 0x00, // Logical Minimum(0) 	15 00
+	//0x26, 0xFF, 0x03, // Logical Maximum(1023) 	26 FF 03
+	//0x19, 0x00, // Usage Minimum(Undefined) 	19 00
+	//0x2A, 0xFF, 0x03, // Usage Maximum 	2A FF 03
+	//0x75, 0x10, // Report Size(16) 	75 10
+	//0x95, 0x03, // Report Count(3) 	95 03
+	//0x81, 0x00, // Input(Data, Ary, Abs) 	81 00
+	//0xC0, // End Collection 	C0
+
 #ifdef HID_MEDIA_ENABLE
 	// Media
 	0x05, 0x0C,						// usage page (consumer device)
 	0x09, 0x01,						// usage -- consumer control
 	0xA1, 0x01,						// collection (application)
 	0x85, HID_REPORTID_MediaReport, // report id
+	//0x05, 0x0C, // usage page (consumer)
+
 	// 4 media Keys
 	0x15, 0x00,						//logical minimum
-	0x26, 0xFF, 0xFF,				//logical maximum (3ff)
+	0x26, 0xFF, 0x03,				//logical maximum (3ff)
 	0x19, 0x00,						// usage minimum (0)
-	0x2A, 0xFF, 0xFF,				//usage maximum (3ff)
+	0x2A, 0xFF, 0x03, //usage maximum (3ff)
 	0x95, 0x04,						//report count (4)
 	0x75, 0x10,						//report size (16)
+
 	0x81, 0x00,						//input
 	0xC0,							//end collection
 #endif

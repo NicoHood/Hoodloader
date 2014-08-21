@@ -273,6 +273,7 @@ Ideas for the future (Todo list):
 * check nhp if everything is okay
 * new dfu loader to reset 16u2 easier
 * fix pc restart bug
+* fix media keys
 
 Version History
 ===============
@@ -287,6 +288,7 @@ Version History
 * moved HID deactivation function to PB5 (next to AREF PIN)
 * Fixed Gamepad 1+2 bug on Linux (has a weird button limit and works better as "joystick" device)
 * Added automated clear report function on reset
+* Fixed Ubuntu HID problem (crashed with HID usage)
 
 1.7.3 Beta Release (10.08.2014)
 * Fixed HID flush bug (1.6 - 1.7.2)
