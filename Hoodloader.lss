@@ -21,15 +21,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   8 .debug_abbrev 00003c22  00000000  00000000  00013185  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_line   00005ab5  00000000  00000000  00016da7  2**0
+  9 .debug_line   000059da  00000000  00000000  00016da7  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_frame  000015d0  00000000  00000000  0001c85c  2**2
+ 10 .debug_frame  000015d0  00000000  00000000  0001c784  2**2
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_str    00004a38  00000000  00000000  0001de2c  2**0
+ 11 .debug_str    00004996  00000000  00000000  0001dd54  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_loc    000088a5  00000000  00000000  00022864  2**0
+ 12 .debug_loc    000088a5  00000000  00000000  000226ea  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_ranges 00000a68  00000000  00000000  0002b109  2**0
+ 13 .debug_ranges 00000a68  00000000  00000000  0002af8f  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -371,7 +371,7 @@ void USB_SetHIDReportItemInfo(uint8_t* ReportData,
 
 			default:
 				ReportItemData  = 0;
-     10e:	21 11 01 00 01 22 b8 01 07 05 81 03 20 00 01        !...."...... ..
+     10e:	21 11 01 00 01 22 b8 01 07 05 81 03 10 00 01        !....".........
 
 0000011d <DeviceDescriptor>:
 		ReportSize--;

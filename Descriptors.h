@@ -56,7 +56,7 @@ THE SOFTWARE.
 /** Size in bytes of each of the HID reporting IN endpoint. */
 // important: only use 8,16,32,64 here!! <--
 // limited to 32, see https://groups.google.com/forum/#!topic/lufa-support/c37N58wffRM
-#define HID_EPSIZE					32 // TODO reduce to 16
+#define HID_EPSIZE					16 // TODO reduce to 16
 
 #define ARDUINO_VID					0x2341
 #define ARDUINO_UNO_PID				0x0043 // R3 (0001 R1)
