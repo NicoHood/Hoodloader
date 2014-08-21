@@ -37,13 +37,6 @@ THE SOFTWARE.
 // global variable to hold specific ram data
 // because we only have 500 bytes we have to free some memory for different modes
 typedef struct{
-	// indicates what mode we are in
-	//enum{
-	//	MODE_NONE,
-	//	MODE_DEFAULT,
-	//	MODE_HID,
-	//	MODE_AVRISP,
-	//}mode;
 
 	// Circular buffer to hold data from the serial port before it is sent to the host.
 	LRingBuffer_t USARTtoUSB_Buffer;
