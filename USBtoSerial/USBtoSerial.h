@@ -44,9 +44,9 @@
 		#include <avr/wdt.h>
 		#include <avr/interrupt.h>
 		#include <avr/power.h>
-
+#include "Lib/Ram.h"
 		#include "Descriptors.h"
-
+#include "Lib/CDC.h"
 		#include <LUFA/Drivers/Board/LEDs.h>
 		#include <LUFA/Drivers/Peripheral/Serial.h>
 		#include <LUFA/Drivers/Misc/RingBuffer.h>
@@ -74,8 +74,8 @@
 		void EVENT_USB_Device_ConfigurationChanged(void);
 		void EVENT_USB_Device_ControlRequest(void);
 
-		void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo);
-		void EVENT_CDC_Device_ControLineStateChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo);
+		//void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo);
+		//void EVENT_CDC_Device_ControLineStateChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo);
 
 #endif
 
