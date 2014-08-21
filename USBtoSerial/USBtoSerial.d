@@ -90,18 +90,23 @@ USBtoSerial.o: USBtoSerial.c USBtoSerial.h Descriptors.h \
  ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/USB/Class/Device/../Common/RNDISClassCommon.h \
  ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/USB/Class/Device/../Common/CDCClassCommon.h \
  ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/USB/Class/StillImageClass.h \
- ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Board/LEDs.h \
+ Lib/CDC.h Metainclude.h \
+ ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Board/Board.h \
  ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Board/../../Common/Common.h \
+ Board/Board.h ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Board/LEDs.h \
  Board/LEDs.h ../lufa-LUFA-140302/LUFA/../LUFA/Common/Common.h \
+ ../lufa-LUFA-140302/LUFA/../LUFA/Platform/Platform.h \
+ ../lufa-LUFA-140302/LUFA/../LUFA/Platform/../Common/Common.h \
+ ../lufa-LUFA-140302/LUFA/../LUFA/Version.h \
  ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/Serial.h \
  ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/../../Common/Common.h \
  ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/Serial_AVR8.h \
  ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../../Common/Common.h \
  ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../Misc/TerminalCodes.h \
+ Lib/LightweightRingBuff.h Descriptors.h Lib/Ram.h Lib/NHP.h \
+ Lib/HID_Reports.h Lib/ISP.h Lib/CDC.h Lib/HID.h \
  ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Misc/RingBuffer.h \
- ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Misc/../../Common/Common.h \
- ../lufa-LUFA-140302/LUFA/../LUFA/Platform/Platform.h \
- ../lufa-LUFA-140302/LUFA/../LUFA/Platform/../Common/Common.h
+ ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Misc/../../Common/Common.h
 
 USBtoSerial.h:
 
@@ -289,13 +294,27 @@ Config/LUFAConfig.h:
 
 ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/USB/Class/StillImageClass.h:
 
-../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Board/LEDs.h:
+Lib/CDC.h:
+
+Metainclude.h:
+
+../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Board/Board.h:
 
 ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Board/../../Common/Common.h:
+
+Board/Board.h:
+
+../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Board/LEDs.h:
 
 Board/LEDs.h:
 
 ../lufa-LUFA-140302/LUFA/../LUFA/Common/Common.h:
+
+../lufa-LUFA-140302/LUFA/../LUFA/Platform/Platform.h:
+
+../lufa-LUFA-140302/LUFA/../LUFA/Platform/../Common/Common.h:
+
+../lufa-LUFA-140302/LUFA/../LUFA/Version.h:
 
 ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/Serial.h:
 
@@ -307,10 +326,22 @@ Board/LEDs.h:
 
 ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../Misc/TerminalCodes.h:
 
+Lib/LightweightRingBuff.h:
+
+Descriptors.h:
+
+Lib/Ram.h:
+
+Lib/NHP.h:
+
+Lib/HID_Reports.h:
+
+Lib/ISP.h:
+
+Lib/CDC.h:
+
+Lib/HID.h:
+
 ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Misc/RingBuffer.h:
 
 ../lufa-LUFA-140302/LUFA/../LUFA/Drivers/Misc/../../Common/Common.h:
-
-../lufa-LUFA-140302/LUFA/../LUFA/Platform/Platform.h:
-
-../lufa-LUFA-140302/LUFA/../LUFA/Platform/../Common/Common.h:

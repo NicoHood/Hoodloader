@@ -57,6 +57,15 @@
 		/** Size in bytes of the CDC data IN and OUT endpoints. */
 		#define CDC_TXRX_EPSIZE                16
 
+
+/** Endpoint address of the HID reporting IN endpoint. */
+#define HID_IN_EPADDR				 (ENDPOINT_DIR_IN | 1)
+
+/** Size in bytes of each of the HID reporting IN endpoint. */
+// important: only use 8,16,32,64 here!! <--
+// limited to 32, see https://groups.google.com/forum/#!topic/lufa-support/c37N58wffRM
+#define HID_EPSIZE					32 // TODO reduce to 16
+
 	/* Type Defines: */
 		/** Type define for the device configuration descriptor structure. This must be defined in the
 		 *  application code, as the configuration descriptor contains several sub-descriptors which
@@ -83,12 +92,13 @@
 		 *  should have a unique ID index associated with it, which can be used to refer to the
 		 *  interface from other descriptors.
 		 */
+
 		enum InterfaceDescriptors_t
 		{
 			INTERFACE_ID_CDC_CCI = 0, /**< CDC CCI interface descriptor ID */
 			INTERFACE_ID_CDC_DCI = 1, /**< CDC DCI interface descriptor ID */
+			INTERFACE_ID_HID = 2, /**< HID interface descriptor ID */
 		};
-
 		/** Enum for the device string descriptor IDs within the device. Each string descriptor should
 		 *  have a unique ID index associated with it, which can be used to refer to the string from
 		 *  other descriptors.
