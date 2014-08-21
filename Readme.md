@@ -235,6 +235,8 @@ See the [HID project](https://github.com/NicoHood/HID) for HID related bugs.
 **Programming Arduino Mega with ISP doesnt work because of fuses.**
 See this for more information: http://forum.arduino.cc/index.php?topic=126160.0
 
+Media Keys dont work on Linux out of the box (not a Hoodloader problem, this is with any Keyboard)
+
 Burning Bootloader error is fixed with IDE 1.5.7 or higher (avrdude bug)!
 
 Using the Hoodloader on a 8u2 you need to use the Lite Version and DFU wont work.
@@ -266,7 +268,7 @@ Ideas for the future (Todo list):
 * shrink HID functions
 * note that drivers are always the same for updating
 * compile for different drivers/ids
-* HID reset with/without theis empty?
+* HID reset with/without the isempty?
 * Center gamepads with 0 to suit with clear reports
 * add clear reports command for hid begin
 * fix ubuntu bug
@@ -274,6 +276,10 @@ Ideas for the future (Todo list):
 * new dfu loader to reset 16u2 easier
 * fix pc restart bug
 * fix media keys
+* reduce flash if possible
+* rework ISP if possible
+* reduce HID EPsize
+* access eeprom
 
 Version History
 ===============
@@ -289,6 +295,8 @@ Version History
 * Fixed Gamepad 1+2 bug on Linux (has a weird button limit and works better as "joystick" device)
 * Added automated clear report function on reset
 * Fixed Ubuntu HID problem (crashed with HID usage)
+* Fixed Media Keys bug on non Windows systems
+* Found minimum ram limit (use at maximum 339/323 bytes or less!!!)
 
 1.7.3 Beta Release (10.08.2014)
 * Fixed HID flush bug (1.6 - 1.7.2)
@@ -404,6 +412,9 @@ $ cd Desktop/Arduino/Hoodloader
 $ sudo make clean
 $ sudo make
 ```
+
+**With not enough ram the Hoodloader wont work. My worst limit was 339/323 bytes used.
+This depends on the PC, some faster PCs can handle USB faster so you can use more ram.***
 
 Licence and Copyright
 =====================

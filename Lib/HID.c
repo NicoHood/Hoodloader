@@ -60,6 +60,14 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 	void* ReportData,
 	uint16_t* const ReportSize)
 {
+
+	if (ram.isp.pmode || (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK))){
+		*ReportID = 0;
+		*ReportSize = 0;
+		return false;
+	}
+
+
 	// only send report if there is actually a new report
 	//if (ram.HID.ID){
 	//TODO remove this
@@ -125,8 +133,8 @@ void clearHIDReports(void){
 
 	// check if every report is empty or not
 	for (int i = 1; i < HID_REPORTID_LastNotAReport; i++)
-			clearHIDReport(i);
-	
+		clearHIDReport(i);
+
 	// clear the main flag that all reports are empty
 	ram.HID.isEmpty[HID_REPORTID_NotAReport] = true;
 }

@@ -197,6 +197,9 @@ int main(void)
 		// CDC + USB Task
 		//================================================================================
 
+		//TODO crashes on some devices if ram >323 bytes
+		//HID_Device_USBTask(&Device_HID_Interface);
+
 		CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
 		USB_USBTask();
 	}
