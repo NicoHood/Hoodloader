@@ -42,7 +42,27 @@
  *  descriptor is parsed by the host and its contents used to determine what data (and in what encoding)
  *  the device will send, and what it may be sent back from the host. Refer to the HID specification for
  *  more details on HID report descriptors.
- */
+ */	
+
+
+#define LSB(_x) ((_x) & 0xFF)
+#define MSB(_x) ((_x) >> 8)
+
+#define RAWHID_USAGE_PAGE	0xFFC0 // recommended: 0xFF00 to 0xFFFF
+#define RAWHID_USAGE		0x0C00 // recommended: 0x0100 to 0xFFFF
+#define RAWHID_TX_SIZE 63 // 1 byte for report ID
+#define RAWHID_RX_SIZE 63 // 1 byte for report ID
+
+// activate all by default
+#define HID_MOUSE_ENABLE 54
+#define HID_KEYBOARD_ENABLE 65
+#define HID_RAWKEYBOARD_ENABLE 30
+#define HID_MEDIA_ENABLE 25
+#define HID_SYSTEM_ENABLE 24
+#define HID_GAMEPAD1_ENABLE 71
+#define HID_GAMEPAD2_ENABLE 71
+#define HID_JOYSTICK1_ENABLE 51
+#define HID_JOYSTICK2_ENABLE 51
 const USB_Descriptor_HIDReport_Datatype_t PROGMEM MouseReport[] =
 {
 	/* Use the HID class driver's standard Mouse report.
@@ -84,40 +104,270 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM MouseReport[] =
 	HID_RI_END_COLLECTION(0),
 	HID_RI_END_COLLECTION(0),
 
-	/* Keyboard Report */
-	HID_RI_USAGE_PAGE(8, 0x01), /* Generic Desktop */
-	HID_RI_USAGE(8, 0x06), /* Keyboard */
-	HID_RI_COLLECTION(8, 0x01), /* Application */
-	HID_RI_REPORT_ID(8, HID_REPORTID_KeyboardReport),
-	HID_RI_USAGE_PAGE(8, 0x07), /* Key Codes */
-	HID_RI_USAGE_MINIMUM(8, 0xE0), /* Keyboard Left Control */
-	HID_RI_USAGE_MAXIMUM(8, 0xE7), /* Keyboard Right GUI */
-	HID_RI_LOGICAL_MINIMUM(8, 0x00),
-	HID_RI_LOGICAL_MAXIMUM(8, 0x01),
-	HID_RI_REPORT_SIZE(8, 0x01),
-	HID_RI_REPORT_COUNT(8, 0x08),
-	HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
-	HID_RI_REPORT_COUNT(8, 0x01),
-	HID_RI_REPORT_SIZE(8, 0x08),
-	HID_RI_INPUT(8, HID_IOF_CONSTANT),
-	HID_RI_USAGE_PAGE(8, 0x08), /* LEDs */
-	HID_RI_USAGE_MINIMUM(8, 0x01), /* Num Lock */
-	HID_RI_USAGE_MAXIMUM(8, 0x05), /* Kana */
-	HID_RI_REPORT_COUNT(8, 0x05),
-	HID_RI_REPORT_SIZE(8, 0x01),
-	HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
-	HID_RI_REPORT_COUNT(8, 0x01),
-	HID_RI_REPORT_SIZE(8, 0x03),
-	HID_RI_OUTPUT(8, HID_IOF_CONSTANT),
-	HID_RI_LOGICAL_MINIMUM(8, 0x00),
-	HID_RI_LOGICAL_MAXIMUM(8, 0x65),
-	HID_RI_USAGE_PAGE(8, 0x07), /* Keyboard */
-	HID_RI_USAGE_MINIMUM(8, 0x00), /* Reserved (no event indicated) */
-	HID_RI_USAGE_MAXIMUM(8, 0x65), /* Keyboard Application */
-	HID_RI_REPORT_COUNT(8, 0x06),
-	HID_RI_REPORT_SIZE(8, 0x08),
-	HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
-	HID_RI_END_COLLECTION(0),
+
+#ifdef HID_KEYBOARD_ENABLE
+	// Keyboard
+	0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
+	0x09, 0x06,                    // USAGE (Keyboard)
+	0xa1, 0x01,                    // COLLECTION (Application)
+	0x85, HID_REPORTID_KeyboardReport, //   REPORT_ID
+	0x05, 0x07,                    //   USAGE_PAGE (Keyboard)
+	// modifiers
+	0x19, 0xe0,                    //   USAGE_MINIMUM (Keyboard LeftControl)
+	0x29, 0xe7,                    //   USAGE_MAXIMUM (Keyboard Right GUI)
+	0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+	0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
+	0x75, 0x01,                    //   REPORT_SIZE (1)
+	0x95, 0x08,                    //   REPORT_COUNT (8)
+	0x81, 0x02,                    //   INPUT (Data,Var,Abs)
+	// reserved byte
+	0x95, 0x01,                    //   REPORT_COUNT (1)
+	0x75, 0x08,                    //   REPORT_SIZE (8)
+	0x81, 0x03,                    //   INPUT (Cnst,Var,Abs)
+	// Key[6] Array
+	0x95, 0x06,                    //   REPORT_COUNT (6)
+	0x75, 0x08,                    //   REPORT_SIZE (8)
+	0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+	0x25, 0x65,                    //   LOGICAL_MAXIMUM (101)
+	0x05, 0x07,                    //   USAGE_PAGE (Keyboard)
+	0x19, 0x00,                    //   USAGE_MINIMUM (Reserved (no event indicated))
+	0x29, 0x65,                    //   USAGE_MAXIMUM (Keyboard Application)
+	0x81, 0x00,                    //   INPUT (Data,Ary,Abs)
+	// LEDs for num lock etc
+	0x05, 0x08,   /*   USAGE_PAGE (LEDs) */
+	0x19, 0x01,   /*   USAGE_MINIMUM (Num Lock) */
+	0x29, 0x05,   /*   USAGE_MAXIMUM (Kana) */
+	0x95, 0x05,   /*   REPORT_COUNT (5) */
+	0x75, 0x01,   /*   REPORT_SIZE (1) */
+	0x91, 0x02,   /*   OUTPUT (Data,Var,Abs) */
+	// Reserved 3 bits
+	0x95, 0x01,   /*   REPORT_COUNT (1) */
+	0x75, 0x03,   /*   REPORT_SIZE (3) */
+	0x91, 0x03,   /*   OUTPUT (Cnst,Var,Abs) */
+	// end
+	0xc0,                          // END_COLLECTION
+#endif
+
+#ifdef HID_RAWKEYBOARD_ENABLE
+	// RAW HID
+	0x06, LSB(RAWHID_USAGE_PAGE), MSB(RAWHID_USAGE_PAGE),	// 30
+	0x0A, LSB(RAWHID_USAGE), MSB(RAWHID_USAGE),
+
+	0xA1, 0x01,								// Collection 0x01
+	0x85, HID_REPORTID_RawKeyboardReport,   // REPORT_ID
+	0x75, 0x08,								// report size = 8 bits
+	0x15, 0x00,								// logical minimum = 0
+	0x26, 0xFF, 0x00,						// logical maximum = 255
+
+	0x95, RAWHID_TX_SIZE,					// report count TX
+	0x09, 0x01,								// usage
+	0x81, 0x02,								// Input (array)
+
+	0x95, RAWHID_RX_SIZE,					// report count RX
+	0x09, 0x02,								// usage
+	0x91, 0x02,								// Output (array)
+	0xC0,									// end collection
+#endif
+
+#ifdef HID_MEDIA_ENABLE
+	// Media
+	0x05, 0x0C,						// usage page (consumer device)
+	0x09, 0x01,						// usage -- consumer control
+	0xA1, 0x01,						// collection (application)
+	0x85, HID_REPORTID_MediaReport, // report id
+	// 4 media Keys
+	0x15, 0x00,						//logical minimum
+	0x26, 0xFF, 0xFF,				//logical maximum (3ff)
+	0x19, 0x00,						// usage minimum (0)
+	0x2A, 0xFF, 0xFF,				//usage maximum (3ff)
+	0x95, 0x04,						//report count (4)
+	0x75, 0x10,						//report size (16)
+	0x81, 0x00,						//input
+	0xC0,							//end collection
+#endif
+
+#ifdef HID_SYSTEM_ENABLE
+	// System
+	0x05, 0x01,							// USAGE_PAGE (Generic Desktop)
+	0x09, 0x80,							// USAGE (System Control)
+	0xa1, 0x01,							// COLLECTION (Application)
+	0x85, HID_REPORTID_SystemReport,	//   REPORT_ID
+	// 1 system key
+	0x15, 0x00,							//   LOGICAL_MINIMUM (0)
+	0x26, 0xff, 0x00,					//   LOGICAL_MAXIMUM (255)
+	0x19, 0x00,							//   USAGE_MINIMUM (Undefined)
+	0x29, 0xff,							//   USAGE_MAXIMUM (System Menu Down)
+	0x95, 0x01,							//   REPORT_COUNT (1)
+	0x75, 0x08,							//   REPORT_SIZE (8)
+	0x81, 0x00,							//   INPUT (Data,Ary,Abs)
+	0xc0,								// END_COLLECTION
+#endif
+
+#ifdef HID_GAMEPAD1_ENABLE
+	// Gamepad1
+	0x05, 0x01,							// USAGE_PAGE (Generic Desktop)
+	0x09, 0x04,							// USAGE (Joystick)
+	0xa1, 0x01,							// COLLECTION (Application)
+	0x85, HID_REPORTID_Gamepad1Report,	//   REPORT_ID
+	// 32 Buttons
+	0x05, 0x09,							//   USAGE_PAGE (Button)
+	0x19, 0x01,							//   USAGE_MINIMUM (Button 1)
+	0x29, 0x20,							//   USAGE_MAXIMUM (Button 32)
+	0x15, 0x00,							//   LOGICAL_MINIMUM (0)
+	0x25, 0x01,							//   LOGICAL_MAXIMUM (1)
+	0x75, 0x01,							//   REPORT_SIZE (1)
+	0x95, 0x20,							//   REPORT_COUNT (32)
+	0x81, 0x02,							//   INPUT (Data,Var,Abs)
+	// 6 16bit Axis
+	0x05, 0x01,							//   USAGE_PAGE (Generic Desktop)
+	0xa1, 0x00,							//   COLLECTION (Physical)
+	0x09, 0x30,							//     USAGE (X)
+	0x09, 0x31,							//     USAGE (Y)
+	0x09, 0x32,							//     USAGE (Z)
+	0x09, 0x33,							//     USAGE (Rx)
+	0x09, 0x34,							//     USAGE (Ry)
+	0x09, 0x35,							//     USAGE (Rz)
+	0x15, 0x00,							//     LOGICAL_MINIMUM (0)
+	0x27, 0xff, 0xff, 0x00, 0x00,		//     LOGICAL_MAXIMUM (65535)
+	0x75, 0x10,							//     REPORT_SIZE (16)
+	0x95, 0x06,							//     REPORT_COUNT (6)
+	0x81, 0x02,							//     INPUT (Data,Var,Abs)
+	0xc0,								//   END_COLLECTION
+	// 2 Hat Switches
+	0x05, 0x01,							//   USAGE_PAGE (Generic Desktop)
+	0x09, 0x39,							//   USAGE (Hat switch)
+	0x09, 0x39,							//   USAGE (Hat switch)
+	0x15, 0x01,							//   LOGICAL_MINIMUM (1)
+	0x25, 0x08,							//   LOGICAL_MAXIMUM (8)
+	0x95, 0x02,							//   REPORT_COUNT (2)
+	0x75, 0x04,							//   REPORT_SIZE (4)
+	0x81, 0x02,							//   INPUT (Data,Var,Abs)
+	// 8bit Throttle + Rudder
+	//0x05, 0x02,							//   USAGE_PAGE (Simulation Controls)
+	//0xa1, 0x00,							//   COLLECTION (Physical)
+	//0x15, 0x00,							//     LOGICAL_MINIMUM (0)
+	//0x26, 0xff, 0x00,					//     LOGICAL_MAXIMUM (255)
+	//0x09, 0xbb,							//     USAGE (Throttle)
+	//0x09, 0xba,							//     USAGE (Rudder)
+	//0x75, 0x08,							//     REPORT_SIZE (8)
+	//0x95, 0x02,							//     REPORT_COUNT (2)
+	//0x81, 0x02,							//     INPUT (Data,Var,Abs)
+	//0xc0,								//   END_COLLECTION
+	0xc0,								// END_COLLECTION
+#endif
+
+#ifdef HID_GAMEPAD2_ENABLE
+	// Gamepad2
+	0x05, 0x01,							// USAGE_PAGE (Generic Desktop)
+	0x09, 0x04,							// USAGE (Joystick)
+	0xa1, 0x01,							// COLLECTION (Application)
+	0x85, HID_REPORTID_Gamepad2Report,	//   REPORT_ID
+	// 32 Buttons
+	0x05, 0x09,							//   USAGE_PAGE (Button)
+	0x19, 0x01,							//   USAGE_MINIMUM (Button 1)
+	0x29, 0x20,							//   USAGE_MAXIMUM (Button 32)
+	0x15, 0x00,							//   LOGICAL_MINIMUM (0)
+	0x25, 0x01,							//   LOGICAL_MAXIMUM (1)
+	0x75, 0x01,							//   REPORT_SIZE (1)
+	0x95, 0x20,							//   REPORT_COUNT (32)
+	0x81, 0x02,							//   INPUT (Data,Var,Abs)
+	// 6 16bit Axis
+	0x05, 0x01,							//   USAGE_PAGE (Generic Desktop)
+	0xa1, 0x00,							//   COLLECTION (Physical)
+	0x09, 0x30,							//     USAGE (X)
+	0x09, 0x31,							//     USAGE (Y)
+	0x09, 0x32,							//     USAGE (Z)
+	0x09, 0x33,							//     USAGE (Rx)
+	0x09, 0x34,							//     USAGE (Ry)
+	0x09, 0x35,							//     USAGE (Rz)
+	0x15, 0x00,							//     LOGICAL_MINIMUM (0)
+	0x27, 0xff, 0xff, 0x00, 0x00,		//     LOGICAL_MAXIMUM (65535)
+	0x75, 0x10,							//     REPORT_SIZE (16)
+	0x95, 0x06,							//     REPORT_COUNT (6)
+	0x81, 0x02,							//     INPUT (Data,Var,Abs)
+	0xc0,								//   END_COLLECTION
+	// 2 Hat Switches
+	0x09, 0x39,							//   USAGE (Hat switch)
+	0x09, 0x39,							//   USAGE (Hat switch)
+	0x15, 0x01,							//   LOGICAL_MINIMUM (1)
+	0x25, 0x08,							//   LOGICAL_MAXIMUM (8)
+	0x95, 0x02,							//   REPORT_COUNT (2)
+	0x75, 0x04,							//   REPORT_SIZE (4)
+	0x81, 0x02,							//   INPUT (Data,Var,Abs)
+	// 8bit Throttle + Rudder
+	//0x05, 0x02,							//   USAGE_PAGE (Simulation Controls)
+	//0xa1, 0x00,							//   COLLECTION (Physical)
+	//0x15, 0x00,							//     LOGICAL_MINIMUM (0)
+	//0x26, 0xff, 0x00,					//     LOGICAL_MAXIMUM (255)
+	//0x09, 0xbb,							//     USAGE (Throttle)
+	//0x09, 0xba,							//     USAGE (Rudder)
+	//0x75, 0x08,							//     REPORT_SIZE (8)
+	//0x95, 0x02,							//     REPORT_COUNT (2)
+	//0x81, 0x02,							//     INPUT (Data,Var,Abs)
+	//0xc0,								//   END_COLLECTION
+	0xc0,								// END_COLLECTION
+#endif
+
+#ifdef HID_JOYSTICK1_ENABLE
+	// Joystick1
+	0x05, 0x01,							// USAGE_PAGE (Generic Desktop)
+	0x09, 0x04,							// USAGE (Joystick)
+	0xa1, 0x01,							// COLLECTION (Application)
+	0x85, HID_REPORTID_Joystick1Report,	//   REPORT_ID
+	0xa1, 0x00,							//   COLLECTION (Physical)
+	0x05, 0x09,							//     USAGE_PAGE (Button)
+	0x19, 0x01,							//     USAGE_MINIMUM (Button 1)
+	0x29, 0x02,							//     USAGE_MAXIMUM (Button 2)
+	0x15, 0x00,							//     LOGICAL_MINIMUM (0)
+	0x25, 0x01,							//     LOGICAL_MAXIMUM (1)
+	0x75, 0x01,							//     REPORT_SIZE (1)
+	0x95, 0x02,							//     REPORT_COUNT (2)
+	0x81, 0x02,							//     INPUT (Data,Var,Abs)
+	0x05, 0x01,							//     USAGE_PAGE (Generic Desktop)
+	0x09, 0x30,							//     USAGE (X)
+	0x09, 0x31,							//     USAGE (Y)
+	0x15, 0x00,							//     LOGICAL_MINIMUM (0)
+	0x26, 0xff, 0x03,					//     LOGICAL_MAXIMUM (1023)
+	0x75, 0x0a,							//     REPORT_SIZE (10)
+	0x95, 0x02,							//     REPORT_COUNT (2)
+	0x81, 0x02,							//     INPUT (Data,Var,Abs)
+	0x75, 0x02,							//     REPORT_SIZE (2)
+	0x95, 0x01,							//     REPORT_COUNT (1)
+	0x81, 0x03,							//     INPUT (Cnst,Var,Abs)
+	0xc0,								//   END_COLLECTION
+	0xc0,								// END_COLLECTION
+#endif
+
+#ifdef HID_JOYSTICK2_ENABLE
+	// Joystick2
+	0x05, 0x01,							// USAGE_PAGE (Generic Desktop)
+	0x09, 0x04,							// USAGE (Joystick)
+	0xa1, 0x01,							// COLLECTION (Application)
+	0x85, HID_REPORTID_Joystick2Report,	//   REPORT_ID
+	0xa1, 0x00,							//   COLLECTION (Physical)
+	0x05, 0x09,							//     USAGE_PAGE (Button)
+	0x19, 0x01,							//     USAGE_MINIMUM (Button 1)
+	0x29, 0x02,							//     USAGE_MAXIMUM (Button 2)
+	0x15, 0x00,							//     LOGICAL_MINIMUM (0)
+	0x25, 0x01,							//     LOGICAL_MAXIMUM (1)
+	0x75, 0x01,							//     REPORT_SIZE (1)
+	0x95, 0x02,							//     REPORT_COUNT (2)
+	0x81, 0x02,							//     INPUT (Data,Var,Abs)
+	0x05, 0x01,							//     USAGE_PAGE (Generic Desktop)
+	0x09, 0x30,							//     USAGE (X)
+	0x09, 0x31,							//     USAGE (Y)
+	0x15, 0x00,							//     LOGICAL_MINIMUM (0)
+	0x26, 0xff, 0x03,					//     LOGICAL_MAXIMUM (1023)
+	0x75, 0x0a,							//     REPORT_SIZE (10)
+	0x95, 0x02,							//     REPORT_COUNT (2)
+	0x81, 0x02,							//     INPUT (Data,Var,Abs)
+	0x75, 0x02,							//     REPORT_SIZE (2)
+	0x95, 0x01,							//     REPORT_COUNT (1)
+	0x81, 0x03,							//     INPUT (Cnst,Var,Abs)
+	0xc0,								//   END_COLLECTION
+	0xc0								// END_COLLECTION
+#endif
+
 };
 
 /** Device descriptor structure. This descriptor, located in FLASH memory, describes the overall

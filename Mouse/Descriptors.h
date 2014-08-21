@@ -82,11 +82,18 @@
 			STRING_ID_Manufacturer = 1, /**< Manufacturer string ID */
 			STRING_ID_Product      = 2, /**< Product string ID */
 		};
-
-		enum
-		{
+		typedef enum{
+			HID_REPORTID_NotAReport = 0x00,  // first entry is always zero for multireports
 			HID_REPORTID_MouseReport = 0x01, /**< Report ID for the Mouse report within the device. */
 			HID_REPORTID_KeyboardReport = 0x02, /**< Report ID for the Keyboard report within the device. */
+			HID_REPORTID_RawKeyboardReport = 0x03, /**< Report ID for the Raw Keyboard report within the device. */
+			HID_REPORTID_MediaReport = 0x04, /**< Report ID for the Media report within the device. */
+			HID_REPORTID_SystemReport = 0x05, /**< Report ID for the Power report within the device. */
+			HID_REPORTID_Gamepad1Report = 0x06, /**< Report ID for the Gamepad1 report within the device. */
+			HID_REPORTID_Gamepad2Report = 0x07, /**< Report ID for the Gamepad2 report within the device. */
+			HID_REPORTID_Joystick1Report = 0x08, /**< Report ID for the Joystick1 report within the device. */
+			HID_REPORTID_Joystick2Report = 0x09, /**< Report ID for the Joystick2 report within the device. */
+			HID_REPORTID_LastNotAReport,			// determinate whats the maximum number of reports -1
 		} HID_Report_IDs;
 
 	/* Function Prototypes: */
