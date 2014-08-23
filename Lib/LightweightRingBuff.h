@@ -159,6 +159,21 @@ extern "C" {
 		SetGlobalInterruptMask(CurrentGlobalInt);
 	}
 
+	static inline void LRingBuffer_ResetBuffer(LRingBuffer_t* Buffer) ATTR_NON_NULL_PTR_ARG(1);
+	static inline void LRingBuffer_ResetBuffer(LRingBuffer_t* Buffer)
+	{
+		GCC_FORCE_POINTER_ACCESS(Buffer);
+
+		uint_reg_t CurrentGlobalInt = GetGlobalInterruptMask();
+		GlobalInterruptDisable();
+
+		Buffer->Index = 0;
+		Buffer->Size = 0;
+		Buffer->Count = 0;
+
+		SetGlobalInterruptMask(CurrentGlobalInt);
+	}
+
 	static inline bool LRingBuffer_IsEnabled(LRingBuffer_t* const Buffer) ATTR_WARN_UNUSED_RESULT ATTR_NON_NULL_PTR_ARG(1);
 	static inline bool LRingBuffer_IsEnabled(LRingBuffer_t* const Buffer)
 	{

@@ -42,15 +42,15 @@ THE SOFTWARE.
 const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] =
 {
 	// activate all by default
-#define HID_MOUSE_ENABLE 54
-#define HID_KEYBOARD_ENABLE 65
-#define HID_RAWKEYBOARD_ENABLE 30
-#define HID_MEDIA_ENABLE 25
-#define HID_SYSTEM_ENABLE 24
-#define HID_GAMEPAD1_ENABLE 71
-#define HID_GAMEPAD2_ENABLE 71
-#define HID_JOYSTICK1_ENABLE 51
-#define HID_JOYSTICK2_ENABLE 51
+//#define HID_MOUSE_ENABLE 54
+//#define HID_KEYBOARD_ENABLE 65
+//#define HID_RAWKEYBOARD_ENABLE 30
+//#define HID_MEDIA_ENABLE 25
+//#define HID_SYSTEM_ENABLE 24
+//#define HID_GAMEPAD1_ENABLE 71
+//#define HID_GAMEPAD2_ENABLE 71
+//#define HID_JOYSTICK1_ENABLE 51
+//#define HID_JOYSTICK2_ENABLE 51
 
 #ifdef HID_MOUSE_ENABLE
 	// Mouse
@@ -152,36 +152,6 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] =
 	0xC0,									// end collection
 #endif
 
-	////Media Keys
-	//0x05, 0x0C, // usage page (consumer device)
-	//0x09, 0x01, // usage -- consumer control
-	//0xA1, 0x01, // collection (application)
-	//0x85, HID_REPORTID_MediaReport, // report id
-	//0x05, 0x0C, // usage page (consumer)
-	//0x19, 0x00, // usage minimum (0)
-	//0x2A, 0xFF, 0x03, //usage maximum (3ff)
-	//0x95, 0x01, //report count (1)
-	//0x75, 0x10, //report size (16)
-	//0x15, 0x00, //logical minimum
-	//0x27, 0xFF, 0x03, //logical maximum (3ff)
-	//0x00, 0x00,
-
-	//0x81, 0x00, //input
-	//0xC0,//end collection
-
-	//0x05, 0x0C, // Usage Page(Consumer Devices) 	05 0C
-	//0x09, 0x01, // Usage(Consumer Control) 	09 01
-	//0xA1, 0x01, // Collection(Application) 	A1 01
-	//0x85, 0x04, // Report ID(4) 	85 04
-	//0x15, 0x00, // Logical Minimum(0) 	15 00
-	//0x26, 0xFF, 0x03, // Logical Maximum(1023) 	26 FF 03
-	//0x19, 0x00, // Usage Minimum(Undefined) 	19 00
-	//0x2A, 0xFF, 0x03, // Usage Maximum 	2A FF 03
-	//0x75, 0x10, // Report Size(16) 	75 10
-	//0x95, 0x03, // Report Count(3) 	95 03
-	//0x81, 0x00, // Input(Data, Ary, Abs) 	81 00
-	//0xC0, // End Collection 	C0
-
 #ifdef HID_MEDIA_ENABLE
 	// Media
 	0x05, 0x0C,						// usage page (consumer device)
@@ -218,6 +188,352 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] =
 	0x81, 0x00,							//   INPUT (Data,Ary,Abs)
 	0xc0,								// END_COLLECTION
 #endif
+
+	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
+	0x09, 0x04, // Usage(Joystick) 	09 04
+	0xA1, 0x01, // Collection(Application) 	A1 01
+	0x85, 1, // Report ID 	85 HID_REPORTID_Gamepad1Report
+	0xA1, 0x02, // Collection(Logical) 	A1 02
+	0x75, 0x08, // Report Size(8) 	75 08
+	0x95, 0x02, // Report Count(2) 	95 02
+	0x15, 0x00, // Logical Minimum(0) 	15 00
+	0x26, 0xFF, 0x00, // Logical Maximum(255) 	26 FF 00
+	0x35, 0x00, // Physical Minimum(0) 	35 00
+	0x46, 0xFF, 0x00, // Physical Maximum(255) 	46 FF 00
+	0x09, 0x30, // Usage(X) 	09 30
+	0x09, 0x31, // Usage(Y) 	09 31
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x0A, // Report Count(10) 	95 0A
+	0x25, 0x01, // Logical Maximum(1) 	25 01
+	0x45, 0x01, // Physical Maximum(1) 	45 01
+	0x05, 0x09, // Usage Page(Button) 	05 09
+	0x19, 0x01, // Usage Minimum(Button 1) 	19 01
+	0x29, 0x0A, // Usage Maximum(Button 10) 	29 0A
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0x06, 0x00, 0xFF, // Usage Page(Vendor - Defined 1) 	06 00 FF
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x06, // Report Count(6) 	95 06
+	0x25, 0x01, // Logical Maximum(1) 	25 01
+	0x45, 0x01, // Physical Maximum(1) 	45 01
+	0x09, 0x01, // Usage(Vendor - Defined 1) 	09 01
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0xC0, // End Collection 	C0
+	0xC0, // End Collection 	C0
+
+	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
+	0x09, 0x04, // Usage(Joystick) 	09 04
+	0xA1, 0x01, // Collection(Application) 	A1 01
+	0x85, 2, // Report ID 	85 HID_REPORTID_Gamepad1Report
+	0xA1, 0x02, // Collection(Logical) 	A1 02
+	0x75, 0x08, // Report Size(8) 	75 08
+	0x95, 0x02, // Report Count(2) 	95 02
+	0x15, 0x00, // Logical Minimum(0) 	15 00
+	0x26, 0xFF, 0x00, // Logical Maximum(255) 	26 FF 00
+	0x35, 0x00, // Physical Minimum(0) 	35 00
+	0x46, 0xFF, 0x00, // Physical Maximum(255) 	46 FF 00
+	0x09, 0x30, // Usage(X) 	09 30
+	0x09, 0x31, // Usage(Y) 	09 31
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x0A, // Report Count(10) 	95 0A
+	0x25, 0x01, // Logical Maximum(1) 	25 01
+	0x45, 0x01, // Physical Maximum(1) 	45 01
+	0x05, 0x09, // Usage Page(Button) 	05 09
+	0x19, 0x01, // Usage Minimum(Button 1) 	19 01
+	0x29, 0x0A, // Usage Maximum(Button 10) 	29 0A
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0x06, 0x00, 0xFF, // Usage Page(Vendor - Defined 1) 	06 00 FF
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x06, // Report Count(6) 	95 06
+	0x25, 0x01, // Logical Maximum(1) 	25 01
+	0x45, 0x01, // Physical Maximum(1) 	45 01
+	0x09, 0x01, // Usage(Vendor - Defined 1) 	09 01
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0xC0, // End Collection 	C0
+	0xC0, // End Collection 	C0
+
+
+	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
+	0x09, 0x04, // Usage(Joystick) 	09 04
+	0xA1, 0x01, // Collection(Application) 	A1 01
+	0x85, 3, // Report ID 	85 HID_REPORTID_Gamepad1Report
+	0xA1, 0x02, // Collection(Logical) 	A1 02
+	0x75, 0x08, // Report Size(8) 	75 08
+	0x95, 0x02, // Report Count(2) 	95 02
+	0x15, 0x00, // Logical Minimum(0) 	15 00
+	0x26, 0xFF, 0x00, // Logical Maximum(255) 	26 FF 00
+	0x35, 0x00, // Physical Minimum(0) 	35 00
+	0x46, 0xFF, 0x00, // Physical Maximum(255) 	46 FF 00
+	0x09, 0x30, // Usage(X) 	09 30
+	0x09, 0x31, // Usage(Y) 	09 31
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x0A, // Report Count(10) 	95 0A
+	0x25, 0x01, // Logical Maximum(1) 	25 01
+	0x45, 0x01, // Physical Maximum(1) 	45 01
+	0x05, 0x09, // Usage Page(Button) 	05 09
+	0x19, 0x01, // Usage Minimum(Button 1) 	19 01
+	0x29, 0x0A, // Usage Maximum(Button 10) 	29 0A
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0x06, 0x00, 0xFF, // Usage Page(Vendor - Defined 1) 	06 00 FF
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x06, // Report Count(6) 	95 06
+	0x25, 0x01, // Logical Maximum(1) 	25 01
+	0x45, 0x01, // Physical Maximum(1) 	45 01
+	0x09, 0x01, // Usage(Vendor - Defined 1) 	09 01
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0xC0, // End Collection 	C0
+	0xC0, // End Collection 	C0
+
+	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
+	0x09, 0x04, // Usage(Joystick) 	09 04
+	0xA1, 0x01, // Collection(Application) 	A1 01
+	0x85, 4, // Report ID 	85 HID_REPORTID_Gamepad1Report
+	0xA1, 0x02, // Collection(Logical) 	A1 02
+	0x75, 0x08, // Report Size(8) 	75 08
+	0x95, 0x02, // Report Count(2) 	95 02
+	0x15, 0x00, // Logical Minimum(0) 	15 00
+	0x26, 0xFF, 0x00, // Logical Maximum(255) 	26 FF 00
+	0x35, 0x00, // Physical Minimum(0) 	35 00
+	0x46, 0xFF, 0x00, // Physical Maximum(255) 	46 FF 00
+	0x09, 0x30, // Usage(X) 	09 30
+	0x09, 0x31, // Usage(Y) 	09 31
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x0A, // Report Count(10) 	95 0A
+	0x25, 0x01, // Logical Maximum(1) 	25 01
+	0x45, 0x01, // Physical Maximum(1) 	45 01
+	0x05, 0x09, // Usage Page(Button) 	05 09
+	0x19, 0x01, // Usage Minimum(Button 1) 	19 01
+	0x29, 0x0A, // Usage Maximum(Button 10) 	29 0A
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0x06, 0x00, 0xFF, // Usage Page(Vendor - Defined 1) 	06 00 FF
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x06, // Report Count(6) 	95 06
+	0x25, 0x01, // Logical Maximum(1) 	25 01
+	0x45, 0x01, // Physical Maximum(1) 	45 01
+	0x09, 0x01, // Usage(Vendor - Defined 1) 	09 01
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0xC0, // End Collection 	C0
+	0xC0, // End Collection 	C0
+
+	/*
+	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
+	0x09, 0x04, // Usage(Joystick) 	09 04
+	0xA1, 0x01, // Collection(Application) 	A1 01
+	0x85, HID_REPORTID_Gamepad1Report, // Report ID 	85 HID_REPORTID_Gamepad1Report
+	0x09, 0x01, // Usage(Pointer) 	09 01
+	0xA1, 0x00, // Collection(Physical) 	A1 00
+	0x05, 0x09, // Usage Page(Button) 	05 09
+	0x19, 0x01, // Usage Minimum(Button 1) 	19 01
+	0x29, 0x0C, // Usage Maximum(Button 12) 	29 0C
+	0x15, 0x00, // Logical Minimum(0) 	15 00
+	0x25, 0x01, // Logical Maximum(1) 	25 01
+	0x35, 0x00, // Physical Minimum(0) 	35 00
+	0x45, 0x01, // Physical Maximum(1) 	45 01
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x0C, // Report Count(12) 	95 0C
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x04, // Report Count(4) 	95 04
+	0x81, 0x03, // Input(Cnst, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 03
+	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
+	0x09, 0x30, // Usage(X) 	09 30
+	0x09, 0x31, // Usage(Y) 	09 31
+	0x09, 0x32, // Usage(Z) 	09 32
+	0x09, 0x35, // Usage(Rz) 	09 35
+	0x15, 0x00, // Logical Minimum(0) 	15 00
+	0x26, 0xFF, 0x00, // Logical Maximum(255) 	26 FF 00
+	0x35, 0x00, // Physical Minimum(0) 	35 00
+	0x46, 0xFF, 0x00, // Physical Maximum(255) 	46 FF 00
+	0x66, 0x00, 0x00, // Unit(None) 	66 00 00
+	0x75, 0x08, // Report Size(8) 	75 08
+	0x95, 0x04, // Report Count(4) 	95 04
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
+	0x09, 0x39, // Usage(Hat Switch) 	09 39
+	0x15, 0x00, // Logical Minimum(0) 	15 00
+	0x25, 0x07, // Logical Maximum(7) 	25 07
+	0x35, 0x00, // Physical Minimum(0) 	35 00
+	0x46, 0x3B, 0x01, // Physical Maximum(315) 	46 3B 01
+	0x65, 0x14, // Unit(Eng Rot : Degree) 	65 14
+	0x75, 0x04, // Report Size(4) 	75 04
+	0x95, 0x01, // Report Count(1) 	95 01
+	0x81, 0x42, // Input(Data, Var, Abs, NWrp, Lin, Pref, Null, Bit) 	81 42
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x04, // Report Count(4) 	95 04
+	0x81, 0x03, // Input(Cnst, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 03
+	0x06, 0x00, 0xFF, // Usage Page(Vendor - Defined 1) 	06 00 FF
+	0x09, 0x01, // Usage(Vendor - Defined 1) 	09 01
+	0x75, 0x08, // Report Size(8) 	75 08
+	0x95, 0x02, // Report Count(2) 	95 02
+	0x91, 0x02, // Output(Data, Var, Abs, NWrp, Lin, Pref, NNul, NVol, Bit) 	91 02
+	0xC0, // End Collection 	C0
+	0xC0, // End Collection 	C0
+	
+	
+	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
+	0x09, 0x04, // Usage(Joystick) 	09 04
+	0xA1, 0x01, // Collection(Application) 	A1 01
+	0x85, HID_REPORTID_Gamepad1Report+1, // Report ID 	85 HID_REPORTID_Gamepad1Report
+	0x09, 0x01, // Usage(Pointer) 	09 01
+	0xA1, 0x00, // Collection(Physical) 	A1 00
+	0x05, 0x09, // Usage Page(Button) 	05 09
+	0x19, 0x01, // Usage Minimum(Button 1) 	19 01
+	0x29, 0x0C, // Usage Maximum(Button 12) 	29 0C
+	0x15, 0x00, // Logical Minimum(0) 	15 00
+	0x25, 0x01, // Logical Maximum(1) 	25 01
+	0x35, 0x00, // Physical Minimum(0) 	35 00
+	0x45, 0x01, // Physical Maximum(1) 	45 01
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x0C, // Report Count(12) 	95 0C
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x04, // Report Count(4) 	95 04
+	0x81, 0x03, // Input(Cnst, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 03
+	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
+	0x09, 0x30, // Usage(X) 	09 30
+	0x09, 0x31, // Usage(Y) 	09 31
+	0x09, 0x32, // Usage(Z) 	09 32
+	0x09, 0x35, // Usage(Rz) 	09 35
+	0x15, 0x00, // Logical Minimum(0) 	15 00
+	0x26, 0xFF, 0x00, // Logical Maximum(255) 	26 FF 00
+	0x35, 0x00, // Physical Minimum(0) 	35 00
+	0x46, 0xFF, 0x00, // Physical Maximum(255) 	46 FF 00
+	0x66, 0x00, 0x00, // Unit(None) 	66 00 00
+	0x75, 0x08, // Report Size(8) 	75 08
+	0x95, 0x04, // Report Count(4) 	95 04
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
+	0x09, 0x39, // Usage(Hat Switch) 	09 39
+	0x15, 0x00, // Logical Minimum(0) 	15 00
+	0x25, 0x07, // Logical Maximum(7) 	25 07
+	0x35, 0x00, // Physical Minimum(0) 	35 00
+	0x46, 0x3B, 0x01, // Physical Maximum(315) 	46 3B 01
+	0x65, 0x14, // Unit(Eng Rot : Degree) 	65 14
+	0x75, 0x04, // Report Size(4) 	75 04
+	0x95, 0x01, // Report Count(1) 	95 01
+	0x81, 0x42, // Input(Data, Var, Abs, NWrp, Lin, Pref, Null, Bit) 	81 42
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x04, // Report Count(4) 	95 04
+	0x81, 0x03, // Input(Cnst, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 03
+	0x06, 0x00, 0xFF, // Usage Page(Vendor - Defined 1) 	06 00 FF
+	0x09, 0x01, // Usage(Vendor - Defined 1) 	09 01
+	0x75, 0x08, // Report Size(8) 	75 08
+	0x95, 0x02, // Report Count(2) 	95 02
+	0x91, 0x02, // Output(Data, Var, Abs, NWrp, Lin, Pref, NNul, NVol, Bit) 	91 02
+	0xC0, // End Collection 	C0
+	0xC0, // End Collection 	C0
+
+
+	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
+	0x09, 0x04, // Usage(Joystick) 	09 04
+	0xA1, 0x01, // Collection(Application) 	A1 01
+	0x85, HID_REPORTID_Gamepad1Report+2, // Report ID 	85 HID_REPORTID_Gamepad1Report
+	0x09, 0x01, // Usage(Pointer) 	09 01
+	0xA1, 0x00, // Collection(Physical) 	A1 00
+	0x05, 0x09, // Usage Page(Button) 	05 09
+	0x19, 0x01, // Usage Minimum(Button 1) 	19 01
+	0x29, 0x0C, // Usage Maximum(Button 12) 	29 0C
+	0x15, 0x00, // Logical Minimum(0) 	15 00
+	0x25, 0x01, // Logical Maximum(1) 	25 01
+	0x35, 0x00, // Physical Minimum(0) 	35 00
+	0x45, 0x01, // Physical Maximum(1) 	45 01
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x0C, // Report Count(12) 	95 0C
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x04, // Report Count(4) 	95 04
+	0x81, 0x03, // Input(Cnst, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 03
+	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
+	0x09, 0x30, // Usage(X) 	09 30
+	0x09, 0x31, // Usage(Y) 	09 31
+	0x09, 0x32, // Usage(Z) 	09 32
+	0x09, 0x35, // Usage(Rz) 	09 35
+	0x15, 0x00, // Logical Minimum(0) 	15 00
+	0x26, 0xFF, 0x00, // Logical Maximum(255) 	26 FF 00
+	0x35, 0x00, // Physical Minimum(0) 	35 00
+	0x46, 0xFF, 0x00, // Physical Maximum(255) 	46 FF 00
+	0x66, 0x00, 0x00, // Unit(None) 	66 00 00
+	0x75, 0x08, // Report Size(8) 	75 08
+	0x95, 0x04, // Report Count(4) 	95 04
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
+	0x09, 0x39, // Usage(Hat Switch) 	09 39
+	0x15, 0x00, // Logical Minimum(0) 	15 00
+	0x25, 0x07, // Logical Maximum(7) 	25 07
+	0x35, 0x00, // Physical Minimum(0) 	35 00
+	0x46, 0x3B, 0x01, // Physical Maximum(315) 	46 3B 01
+	0x65, 0x14, // Unit(Eng Rot : Degree) 	65 14
+	0x75, 0x04, // Report Size(4) 	75 04
+	0x95, 0x01, // Report Count(1) 	95 01
+	0x81, 0x42, // Input(Data, Var, Abs, NWrp, Lin, Pref, Null, Bit) 	81 42
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x04, // Report Count(4) 	95 04
+	0x81, 0x03, // Input(Cnst, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 03
+	0x06, 0x00, 0xFF, // Usage Page(Vendor - Defined 1) 	06 00 FF
+	0x09, 0x01, // Usage(Vendor - Defined 1) 	09 01
+	0x75, 0x08, // Report Size(8) 	75 08
+	0x95, 0x02, // Report Count(2) 	95 02
+	0x91, 0x02, // Output(Data, Var, Abs, NWrp, Lin, Pref, NNul, NVol, Bit) 	91 02
+	0xC0, // End Collection 	C0
+	0xC0, // End Collection 	C0
+
+
+	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
+	0x09, 0x04, // Usage(Joystick) 	09 04
+	0xA1, 0x01, // Collection(Application) 	A1 01
+	0x85, HID_REPORTID_Gamepad1Report+3, // Report ID 	85 HID_REPORTID_Gamepad1Report
+	0x09, 0x01, // Usage(Pointer) 	09 01
+	0xA1, 0x00, // Collection(Physical) 	A1 00
+	0x05, 0x09, // Usage Page(Button) 	05 09
+	0x19, 0x01, // Usage Minimum(Button 1) 	19 01
+	0x29, 0x0C, // Usage Maximum(Button 12) 	29 0C
+	0x15, 0x00, // Logical Minimum(0) 	15 00
+	0x25, 0x01, // Logical Maximum(1) 	25 01
+	0x35, 0x00, // Physical Minimum(0) 	35 00
+	0x45, 0x01, // Physical Maximum(1) 	45 01
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x0C, // Report Count(12) 	95 0C
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x04, // Report Count(4) 	95 04
+	0x81, 0x03, // Input(Cnst, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 03
+	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
+	0x09, 0x30, // Usage(X) 	09 30
+	0x09, 0x31, // Usage(Y) 	09 31
+	0x09, 0x32, // Usage(Z) 	09 32
+	0x09, 0x35, // Usage(Rz) 	09 35
+	0x15, 0x00, // Logical Minimum(0) 	15 00
+	0x26, 0xFF, 0x00, // Logical Maximum(255) 	26 FF 00
+	0x35, 0x00, // Physical Minimum(0) 	35 00
+	0x46, 0xFF, 0x00, // Physical Maximum(255) 	46 FF 00
+	0x66, 0x00, 0x00, // Unit(None) 	66 00 00
+	0x75, 0x08, // Report Size(8) 	75 08
+	0x95, 0x04, // Report Count(4) 	95 04
+	0x81, 0x02, // Input(Data, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 02
+	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
+	0x09, 0x39, // Usage(Hat Switch) 	09 39
+	0x15, 0x00, // Logical Minimum(0) 	15 00
+	0x25, 0x07, // Logical Maximum(7) 	25 07
+	0x35, 0x00, // Physical Minimum(0) 	35 00
+	0x46, 0x3B, 0x01, // Physical Maximum(315) 	46 3B 01
+	0x65, 0x14, // Unit(Eng Rot : Degree) 	65 14
+	0x75, 0x04, // Report Size(4) 	75 04
+	0x95, 0x01, // Report Count(1) 	95 01
+	0x81, 0x42, // Input(Data, Var, Abs, NWrp, Lin, Pref, Null, Bit) 	81 42
+	0x75, 0x01, // Report Size(1) 	75 01
+	0x95, 0x04, // Report Count(4) 	95 04
+	0x81, 0x03, // Input(Cnst, Var, Abs, NWrp, Lin, Pref, NNul, Bit) 	81 03
+	0x06, 0x00, 0xFF, // Usage Page(Vendor - Defined 1) 	06 00 FF
+	0x09, 0x01, // Usage(Vendor - Defined 1) 	09 01
+	0x75, 0x08, // Report Size(8) 	75 08
+	0x95, 0x02, // Report Count(2) 	95 02
+	0x91, 0x02, // Output(Data, Var, Abs, NWrp, Lin, Pref, NNul, NVol, Bit) 	91 02
+	0xC0, // End Collection 	C0
+	0xC0, // End Collection 	C0
+	*/
 
 #ifdef HID_GAMEPAD1_ENABLE
 	// Gamepad1
@@ -381,7 +697,7 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] =
 	0x95, 0x01,							//     REPORT_COUNT (1)
 	0x81, 0x03,							//     INPUT (Cnst,Var,Abs)
 	0xc0,								//   END_COLLECTION
-	0xc0								// END_COLLECTION
+	0xc0,								// END_COLLECTION
 #endif
 
 };

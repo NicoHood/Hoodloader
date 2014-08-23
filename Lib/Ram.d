@@ -102,7 +102,8 @@ Lib/Ram.o: Lib/Ram.c Lib/Ram.h Metainclude.h \
  lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/Serial_AVR8.h \
  lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../../Common/Common.h \
  lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../Misc/TerminalCodes.h \
- Lib/LightweightRingBuff.h Lib/NHP.h Lib/HID_Reports.h
+ Lib/LightweightRingBuff.h Lib/NHP.h Lib/HID_Reports.h Descriptors.h \
+ Metainclude.h Lib/HID_Reports.h
 
 Lib/Ram.h:
 
@@ -321,5 +322,11 @@ lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../Misc/TerminalCodes.h
 Lib/LightweightRingBuff.h:
 
 Lib/NHP.h:
+
+Lib/HID_Reports.h:
+
+Descriptors.h:
+
+Metainclude.h:
 
 Lib/HID_Reports.h:

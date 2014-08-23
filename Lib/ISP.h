@@ -80,30 +80,38 @@ void avrisp(int ReceivedByte);
 void sendCDCbyte(uint8_t b);
 uint8_t getch(void);
 void fill(int n);
+
 void get_parameters(uint8_t c); // get_version
 void set_parameters(void);
+void universal(void);
+void read_signature(void);
+void commit(int addr);
+
 void breply(uint8_t b);
 void replyOK(void); // empty_reply
+
 void start_pmode(void);
+void end_pmode(void);
 void spi_init(void);
 uint8_t spi_transaction(uint8_t a, uint8_t b, uint8_t c, uint8_t d);
 uint8_t spi_send(uint8_t b);
 void spi_wait(void);
-void program_page(void);
-uint8_t flash_read(uint8_t hilo, int addr);
-char flash_read_page(int length);
-void universal(void);
-void read_signature(void);
-void end_pmode(void);
+void flash(uint8_t hilo, int addr, uint8_t data);
+
+int current_page(void);
 void read_page(void);
-void write_flash(int length);
+char flash_read_page(int length);
+uint8_t flash_read(uint8_t hilo, int addr);
+char eeprom_read_page(int length);
+
+void program_page(void);
+uint8_t write_flash(int length);
+uint8_t write_flash_chunk(int start, int length);
 uint8_t write_eeprom(int length);
 uint8_t write_eeprom_chunk(int start, int length);
-char eeprom_read_page(int length);
-uint8_t write_flash_pages(int length);
-void commit(int addr);
-int current_page(void);
-void flash(uint8_t hilo, int addr, uint8_t data);
+
+
+
 
 // not used, replaved with intern delay TODO
 void delay(unsigned long ms);

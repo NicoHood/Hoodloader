@@ -28,6 +28,7 @@ THE SOFTWARE.
 #include "Metainclude.h"
 #include "Lib/NHP.h"
 #include "Lib/HID_Reports.h"
+#include "Descriptors.h"
 
 //================================================================================
 // RAM
@@ -40,7 +41,14 @@ typedef struct{
 	//int test; //TODO remove
 
 	// Circular buffer to hold data from the serial port before it is sent to the host.
-	LRingBuffer_t USARTtoUSB_Buffer;
+	LRingBuffer_t RingBuffer;
+
+	// Underlying data buffer for RingBuffer, where the stored bytes are located.
+	union{
+		uint8_t RingBuffer_Data[128];
+		uint8_t ispBuffer[128];
+	};
+
 
 	uint8_t skipNHP; // up to 12 bytes (address error + nhp error)
 
@@ -68,13 +76,14 @@ typedef struct{
 	} PulseMSRemaining;
 
 	union{
-		// isp data buffer
-		uint8_t ispBuffer[256];
 
+#if (PRODUCTID != HOODLOADER_LITE_PID)
+		// isp data buffer
+		//uint8_t ispBuffer[1];
+#endif
 		// normal mode if HID is on
 		struct{
-			// Underlying data buffer for \ref USARTtoUSB_Buffer, where the stored bytes are located.
-			uint8_t USARTtoUSB_Buffer_Data[100];
+
 
 			// variables to save hid states
 			struct{
@@ -92,7 +101,7 @@ typedef struct{
 
 			// NHP needed as Serial Protocol to receive HID data
 			NHP_Data_t NHP;
-			
+
 		};
 	};
 }ram_t;

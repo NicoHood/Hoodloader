@@ -109,7 +109,7 @@ void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCI
 	if (CDCInterfaceInfo->State.LineEncoding.BaudRateBPS == AVRISP_BAUD){
 		SerialInitHID();
 		// disable the buffer until pmode has started
-		LRingBuffer_DisableBuffer(&ram.USARTtoUSB_Buffer);
+		LRingBuffer_DisableBuffer(&ram.RingBuffer);
 
 		avrispReset();
 	}

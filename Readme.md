@@ -266,8 +266,8 @@ Ideas for the future (Todo list):
 * get Raw HID working
 * reduce gamepad report size, add 4 gamepads
 * shrink HID functions
-* note that drivers are always the same for updating
-* compile for different drivers/ids
+* note that drivers are always the same for updating to newer versions
+* compile for different drivers/ids (problem with official pids)
 * HID reset with/without the isempty?
 * Center gamepads with 0 to suit with clear reports
 * add clear reports command for hid begin

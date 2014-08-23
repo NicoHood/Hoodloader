@@ -223,7 +223,7 @@ void checkNHPProtocol(uint8_t input){
 		checkNHPControlAddressError();
 
 		// error while reading, write down current buffer (except possible new leads)
-		LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer, ram.NHP.readlength);
+		LRingBuffer_Append_Buffer(&ram.RingBuffer, ram.NHP.readbuffer, ram.NHP.readlength);
 		ram.skipNHP += ram.NHP.readlength;
 		return;
 	}
@@ -270,7 +270,7 @@ void checkNHPProtocol(uint8_t input){
 	// we received a corrupt data packet
 	else{
 		// just a normal Protocol outside our control address (or corrupted packet), write it down
-		LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer, ram.NHP.readlength);
+		LRingBuffer_Append_Buffer(&ram.RingBuffer, ram.NHP.readbuffer, ram.NHP.readlength);
 		ram.skipNHP += ram.NHP.readlength;
 
 		// check if previous reading was a valid Control Address and write it down
@@ -290,7 +290,7 @@ void checkNHPControlAddressError(void){
 		uint8_t length = NHPwriteChecksum(NHP_ADDRESS_CONTROL, (NHP_USAGE_ARDUINOHID << 8) | ram.HID.ID, buff);
 
 		// Writes the NHP read buffer with the given length
-		LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, buff, length);
+		LRingBuffer_Append_Buffer(&ram.RingBuffer, buff, length);
 		ram.skipNHP += length;
 	}
 

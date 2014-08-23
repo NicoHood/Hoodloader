@@ -33,7 +33,7 @@ THE SOFTWARE.
 int main(void)
 {
 	// Serial tx buffers Setup
-	LRingBuffer_InitBuffer(&ram.USARTtoUSB_Buffer, ram.USARTtoUSB_Buffer_Data, sizeof(ram.USARTtoUSB_Buffer_Data));
+	LRingBuffer_InitBuffer(&ram.RingBuffer, ram.RingBuffer_Data, sizeof(ram.RingBuffer_Data));
 
 	//NHP setup
 	ram.skipNHP = 0;
@@ -51,13 +51,6 @@ int main(void)
 	SetupHardware();
 
 	GlobalInterruptEnable();
-
-	//while (1){
-
-	//	CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
-	//	USB_USBTask();
-	//}
-
 
 	for (;;)
 	{
@@ -92,7 +85,7 @@ int main(void)
 		//================================================================================
 		// Serial: read in bytes from the Serial buffer
 		//================================================================================
-		uint16_t BufferCount = LRingBuffer_GetCount(&ram.USARTtoUSB_Buffer);
+		uint16_t BufferCount = LRingBuffer_GetCount(&ram.RingBuffer);
 		if (BufferCount)
 		{
 			// Turn on TX LED
@@ -130,13 +123,13 @@ int main(void)
 
 							// Try to send the next byte of data to the host, abort if there is an error without dequeuing
 							if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
-								LRingBuffer_Peek(&ram.USARTtoUSB_Buffer)) != ENDPOINT_READYWAIT_NoError)
+								LRingBuffer_Peek(&ram.RingBuffer)) != ENDPOINT_READYWAIT_NoError)
 							{
 								break;
 							}
 						}
 						// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
-						LRingBuffer_Remove(&ram.USARTtoUSB_Buffer);
+						LRingBuffer_Remove(&ram.RingBuffer);
 
 						// Dequeue the NHP buffer byte
 						if (ram.skipNHP)
@@ -144,7 +137,7 @@ int main(void)
 					}
 					else
 						// main function to proceed HID input checks
-						checkNHPProtocol(LRingBuffer_Remove(&ram.USARTtoUSB_Buffer));
+						checkNHPProtocol(LRingBuffer_Remove(&ram.RingBuffer));
 
 				}
 			}
@@ -165,13 +158,13 @@ int main(void)
 
 					// write started lead
 					if (ram.NHP.leadError){
-						LRingBuffer_Append(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer[ram.NHP.readlength]);
+						LRingBuffer_Append(&ram.RingBuffer, ram.NHP.readbuffer[ram.NHP.readlength]);
 						ram.skipNHP += ram.NHP.leadError;
 					}
 
 					// write buffer if it contains in progress reading data
 					if (!ram.NHP.reset){
-						LRingBuffer_Append_Buffer(&ram.USARTtoUSB_Buffer, ram.NHP.readbuffer, ram.NHP.readlength);
+						LRingBuffer_Append_Buffer(&ram.RingBuffer, ram.NHP.readbuffer, ram.NHP.readlength);
 						ram.skipNHP += ram.NHP.readlength;
 					}
 
@@ -279,7 +272,7 @@ ISR(USART1_RX_vect, ISR_BLOCK)
 
 	// save new byte to the buffer (automatically discards if its disabled or full)
 	if (USB_DeviceState == DEVICE_STATE_Configured)
-		LRingBuffer_Insert(&ram.USARTtoUSB_Buffer, ReceivedByte);
+		LRingBuffer_Insert(&ram.RingBuffer, ReceivedByte);
 }
 
 /** Event handler for the library USB Control Request reception event. */

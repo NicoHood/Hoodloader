@@ -33,8 +33,8 @@ THE SOFTWARE.
 
 #define RAWHID_USAGE_PAGE	0xFFC0 // recommended: 0xFF00 to 0xFFFF
 #define RAWHID_USAGE		0x0C00 // recommended: 0x0100 to 0xFFFF
-#define RAWHID_TX_SIZE 63 // 1 byte for report ID
-#define RAWHID_RX_SIZE 63 // 1 byte for report ID
+#define RAWHID_TX_SIZE 15 // 1 byte for report ID
+#define RAWHID_RX_SIZE 15 // 1 byte for report ID
 
 //================================================================================
 //Report Typedefinitions
