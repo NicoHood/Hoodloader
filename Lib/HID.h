@@ -28,7 +28,6 @@ THE SOFTWARE.
 #include "Metainclude.h"
 
 #include "Descriptors.h"
-#include "Lib/CDC.h"
 #include "Lib/HID_Reports.h"
 #include "Lib/NHP.h"
 #include "Lib/Ram.h"
@@ -60,7 +59,7 @@ uint8_t getHIDReportLength(uint8_t ID);
 void flushHID(void);
 void checkNHPProtocol(uint8_t input);
 void checkNHPControlAddressError(void);
-void HIDreset(void);
+//void HIDreset(void);
 
 #endif
 

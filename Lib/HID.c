@@ -60,41 +60,32 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 	void* ReportData,
 	uint16_t* const ReportSize)
 {
+	// only send report if there is actually a new report
+	if (ram.HID.writeHID){
+		// set a specific flag that a report was written, ignore rawHID
+		if (ram.HID.ID != HID_REPORTID_RawKeyboardReport)
+			ram.HID.writtenReport |= (1 << (ram.HID.ID - 1));
 
-	if (ram.isp.pmode || (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK))){
-		//TODO improve
+		//write report
+		uint8_t length = getHIDReportLength(ram.HID.ID);
+		memcpy(ReportData, ram.HID.buffer, length);
+		*ReportID = ram.HID.ID;
+		*ReportSize = length;
+
+		// reset the flush flag and pending ID
+		ram.HID.writeHID = false;
+		ram.HID.ID = 0;
+
+		// always return true, because we cannot compare with >1 report due to ram limit
+		// this will forcewrite the report every time
+		return true;
+	}
+	else{
+		//TODO improve ? (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK))
 		*ReportID = 0;
 		*ReportSize = 0;
 		return false;
 	}
-
-
-	// only send report if there is actually a new report
-	//if (ram.HID.ID){
-	//TODO remove this
-
-	// set a general and specific flag that a report was made, ignore rawHID
-	if (ram.HID.ID != HID_REPORTID_RawKeyboardReport){
-		ram.HID.isEmpty[HID_REPORTID_NotAReport] = false;
-		ram.HID.isEmpty[ram.HID.ID] = false;
-	}
-
-	//write report
-	memcpy(ReportData, ram.HID.buffer, ram.HID.length);
-	*ReportID = ram.HID.ID;
-	*ReportSize = ram.HID.length;
-
-	// reset ID
-	ram.HID.ID = 0;
-	ram.HID.recvlength = 0; //just to be sure if you call HID_Task by accident again
-	ram.HID.length = 0; //just to be sure if you call HID_Task by accident again
-
-	// always return true, because we cannot compare with >1 report due to ram limit
-	// this will forcewrite the report every time
-	return true;
-
-	//}
-	//else return false;
 }
 
 /** HID class driver callback function for the processing of HID reports from the host.
@@ -111,13 +102,15 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 	const void* ReportData,
 	const uint16_t ReportSize)
 {
+	return; //TODO
+
 	// Unused in this demo, since there are no Host->Device reports
 	//	uint8_t* LEDReport = (uint8_t*)ReportData;
 
 	if (ReportID == HID_REPORTID_RawKeyboardReport){
 		//LEDs_SetAllLEDs(LEDS_ALL_LEDS);
 		//while (1); //TODO remove <--
-
+		//TODO get this working
 		// Turn on RX LED
 		LEDs_TurnOnLEDs(LEDMASK_RX);
 		ram.PulseMSRemaining.RxLEDPulse = TX_RX_LED_PULSE_MS;
@@ -127,46 +120,45 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 	}
 }
 
+void flushHID(void){
+	// try to send until its done
+	while (ram.HID.writeHID){
+		// TODO timeout? <--
+		HID_Device_USBTask(&Device_HID_Interface);
+	}
+}
 
 void clearHIDReports(void){
-	// dont do anything if the main flag is empty
-	if (ram.HID.isEmpty[HID_REPORTID_NotAReport]) return;
+	// dont do anything if no report is written
+	if (!ram.HID.writtenReport) return;
 
 	// check if every report is empty or not
 	for (int i = 1; i < HID_REPORTID_LastNotAReport; i++)
 		clearHIDReport(i);
-
-	// clear the main flag that all reports are empty
-	ram.HID.isEmpty[HID_REPORTID_NotAReport] = true;
 }
 
 void clearHIDReport(uint8_t ID){
-	// return if already cleared, RAW HID cannot be cleared
-	if (ram.HID.isEmpty[ID] || ID == HID_REPORTID_RawKeyboardReport) return;
+	// return if already cleared
+	if (!(ram.HID.writtenReport & (1 << (ID - 1)))) return;
 
-	// get length of the report if its a valid report
+	// get length and check if report ID is valid
 	uint8_t length = getHIDReportLength(ID);
 	if (!length) return;
 
-	// save new values and prepare for sending
-	ram.HID.length = ram.HID.recvlength = length;
-	ram.HID.ID = ID;
-	memset(&ram.HID.buffer, 0x00, length);
-
-	// flush HID
+	// flush any pending report first
 	flushHID();
 
-	// save new empty state
-	ram.HID.isEmpty[ID] = true;
-}
+	// save new values and prepare for sending
+	ram.HID.ID = ID;
+	memset(&ram.HID.buffer, 0x00, length);
+	ram.HID.writeHID = true;
 
-void flushHID(void){
-	// TODO timeout? <--
-	// try to send until its done
-	while (ram.HID.ID && ram.HID.length == ram.HID.recvlength)
-		HID_Device_USBTask(&Device_HID_Interface);
-}
+	// flush HID, needed to clear flag below
+	flushHID();
 
+	// save new empty flag
+	ram.HID.writtenReport &= ~(1 << (ID - 1));
+}
 
 uint8_t getHIDReportLength(uint8_t ID){
 	// Get the length of the report
@@ -200,52 +192,46 @@ uint8_t getHIDReportLength(uint8_t ID){
 	case HID_REPORTID_Joystick2Report:
 		return sizeof(HID_JoystickReport_Data_t);
 		break;
-
-	default:
-		// error, write down this wrong ID report
-		return 0;
-		break;
-	} //end switch
+	}
+	// error, ID not presented
 	return 0;
 }
 
 // Checks for a valid protocol input and writes HID report
 void checkNHPProtocol(uint8_t input){
-	// set new timeout mark
-	ram.PulseMSRemaining.NHPTimeout = NHP_TIMEOUT_MS;
-
 	NHP_Enum_t address = NHPreadChecksum(input, &ram.NHP);
 
 	if (address == 0)
 		// reading in progress, dont disturb
 		return;
 	else if (address < 0){
-		// check if previous reading was a valid Control Address and write it down
-		checkNHPControlAddressError();
-
 		// error while reading, write down current buffer (except possible new leads)
 		LRingBuffer_Append_Buffer(&ram.RingBuffer, ram.NHP.readbuffer, ram.NHP.readlength);
 		ram.skipNHP += ram.NHP.readlength;
+
+		// check if previous reading was a valid Control Address and write it down
+		// this needs to be appended after the normal protocol!
+		checkNHPControlAddressError();
 		return;
 	}
 
 	// nearly the same priciple like the Protocol itself: check for control address
 	if ((address == NHP_ADDRESS_CONTROL) && (((ram.NHP.mWorkData >> 8) & 0xFF) == NHP_USAGE_ARDUINOHID)){
+		// make sure there is no pending report, because we overwrite the buffer now
+		flushHID();
+
+		// get the new report ID and reset the received length
+		uint8_t ID = ram.NHP.mWorkData & 0xFF;
+		ram.HID.recvlength = 0;
+
 		// check if previous reading was a valid Control Address and write it down
 		checkNHPControlAddressError();
 
-		// get the new report ID and reset the buffer
-		ram.HID.ID = ram.NHP.mWorkData & 0xFF;
-		ram.HID.recvlength = 0;
-
-		// TODO remove this cleaning
-		//memset(ram.HID.buffer, 0, sizeof(ram.HID.buffer));
-
-		// Determine which interface must have its report generated
-		ram.HID.length = getHIDReportLength(ram.HID.ID);
-
-		// error, write down this wrong ID report
-		if (!ram.HID.length)
+		// save new ID
+		ram.HID.ID = ID;
+		if (!ram.HID.ID || ram.HID.ID >= HID_REPORTID_LastNotAReport)
+			// error, write down this wrong ID report
+			// this needs to be appended after the normal protocol!
 			checkNHPControlAddressError();
 	}
 
@@ -253,19 +239,22 @@ void checkNHPProtocol(uint8_t input){
 	else if (ram.HID.ID && (address == (((ram.HID.recvlength + 2) / 2) + 1))){
 		// check if the new Address is in correct order of HID reports.
 		// the first 2 bytes are sent with Address 2 and so on.
+		uint8_t length = getHIDReportLength(ram.HID.ID);
 
 		// save the first byte
 		ram.HID.buffer[ram.HID.recvlength++] = (ram.NHP.mWorkData & 0xFF);
 
 		// if there is another byte we need (for odd max HID reports important
 		// to not write over the buff array)
-		if (ram.HID.length != ram.HID.recvlength)
+		if (length != ram.HID.recvlength)
 			ram.HID.buffer[ram.HID.recvlength++] = (ram.NHP.mWorkData >> 8);
 
 		// we are ready try to submit the new report to the usb host
 		// dont block here, we flush the report on the next reading if needed
-		if (ram.HID.length == ram.HID.recvlength)
-			flushHID();
+		if (ram.HID.recvlength == length){
+			ram.HID.writeHID = true;
+			HID_Device_USBTask(&Device_HID_Interface);
+		}
 	}
 
 	// we received a corrupt data packet
@@ -283,8 +272,7 @@ void checkNHPProtocol(uint8_t input){
 
 void checkNHPControlAddressError(void){
 	// only write if a control address was just before, maybe it was a random valid address
-	// but if we already received some data we handle this as corrupted data and just
-	// discard all the bytes
+	// but if we already received some data we handle this as corrupted data and discard all bytes
 	if (ram.HID.ID && !ram.HID.recvlength){
 		// write the cached buffer (recreate protocol)
 		uint8_t buff[6];
@@ -297,16 +285,11 @@ void checkNHPControlAddressError(void){
 
 	// reset any pending HID reports
 	ram.HID.ID = 0;
-	ram.HID.recvlength = 0; // just to be sure
-	ram.HID.length = 0; // just to be sure
 }
 
-void HIDreset(void){
-	// reset any pending HID reports
-	ram.HID.ID = 0;
-	ram.HID.recvlength = 0; // just to be sure
-	ram.HID.length = 0; // just to be sure
-
-	// all reports are empty by default
-	memset(&ram.HID.isEmpty, true, sizeof(ram.HID.isEmpty));
-}
+//void HIDreset(void){
+//	// reset any pending HID reports
+//	ram.HID.writeHID = false;
+//	ram.HID.ID = 0;
+//	ram.HID.writtenReport = false;
+//}

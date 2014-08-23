@@ -46,7 +46,7 @@ typedef struct{
 
 	// if baud == AVRISP_BAUD AVRISP mode
 	struct{
-		int error; //TODO improve types
+		uint8_t error;
 		bool pmode;
 		int _addr; // here
 		struct{
@@ -63,22 +63,22 @@ typedef struct{
 			uint8_t TxLEDPulse : 2; // Milliseconds remaining for data Tx LED pulse
 			uint8_t RxLEDPulse : 2; // Milliseconds remaining for data Rx LED pulse
 			uint8_t NHPTimeout : 2;
-			uint8_t PModePulse : 2;
+			uint8_t PModePulse : 2; // Not used <--
 		};
 	} PulseMSRemaining;
 
 	// variables to save hid states
 	struct{
-		// variable to perform a "HID flush" and to indicate what report should be written down
-		uint8_t ID;
-		// length of the report
-		uint8_t length;
+		// Report ID that is being received
+		uint8_t ID : 4; // 0-15
 		// number of bytes received
-		uint8_t recvlength;
+		uint8_t recvlength : 4; // 0-15
 		// Buffer for the incoming HID report
 		uint8_t buffer[sizeof(HID_HIDReport_Data_t)];
-		// array to check if a report is cleared or not
-		bool isEmpty[HID_REPORTID_LastNotAReport];
+		// int to check if a report is cleared or not
+		uint16_t writtenReport : 15;
+		// variable to perform a "HID flush" and to indicate what report should be written down
+		uint16_t writeHID : 1; // true/false
 	}HID;
 
 	// NHP needed as Serial Protocol to receive HID data

@@ -103,7 +103,7 @@ Lib/HID.o: Lib/HID.c Lib/HID.h Metainclude.h \
  lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../../Common/Common.h \
  lufa-LUFA-140302/LUFA/../LUFA/Drivers/Peripheral/AVR8/../../Misc/TerminalCodes.h \
  Lib/LightweightRingBuff.h Descriptors.h Metainclude.h Lib/HID_Reports.h \
- Lib/CDC.h Lib/Ram.h Lib/NHP.h Lib/HID_Reports.h Lib/ISP.h Lib/HID.h
+ Lib/HID_Reports.h Lib/NHP.h Lib/Ram.h
 
 Lib/HID.h:
 
@@ -327,14 +327,8 @@ Metainclude.h:
 
 Lib/HID_Reports.h:
 
-Lib/CDC.h:
-
-Lib/Ram.h:
+Lib/HID_Reports.h:
 
 Lib/NHP.h:
 
-Lib/HID_Reports.h:
-
-Lib/ISP.h:
-
-Lib/HID.h:
+Lib/Ram.h:

@@ -43,7 +43,9 @@ int main(void)
 	ram.PulseMSRemaining.whole = 0;
 
 	// HID Setup
-	HIDreset();
+	ram.HID.writeHID = false;
+	ram.HID.ID = 0;
+	ram.HID.writtenReport = false;
 
 	// AVR ISP Setup
 	avrispReset();
@@ -54,9 +56,8 @@ int main(void)
 
 	for (;;)
 	{
-		// TODO
 		// try to clear HID reports if HID is disabled by hardware
-		if (!ram.isp.pmode && (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK)))
+		if (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK))
 			clearHIDReports();
 
 		//================================================================================
@@ -85,6 +86,8 @@ int main(void)
 		//================================================================================
 		// Serial: read in bytes from the Serial buffer
 		//================================================================================
+
+		// only access Buffer & Leds if pmode is deactivated
 		if (!ram.isp.pmode){
 			uint16_t BufferCount = LRingBuffer_GetCount(&ram.RingBuffer);
 			if (BufferCount)
@@ -103,19 +106,12 @@ int main(void)
 					// while a Zero Length Packet (ZLP) to terminate the transfer is sent if the host isn't listening
 					uint8_t BytesToSend = MIN(BufferCount, (CDC_TXRX_EPSIZE - 1));
 
-					/// Read bytes from the USART receive buffer into the USB IN endpoint */
+					// Read bytes from the USART receive buffer into the USB IN endpoint */
 					while (BytesToSend--)
 					{
 						// ignoe HID check if: we need to write a pending NHP buff, its deactivated or not the right baud
 						uint32_t baud = VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS;
 						if (ram.skipNHP || (baud != AVRISP_BAUD && baud != 0 && baud != 115200) || (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK))){
-							// set new timeout mark <-- needed? TODO
-							if (ram.skipNHP)
-								ram.PulseMSRemaining.NHPTimeout = NHP_TIMEOUT_MS;
-							// if HID disabled try to clean reports if there are any
-							else
-								clearHIDReports();
-
 							// Try to send the next bytes to the host, if DTR is set to not block serial reading in HID mode
 							// outside HID mode always write the byte (!ram.skipNHP) is only null outside hid mode
 							// discard the byte if host is not connected (needed to get new HID bytes and empty buffer)
@@ -133,30 +129,37 @@ int main(void)
 							LRingBuffer_Remove(&ram.RingBuffer);
 
 							// Dequeue the NHP buffer byte
-							if (ram.skipNHP)
+							if (ram.skipNHP){
 								ram.skipNHP--;
+
+								// set new timeout mark
+								ram.PulseMSRemaining.NHPTimeout = NHP_TIMEOUT_MS;
+							}
 						}
-						else
+						else{
+							// set new timeout mark
+							ram.PulseMSRemaining.NHPTimeout = NHP_TIMEOUT_MS;
+
 							// main function to proceed HID input checks
 							checkNHPProtocol(LRingBuffer_Remove(&ram.RingBuffer));
-
+						}
 					}
 				}
+
 			}
-		}
 
-		//================================================================================
-		// Timer: check if the led/timeout flush timer has expired
-		//================================================================================
+			//================================================================================
+			// Timer: check if the led/timeout flush timer has expired
+			//================================================================================
 
-		if (TIFR0 & (1 << TOV0)){
-			// reset the timer
-			TIFR0 |= (1 << TOV0);
+			if (TIFR0 & (1 << TOV0)){
+				// reset the timer
+				TIFR0 |= (1 << TOV0);
 
-			// if reading has timed out write the buffers down the serial
-			if (ram.PulseMSRemaining.NHPTimeout && !(--ram.PulseMSRemaining.NHPTimeout)){
-				// write the rest of the cached NHP buffer down
-				if (!ram.isp.pmode){
+				// if reading has timed out write the buffers down the serial
+				if (ram.PulseMSRemaining.NHPTimeout && !(--ram.PulseMSRemaining.NHPTimeout)){
+					// write the rest of the cached NHP buffer down
+
 
 					// write started lead
 					if (ram.NHP.leadError){
@@ -176,25 +179,24 @@ int main(void)
 					// check if previous reading was a valid Control Address and write it down
 					// this needs to be appended after the normal protocol!
 					checkNHPControlAddressError();
+
 				}
+
+				// Turn off TX LED(s) once the TX pulse period has elapsed
+				if (ram.PulseMSRemaining.TxLEDPulse && !(--ram.PulseMSRemaining.TxLEDPulse))
+					LEDs_TurnOffLEDs(LEDMASK_TX);
+
+				// Turn off RX LED(s) once the RX pulse period has elapsed
+				if (ram.PulseMSRemaining.RxLEDPulse && !(--ram.PulseMSRemaining.RxLEDPulse))
+					LEDs_TurnOffLEDs(LEDMASK_RX);
 			}
-
-			// Turn off TX LED(s) once the TX pulse period has elapsed
-			if (ram.PulseMSRemaining.TxLEDPulse && !(--ram.PulseMSRemaining.TxLEDPulse))
-				LEDs_TurnOffLEDs(LEDMASK_TX);
-
-			// Turn off RX LED(s) once the RX pulse period has elapsed
-			if (ram.PulseMSRemaining.RxLEDPulse && !(--ram.PulseMSRemaining.RxLEDPulse))
-				LEDs_TurnOffLEDs(LEDMASK_RX);
 		}
 
 		//================================================================================
 		// CDC + USB Task
 		//================================================================================
 
-		//TODO crashes on some devices if ram >323 bytes
-		//HID_Device_USBTask(&Device_HID_Interface);
-
+		HID_Device_USBTask(&Device_HID_Interface);
 		CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
 		USB_USBTask();
 	}
@@ -273,7 +275,7 @@ ISR(USART1_RX_vect, ISR_BLOCK)
 	uint8_t ReceivedByte = UDR1;
 
 	// save new byte to the buffer (automatically discards if its disabled or full)
-	if ((!ram.isp.pmode) &&	(USB_DeviceState == DEVICE_STATE_Configured))
+	if ((!ram.isp.pmode) && (USB_DeviceState == DEVICE_STATE_Configured))
 		LRingBuffer_Insert(&ram.RingBuffer, ReceivedByte);
 }
 

@@ -23,11 +23,12 @@ normal 16u2 usbserial Bootloader. It can still work the same but has more functi
 * 16u2 as ISP has the same functions/bugs like the normal Arduino as ISP. Use IDE 1.5.7!
 * 8u2 has no ISP function (use Lite version)
 * No more Midi/other stuff is possible due to DRAM, RAM and endpoint limitation
+* 15 byte report, 15 report IDs max (by design)
 
 **Things that might change in the future:**
-* HID deactivation function (re)move to other pin?
-* SS Pin for ISP
 * Programming baud for ISP
+* Gamepad reports
+
 
 See http://nicohood.wordpress.com/ for more tutorials and projects
 
@@ -280,6 +281,8 @@ Ideas for the future (Todo list):
 * rework ISP if possible
 * reduce HID EPsize
 * access eeprom
+* shrink is Empty buff
+* before every HID reset call HIDflush and HIDcleareports
 
 Version History
 ===============
@@ -294,9 +297,11 @@ Version History
 * moved HID deactivation function to PB5 (next to AREF PIN)
 * Fixed Gamepad 1+2 bug on Linux (has a weird button limit and works better as "joystick" device)
 * Added automated clear report function on reset
-* Fixed Ubuntu HID problem (crashed with HID usage)
+* Fixed Ubuntu HID Descriptor problem (crashed with HID usage, same problem for the Leonardo project)
 * Fixed Media Keys bug on non Windows systems
-* Found minimum ram limit (use at maximum 339/323 bytes or less!!!)
+* Improved ram usage+stability even more (around 100 bytes)
+* Improved ISP functions
+* Changed HID EPSize to 16
 
 1.7.3 Beta Release (10.08.2014)
 * Fixed HID flush bug (1.6 - 1.7.2)

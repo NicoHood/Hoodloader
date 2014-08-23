@@ -176,10 +176,8 @@ void fill(int n) {
 //================================================================================
 
 void start_pmode(void) {
-	// TODO needed? <--
 	// clear all pending HID reports
-	//if (!ram.isp.pmode)
-	//clearHIDReports();
+	clearHIDReports();
 
 	// set hardware SS to output so we can use SPI master mode
 	AVR_SPI_DDR |= (1 << AVR_HARDWARE_SS);
@@ -204,8 +202,11 @@ void start_pmode(void) {
 	spi_transaction(0xAC, 0x53, 0x00, 0x00);
 	ram.isp.pmode = true;
 
+	//TODO need a reset here?
 	// do not write Serial stuff into buffer, we need this ram now
 	LRingBuffer_ResetBuffer(&ram.RingBuffer);
+	ram.skipNHP = 0;
+	NHPreset(&ram.NHP);
 	return;
 }
 
@@ -222,10 +223,6 @@ void end_pmode(void) {
 	LRingBuffer_ResetBuffer(&ram.RingBuffer);
 
 	ram.isp.pmode = false;
-
-	// HID Setup
-	//TODO needed?
-	HIDreset();
 
 	ram.skipNHP = 0;
 	NHPreset(&ram.NHP);
@@ -433,7 +430,6 @@ void read_page(void) {
 	sendCDCbyte(result);
 	return;
 }
-
 
 //================================================================================
 // Programm page
