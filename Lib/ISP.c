@@ -290,8 +290,6 @@ void start_pmode(void) {
 	//if (!ram.isp.pmode)
 	//clearHIDReports();
 
-	// do not write into Serial buffer, we need this ram now
-	LRingBuffer_DisableBuffer(&ram.RingBuffer);
 
 	// set hardware SS to output so we can use SPI master mode
 	AVR_SPI_DDR |= (1 << AVR_HARDWARE_SS);
@@ -315,6 +313,9 @@ void start_pmode(void) {
 
 	spi_transaction(0xAC, 0x53, 0x00, 0x00);
 	ram.isp.pmode = true;
+
+	// do not write Serial stuff into buffer, we need this ram now
+	LRingBuffer_ResetBuffer(&ram.RingBuffer);
 	return;
 }
 
@@ -326,6 +327,9 @@ void end_pmode(void) {
 
 	// set hardware SS to input so we can use SPI slave mode
 	AVR_SPI_DDR &= ~(1 << AVR_HARDWARE_SS); // INPUT
+
+	// release this buffer for Serial again
+	LRingBuffer_ResetBuffer(&ram.RingBuffer);
 
 	ram.isp.pmode = false;
 
@@ -531,7 +535,6 @@ uint8_t write_flash_chunk(int start, int length) {
 	return STK_OK;
 }
 
-#define EECHUNK (32)
 uint8_t write_eeprom(int length) {
 	// here is a word address, get the byte address
 	int start = ram.isp._addr * 2;
@@ -540,10 +543,10 @@ uint8_t write_eeprom(int length) {
 		ram.isp.error++;
 		return STK_FAILED;
 	}
-	while (remaining > EECHUNK) {
-		write_eeprom_chunk(start, EECHUNK);
-		start += EECHUNK;
-		remaining -= EECHUNK;
+	while (remaining > sizeof(ram.RingBuffer_Data)) {
+		write_eeprom_chunk(start, sizeof(ram.RingBuffer_Data));
+		start += sizeof(ram.RingBuffer_Data);
+		remaining -= sizeof(ram.RingBuffer_Data);
 	}
 	write_eeprom_chunk(start, remaining);
 	return STK_OK;

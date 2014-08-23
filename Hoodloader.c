@@ -85,60 +85,62 @@ int main(void)
 		//================================================================================
 		// Serial: read in bytes from the Serial buffer
 		//================================================================================
-		uint16_t BufferCount = LRingBuffer_GetCount(&ram.RingBuffer);
-		if (BufferCount)
-		{
-			// Turn on TX LED
-			LEDs_TurnOnLEDs(LEDMASK_TX);
-			ram.PulseMSRemaining.TxLEDPulse = TX_RX_LED_PULSE_MS;
-
-			Endpoint_SelectEndpoint(VirtualSerial_CDC_Interface.Config.DataINEndpoint.Address);
-
-			// Check if a packet is already enqueued to the host - if so, we shouldn't try to send more data
-			// until it completes as there is a chance nothing is listening and a lengthy timeout could occur
-			if (Endpoint_IsINReady())
+		if (!ram.isp.pmode){
+			uint16_t BufferCount = LRingBuffer_GetCount(&ram.RingBuffer);
+			if (BufferCount)
 			{
-				// Never send more than one bank size less one byte to the host at a time, so that we don't block
-				// while a Zero Length Packet (ZLP) to terminate the transfer is sent if the host isn't listening
-				uint8_t BytesToSend = MIN(BufferCount, (CDC_TXRX_EPSIZE - 1));
+				// Turn on TX LED
+				LEDs_TurnOnLEDs(LEDMASK_TX);
+				ram.PulseMSRemaining.TxLEDPulse = TX_RX_LED_PULSE_MS;
 
-				/// Read bytes from the USART receive buffer into the USB IN endpoint */
-				while (BytesToSend--)
+				Endpoint_SelectEndpoint(VirtualSerial_CDC_Interface.Config.DataINEndpoint.Address);
+
+				// Check if a packet is already enqueued to the host - if so, we shouldn't try to send more data
+				// until it completes as there is a chance nothing is listening and a lengthy timeout could occur
+				if (Endpoint_IsINReady())
 				{
-					// ignoe HID check if: we need to write a pending NHP buff, its deactivated or not the right baud
-					uint32_t baud = VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS;
-					if (ram.skipNHP || (baud != AVRISP_BAUD && baud != 0 && baud != 115200) || (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK))){
-						// set new timeout mark <-- needed? TODO
-						if (ram.skipNHP)
-							ram.PulseMSRemaining.NHPTimeout = NHP_TIMEOUT_MS;
-						// if HID disabled try to clean reports if there are any
-						else
-							clearHIDReports();
+					// Never send more than one bank size less one byte to the host at a time, so that we don't block
+					// while a Zero Length Packet (ZLP) to terminate the transfer is sent if the host isn't listening
+					uint8_t BytesToSend = MIN(BufferCount, (CDC_TXRX_EPSIZE - 1));
 
-						// Try to send the next bytes to the host, if DTR is set to not block serial reading in HID mode
-						// outside HID mode always write the byte (!ram.skipNHP) is only null outside hid mode
-						// discard the byte if host is not connected (needed to get new HID bytes and empty buffer)
-						bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
-						if (CurrentDTRState || (!ram.skipNHP)){
+					/// Read bytes from the USART receive buffer into the USB IN endpoint */
+					while (BytesToSend--)
+					{
+						// ignoe HID check if: we need to write a pending NHP buff, its deactivated or not the right baud
+						uint32_t baud = VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS;
+						if (ram.skipNHP || (baud != AVRISP_BAUD && baud != 0 && baud != 115200) || (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK))){
+							// set new timeout mark <-- needed? TODO
+							if (ram.skipNHP)
+								ram.PulseMSRemaining.NHPTimeout = NHP_TIMEOUT_MS;
+							// if HID disabled try to clean reports if there are any
+							else
+								clearHIDReports();
 
-							// Try to send the next byte of data to the host, abort if there is an error without dequeuing
-							if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
-								LRingBuffer_Peek(&ram.RingBuffer)) != ENDPOINT_READYWAIT_NoError)
-							{
-								break;
+							// Try to send the next bytes to the host, if DTR is set to not block serial reading in HID mode
+							// outside HID mode always write the byte (!ram.skipNHP) is only null outside hid mode
+							// discard the byte if host is not connected (needed to get new HID bytes and empty buffer)
+							bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
+							if (CurrentDTRState || (!ram.skipNHP)){
+
+								// Try to send the next byte of data to the host, abort if there is an error without dequeuing
+								if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
+									LRingBuffer_Peek(&ram.RingBuffer)) != ENDPOINT_READYWAIT_NoError)
+								{
+									break;
+								}
 							}
+							// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
+							LRingBuffer_Remove(&ram.RingBuffer);
+
+							// Dequeue the NHP buffer byte
+							if (ram.skipNHP)
+								ram.skipNHP--;
 						}
-						// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
-						LRingBuffer_Remove(&ram.RingBuffer);
+						else
+							// main function to proceed HID input checks
+							checkNHPProtocol(LRingBuffer_Remove(&ram.RingBuffer));
 
-						// Dequeue the NHP buffer byte
-						if (ram.skipNHP)
-							ram.skipNHP--;
 					}
-					else
-						// main function to proceed HID input checks
-						checkNHPProtocol(LRingBuffer_Remove(&ram.RingBuffer));
-
 				}
 			}
 		}
@@ -271,7 +273,7 @@ ISR(USART1_RX_vect, ISR_BLOCK)
 	uint8_t ReceivedByte = UDR1;
 
 	// save new byte to the buffer (automatically discards if its disabled or full)
-	if (USB_DeviceState == DEVICE_STATE_Configured)
+	if ((!ram.isp.pmode) &&	(USB_DeviceState == DEVICE_STATE_Configured))
 		LRingBuffer_Insert(&ram.RingBuffer, ReceivedByte);
 }
 

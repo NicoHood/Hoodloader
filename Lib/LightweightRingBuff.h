@@ -167,8 +167,8 @@ extern "C" {
 		uint_reg_t CurrentGlobalInt = GetGlobalInterruptMask();
 		GlobalInterruptDisable();
 
+		// TODO index doesnt really matter
 		Buffer->Index = 0;
-		Buffer->Size = 0;
 		Buffer->Count = 0;
 
 		SetGlobalInterruptMask(CurrentGlobalInt);

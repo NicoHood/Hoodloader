@@ -75,35 +75,23 @@ typedef struct{
 		};
 	} PulseMSRemaining;
 
-	union{
+	// variables to save hid states
+	struct{
+		// variable to perform a "HID flush" and to indicate what report should be written down
+		uint8_t ID;
+		// length of the report
+		uint8_t length;
+		// number of bytes received
+		uint8_t recvlength;
+		// Buffer for the incoming HID report
+		uint8_t buffer[sizeof(HID_HIDReport_Data_t)];
+		// array to check if a report is cleared or not
+		bool isEmpty[HID_REPORTID_LastNotAReport];
+	}HID;
 
-#if (PRODUCTID != HOODLOADER_LITE_PID)
-		// isp data buffer
-		//uint8_t ispBuffer[1];
-#endif
-		// normal mode if HID is on
-		struct{
+	// NHP needed as Serial Protocol to receive HID data
+	NHP_Data_t NHP;
 
-
-			// variables to save hid states
-			struct{
-				// variable to perform a "HID flush" and to indicate what report should be written down
-				uint8_t ID;
-				// length of the report
-				uint8_t length;
-				// number of bytes received
-				uint8_t recvlength;
-				// Buffer for the incoming HID report
-				uint8_t buffer[sizeof(HID_HIDReport_Data_t)];
-				// array to check if a report is cleared or not
-				bool isEmpty[HID_REPORTID_LastNotAReport];
-			}HID;
-
-			// NHP needed as Serial Protocol to receive HID data
-			NHP_Data_t NHP;
-
-		};
-	};
 }ram_t;
 
 // access as global ram share
