@@ -283,6 +283,8 @@ Ideas for the future (Todo list):
 * access eeprom
 * shrink is Empty buff
 * before every HID reset call HIDflush and HIDcleareports
+* testing all examples in detail
+* adding more examples?
 
 Version History
 ===============

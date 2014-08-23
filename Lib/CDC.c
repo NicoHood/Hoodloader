@@ -61,10 +61,6 @@ USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface =
 */
 void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo)
 {
-	// reset LEDs
-	ram.PulseMSRemaining.whole = 0;
-	LEDs_SetAllLEDs(LEDS_NO_LEDS);
-
 	// end pmode if needed and setup Serial + HID again (on errors)
 	//TODO pmode break to get out of this loop
 	if (ram.isp.pmode)
@@ -77,6 +73,10 @@ void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCI
 	if (CDCInterfaceInfo->State.LineEncoding.BaudRateBPS == AVRISP_BAUD){
 		SerialInitHID();
 		avrispReset();
+
+		// reset LEDs
+		ram.PulseMSRemaining.whole = 0;
+		LEDs_SetAllLEDs(LEDS_NO_LEDS);
 	}
 	else{
 		uint8_t ConfigMask = 0;

@@ -237,6 +237,10 @@ void checkNHPProtocol(uint8_t input){
 
 	// we already got a pending report
 	else if (ram.HID.ID && (address == (((ram.HID.recvlength + 2) / 2) + 1))){
+		// make sure there is no pending report, because we overwrite the buffer now
+		//TODO not needed?
+		flushHID();
+
 		// check if the new Address is in correct order of HID reports.
 		// the first 2 bytes are sent with Address 2 and so on.
 		uint8_t length = getHIDReportLength(ram.HID.ID);
@@ -271,6 +275,9 @@ void checkNHPProtocol(uint8_t input){
 }
 
 void checkNHPControlAddressError(void){
+	// make sure there is no pending report, because we overwrite the buffer now
+	flushHID();
+
 	// only write if a control address was just before, maybe it was a random valid address
 	// but if we already received some data we handle this as corrupted data and discard all bytes
 	if (ram.HID.ID && !ram.HID.recvlength){
