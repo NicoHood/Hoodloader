@@ -44,9 +44,6 @@ typedef struct{
 	// Underlying data buffer for RingBuffer, where the stored bytes are located.
 	uint8_t RingBuffer_Data[128];
 
-
-	uint8_t ispBuffer[20];
-
 	uint8_t skipNHP; // up to 12 bytes (address error + nhp error)
 
 	// if baud == AVRISP_BAUD AVRISP mode

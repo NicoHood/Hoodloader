@@ -68,8 +68,7 @@ void avrisp(int ReceivedByte){
 			get_parameters(getch());
 			break;
 		case STK_SET_PARM:
-			fill(20);
-			set_parameters();
+					set_parameters();
 			replyOK();
 			break;
 		case STK_SET_PARM_EXT: // extended parameters - ignore for now
@@ -167,7 +166,7 @@ uint8_t getch() {
 void fill(int n) {
 	// fill the buffer with the number of bytes passed in from CDC Serial 
 	for (int x = 0; x < n; x++)
-		ram.ispBuffer[x] = getch();
+		ram.RingBuffer_Data[x] = getch();
 }
 
 
@@ -191,7 +190,11 @@ void get_parameters(uint8_t c) {
 }
 
 void set_parameters(void) {
-	// parameters not used yet <--
+	// discard bytes
+	for (int i = 0; i < 12; i++)
+		getch();
+
+// parameters not used yet <--
 
 	// call this after reading paramter packet into buff[]
 	//param.devicecode = buff[0];
@@ -205,10 +208,14 @@ void set_parameters(void) {
 	//param.flashpoll = buff[8];
 	// ignore buff[9] (= buff[8])
 	// following are 16 bits (big endian)
-#define beget16(addr) (*addr * 256 + *(addr+1) )
+
+	for (int i = 0; i < 4; i++)
+		LRingBuffer_Insert(&ram.RingBuffer, getch());
+
+//#define beget16(addr, addr2) (addr * 256 + addr2 )
 	//param.eeprompoll = beget16(&buff[10]);
-	ram.isp.param.pagesize = beget16(&ram.ispBuffer[12]);
-	ram.isp.param.eepromsize = beget16(&ram.ispBuffer[14]);
+		ram.isp.param.pagesize = LRingBuffer_Remove(&ram.RingBuffer) * 256 + LRingBuffer_Remove(&ram.RingBuffer);
+		ram.isp.param.eepromsize = LRingBuffer_Remove(&ram.RingBuffer) * 256 + LRingBuffer_Remove(&ram.RingBuffer);
 
 	// 32 bits flashsize (big endian)
 	//param.flashsize = buff[16] * 0x01000000
@@ -216,13 +223,16 @@ void set_parameters(void) {
 	//	+ buff[18] * 0x00000100
 	//	+ buff[19];
 
+		// discard bytes
+	for (int i = 0; i < 4; i++)
+		getch();
 }
 
 void universal(void) {
 	uint8_t ch;
 
 	fill(4);
-	ch = spi_transaction(ram.ispBuffer[0], ram.ispBuffer[1], ram.ispBuffer[2], ram.ispBuffer[3]);
+	ch = spi_transaction(ram.RingBuffer_Data[0], ram.RingBuffer_Data[1], ram.RingBuffer_Data[2], ram.RingBuffer_Data[3]);
 	breply(ch);
 }
 
@@ -332,10 +342,6 @@ void end_pmode(void) {
 	LRingBuffer_ResetBuffer(&ram.RingBuffer);
 
 	ram.isp.pmode = false;
-
-	// enable Serial buffer again
-	if (!LRingBuffer_IsEnabled(&ram.RingBuffer))
-		LRingBuffer_InitBuffer(&ram.RingBuffer, ram.RingBuffer_Data, sizeof(ram.RingBuffer_Data));
 
 	// HID Setup
 	HIDreset();
@@ -526,8 +532,8 @@ uint8_t write_flash_chunk(int start, int length) {
 			commit(page);
 			page = current_page();
 		}
-		flash(LOW, ram.isp._addr, ram.ispBuffer[x++]);
-		flash(HIGH, ram.isp._addr, ram.ispBuffer[x++]);
+		flash(LOW, ram.isp._addr, ram.RingBuffer_Data[x++]);
+		flash(HIGH, ram.isp._addr, ram.RingBuffer_Data[x++]);
 		ram.isp._addr++;
 	}
 	commit(page);
@@ -559,7 +565,7 @@ uint8_t write_eeprom_chunk(int start, int length) {
 	LEDs_TurnOffLEDs(LEDS_PMODE);
 	for (int x = 0; x < length; x++) {
 		int addr = start + x;
-		spi_transaction(0xC0, (addr >> 8) & 0xFF, addr & 0xFF, ram.ispBuffer[x]);
+		spi_transaction(0xC0, (addr >> 8) & 0xFF, addr & 0xFF, ram.RingBuffer_Data[x]);
 		_delay_ms(45);
 	}
 	LEDs_TurnOnLEDs(LEDS_PMODE);
