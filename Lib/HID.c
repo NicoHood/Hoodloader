@@ -62,6 +62,7 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
 {
 
 	if (ram.isp.pmode || (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK))){
+		//TODO improve
 		*ReportID = 0;
 		*ReportSize = 0;
 		return false;

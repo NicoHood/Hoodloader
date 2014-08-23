@@ -38,17 +38,14 @@ THE SOFTWARE.
 // global variable to hold specific ram data
 // because we only have 500 bytes we have to free some memory for different modes
 typedef struct{
-	//int test; //TODO remove
-
 	// Circular buffer to hold data from the serial port before it is sent to the host.
 	LRingBuffer_t RingBuffer;
 
 	// Underlying data buffer for RingBuffer, where the stored bytes are located.
-	union{
-		uint8_t RingBuffer_Data[128];
-		uint8_t ispBuffer[128];
-	};
+	uint8_t RingBuffer_Data[128];
 
+
+	uint8_t ispBuffer[20];
 
 	uint8_t skipNHP; // up to 12 bytes (address error + nhp error)
 
