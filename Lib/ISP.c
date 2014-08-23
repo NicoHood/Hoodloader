@@ -23,7 +23,6 @@ THE SOFTWARE.
 
 #include "ISP.h"
 
-
 //================================================================================
 // AVRISP
 //================================================================================
@@ -33,7 +32,6 @@ void avrispReset(void){
 	ram.isp.pmode = false;
 	ram.isp._addr = 0; // just to be sure
 }
-
 
 void avrisp(int ReceivedByte){
 	// is pmode active?
@@ -68,7 +66,7 @@ void avrisp(int ReceivedByte){
 			get_parameters(getch());
 			break;
 		case STK_SET_PARM:
-					set_parameters();
+			set_parameters();
 			replyOK();
 			break;
 		case STK_SET_PARM_EXT: // extended parameters - ignore for now
@@ -139,6 +137,10 @@ void avrisp(int ReceivedByte){
 
 }
 
+//================================================================================
+// Serial send/receive
+//================================================================================
+
 void sendCDCbyte(uint8_t b){
 	//TODO improve this
 	// try to send until sucess
@@ -156,7 +158,7 @@ void sendCDCbyte(uint8_t b){
 }
 
 uint8_t getch() {
-	int16_t ReceivedByte = -1;
+	int ReceivedByte = -1;
 	// wait until CDC sends a byte
 	while (ReceivedByte < 0)
 		ReceivedByte = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
@@ -169,137 +171,15 @@ void fill(int n) {
 		ram.RingBuffer_Data[x] = getch();
 }
 
-
-void get_parameters(uint8_t c) {
-	switch (c) {
-	case 0x80:
-		breply(HWVER);
-		break;
-	case 0x81:
-		breply(SWMAJ);
-		break;
-	case 0x82:
-		breply(SWMIN);
-		break;
-	case 0x93:
-		breply('S'); // serial programmer
-		break;
-	default:
-		breply(0);
-	}
-}
-
-void set_parameters(void) {
-	// discard bytes
-	for (int i = 0; i < 12; i++)
-		getch();
-
-// parameters not used yet <--
-
-	// call this after reading paramter packet into buff[]
-	//param.devicecode = buff[0];
-	//param.revision = buff[1];
-	//param.progtype = buff[2];
-	//param.parmode = buff[3];
-	//param.polling = buff[4];
-	//param.selftimed = buff[5];
-	//param.lockbytes = buff[6];
-	//param.fusebytes = buff[7];
-	//param.flashpoll = buff[8];
-	// ignore buff[9] (= buff[8])
-	// following are 16 bits (big endian)
-
-	for (int i = 0; i < 4; i++)
-		LRingBuffer_Insert(&ram.RingBuffer, getch());
-
-//#define beget16(addr, addr2) (addr * 256 + addr2 )
-	//param.eeprompoll = beget16(&buff[10]);
-		ram.isp.param.pagesize = LRingBuffer_Remove(&ram.RingBuffer) * 256 + LRingBuffer_Remove(&ram.RingBuffer);
-		ram.isp.param.eepromsize = LRingBuffer_Remove(&ram.RingBuffer) * 256 + LRingBuffer_Remove(&ram.RingBuffer);
-
-	// 32 bits flashsize (big endian)
-	//param.flashsize = buff[16] * 0x01000000
-	//	+ buff[17] * 0x00010000
-	//	+ buff[18] * 0x00000100
-	//	+ buff[19];
-
-		// discard bytes
-	for (int i = 0; i < 4; i++)
-		getch();
-}
-
-void universal(void) {
-	uint8_t ch;
-
-	fill(4);
-	ch = spi_transaction(ram.RingBuffer_Data[0], ram.RingBuffer_Data[1], ram.RingBuffer_Data[2], ram.RingBuffer_Data[3]);
-	breply(ch);
-}
-
-void read_signature(void) {
-	if (CRC_EOP != getch()) {
-		ram.isp.error++;
-		sendCDCbyte(STK_NOSYNC);
-		return;
-	}
-	sendCDCbyte(STK_INSYNC);
-	uint8_t high = spi_transaction(0x30, 0x00, 0x00, 0x00);
-	sendCDCbyte(high);
-	uint8_t middle = spi_transaction(0x30, 0x00, 0x01, 0x00);
-	sendCDCbyte(middle);
-	uint8_t low = spi_transaction(0x30, 0x00, 0x02, 0x00);
-	sendCDCbyte(low);
-	sendCDCbyte(STK_OK);
-}
-
-
-void commit(int addr) {
-	LEDs_TurnOffLEDs(LEDS_PMODE);
-	spi_transaction(0x4C, (addr >> 8) & 0xFF, addr & 0xFF, 0);
-	_delay_ms(30);
-	LEDs_TurnOnLEDs(LEDS_PMODE);
-}
-
-
-void breply(uint8_t b) {
-	if (CRC_EOP == getch()) {  // EOP should be next char
-		sendCDCbyte(STK_INSYNC);
-		sendCDCbyte(b);
-		sendCDCbyte(STK_OK);
-	}
-	else {
-		sendCDCbyte(STK_NOSYNC);
-		ram.isp.error++;
-	}
-}
-
-void replyOK(void) {
-	//  if (EOP_SEEN == true) {
-	if (CRC_EOP == getch()) {  // EOP should be next char
-		sendCDCbyte(STK_INSYNC);
-		sendCDCbyte(STK_OK);
-	}
-	else {
-		// signalize Error
-		LEDs_TurnOnLEDs(LEDS_PMODE);
-		_delay_ms(50);
-		LEDs_TurnOffLEDs(LEDS_PMODE);
-		_delay_ms(50);
-		LEDs_TurnOnLEDs(LEDS_PMODE);
-		_delay_ms(50);
-		LEDs_TurnOffLEDs(LEDS_PMODE);
-
-		sendCDCbyte(STK_NOSYNC);
-		ram.isp.error++;
-	}
-}
+//================================================================================
+// Start/End Pmode
+//================================================================================
 
 void start_pmode(void) {
 	// TODO needed? <--
 	// clear all pending HID reports
 	//if (!ram.isp.pmode)
 	//clearHIDReports();
-
 
 	// set hardware SS to output so we can use SPI master mode
 	AVR_SPI_DDR |= (1 << AVR_HARDWARE_SS);
@@ -344,11 +224,115 @@ void end_pmode(void) {
 	ram.isp.pmode = false;
 
 	// HID Setup
+	//TODO needed?
 	HIDreset();
 
 	ram.skipNHP = 0;
 	NHPreset(&ram.NHP);
 }
+
+//================================================================================
+// General Programmer functions
+//================================================================================
+
+void breply(uint8_t b) {
+	if (CRC_EOP == getch()) {
+		sendCDCbyte(STK_INSYNC);
+		sendCDCbyte(b);
+		sendCDCbyte(STK_OK);
+	}
+	else {
+		sendCDCbyte(STK_NOSYNC);
+		ram.isp.error++;
+	}
+}
+
+void replyOK(void) {
+	if (CRC_EOP == getch()) {
+		sendCDCbyte(STK_INSYNC);
+		sendCDCbyte(STK_OK);
+	}
+	else {
+		sendCDCbyte(STK_NOSYNC);
+		ram.isp.error++;
+	}
+}
+
+void universal(void) {
+	uint8_t ch;
+
+	fill(4);
+	ch = spi_transaction(ram.RingBuffer_Data[0], ram.RingBuffer_Data[1], ram.RingBuffer_Data[2], ram.RingBuffer_Data[3]);
+	breply(ch);
+}
+
+void read_signature(void) {
+	if (CRC_EOP != getch()) {
+		ram.isp.error++;
+		sendCDCbyte(STK_NOSYNC);
+		return;
+	}
+	sendCDCbyte(STK_INSYNC);
+	uint8_t high = spi_transaction(0x30, 0x00, 0x00, 0x00);
+	sendCDCbyte(high);
+	uint8_t middle = spi_transaction(0x30, 0x00, 0x01, 0x00);
+	sendCDCbyte(middle);
+	uint8_t low = spi_transaction(0x30, 0x00, 0x02, 0x00);
+	sendCDCbyte(low);
+	sendCDCbyte(STK_OK);
+}
+
+void get_parameters(uint8_t c) {
+	switch (c) {
+	case 0x80:
+		breply(HWVER);
+		break;
+	case 0x81:
+		breply(SWMAJ);
+		break;
+	case 0x82:
+		breply(SWMIN);
+		break;
+	case 0x93:
+		breply('S'); // serial programmer
+		break;
+	default:
+		breply(0);
+	}
+}
+
+void set_parameters(void) {
+	fill(20);
+
+	// parameters not used yet <--
+
+	// call this after reading paramter packet into buff[]
+	//param.devicecode = buff[0];
+	//param.revision = buff[1];
+	//param.progtype = buff[2];
+	//param.parmode = buff[3];
+	//param.polling = buff[4];
+	//param.selftimed = buff[5];
+	//param.lockbytes = buff[6];
+	//param.fusebytes = buff[7];
+	//param.flashpoll = buff[8];
+	// ignore buff[9] (= buff[8])
+	// following are 16 bits (big endian)
+#define beget16(addr) (*addr * 256 + *(addr+1) )
+	//param.eeprompoll = beget16(&buff[10]);
+	ram.isp.param.pagesize = beget16(&ram.RingBuffer_Data[12]);
+	ram.isp.param.eepromsize = beget16(&ram.RingBuffer_Data[14]);
+
+	// 32 bits flashsize (big endian)
+	//param.flashsize = buff[16] * 0x01000000
+	//	+ buff[17] * 0x00010000
+	//	+ buff[18] * 0x00000100
+	//	+ buff[19];
+}
+
+//================================================================================
+// SPI
+//================================================================================
 
 void spi_init(void) {
 	SPCR = 0x53;
@@ -359,15 +343,9 @@ void spi_init(void) {
 	SPDR;
 }
 
-uint8_t spi_transaction(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
-	//uint8_t n;
-	spi_send(a);
-	//n = spi_send(b);
-	spi_send(b);
-	//if (n != a) error = -1;
-	//n = spi_send(c);
-	spi_send(c);
-	return spi_send(d);
+void spi_wait(void) {
+	do {
+	} while (!(SPSR & (1 << SPIF)));
 }
 
 uint8_t spi_send(uint8_t b) {
@@ -390,80 +368,76 @@ uint8_t spi_send(uint8_t b) {
 	return reply;
 }
 
-void spi_wait(void) {
-	do {
-	} while (!(SPSR & (1 << SPIF)));
+uint8_t spi_transaction(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
+	// here was an unused error correction? <--
+	spi_send(a);
+	spi_send(b);
+	spi_send(c);
+	return spi_send(d);
 }
 
-void flash(uint8_t hilo, int addr, uint8_t data) {
-	spi_transaction(0x40 + 8 * hilo,
-		addr >> 8 & 0xFF,
-		addr & 0xFF,
-		data);
+uint8_t accessData(uint8_t type, int addr, uint8_t data){
+	// spi: type, address MSB, address LSB, data
+	return spi_transaction(type, (addr >> 8) & 0xFF, addr & 0xFF, data);
 }
 
-
-int current_page(void) {
-	// TODO input useless??
-	if (ram.isp.param.pagesize == 32)  return ram.isp._addr & 0xFFFFFFF0;
-	if (ram.isp.param.pagesize == 64)  return ram.isp._addr & 0xFFFFFFE0;
-	if (ram.isp.param.pagesize == 128) return ram.isp._addr & 0xFFFFFFC0;
-	if (ram.isp.param.pagesize == 256) return ram.isp._addr & 0xFFFFFF80;
-	return ram.isp._addr;
-}
-
+//================================================================================
+// Read page
+//================================================================================
 
 void read_page(void) {
-	char result = (char)STK_FAILED;
+	// get length, memtype and check if signal is still okay
 	int length = 256 * getch();
 	length += getch();
 	char memtype = getch();
+
 	if (CRC_EOP != getch()) {
 		ram.isp.error++;
 		sendCDCbyte(STK_NOSYNC);
 		return;
 	}
+
 	sendCDCbyte(STK_INSYNC);
-	if (memtype == 'F') result = flash_read_page(length);
-	if (memtype == 'E') result = eeprom_read_page(length);
+	char result = (char)STK_FAILED;
+
+	// determine what memtype is requested: flash or eeprom
+	if (memtype == 'F'){
+		// flash_read_page
+		for (int x = 0; x < length; x += 2) {
+			// flash_read
+			uint8_t low = accessData(0x20 + LOW * 8, ram.isp._addr, 0x00);
+			sendCDCbyte(low);
+
+			// flash_read
+			uint8_t high = accessData(0x20 + HIGH * 8, ram.isp._addr, 0x00);
+			sendCDCbyte(high);
+
+			ram.isp._addr++;
+		}
+		result = STK_OK;
+	}
+
+	if (memtype == 'E'){
+		// eeprom_read_page
+		// here again we have a word address
+		int start = ram.isp._addr * 2;
+		for (int x = 0; x < length; x++) {
+			int addr = start + x;
+			// TODO itegrate intern address ? <--
+			uint8_t ee = accessData(0xA0, addr, 0xFF);
+			sendCDCbyte(ee);
+		}
+		result = STK_OK;
+	}
+
 	sendCDCbyte(result);
 	return;
 }
 
 
-char flash_read_page(int length) {
-	for (int x = 0; x < length; x += 2) {
-		uint8_t low = flash_read(LOW, ram.isp._addr);
-		sendCDCbyte(low);
-		uint8_t high = flash_read(HIGH, ram.isp._addr);
-		sendCDCbyte(high);
-		ram.isp._addr++;
-	}
-	return STK_OK;
-}
-
-
-
-uint8_t flash_read(uint8_t hilo, int addr) {
-	return spi_transaction(0x20 + hilo * 8,
-		(addr >> 8) & 0xFF,
-		addr & 0xFF,
-		0);
-}
-
-char eeprom_read_page(int length) {
-	// TODO comapre with ada
-	// here again we have a word address
-	int start = ram.isp._addr * 2;
-	for (int x = 0; x < length; x++) {
-		int addr = start + x;
-		uint8_t ee = spi_transaction(0xA0, (addr >> 8) & 0xFF, addr & 0xFF, 0xFF);
-		sendCDCbyte(ee);
-	}
-	return STK_OK;
-}
-
-
+//================================================================================
+// Programm page
+//================================================================================
 
 void program_page(void) {
 	char result = (char)STK_FAILED;
@@ -506,11 +480,6 @@ uint8_t write_flash(int length) {
 	int start = ram.isp._addr * 2;
 	int remaining = length;
 
-	//if (length > ram.isp.param.flashsize) {
-	//	ram.isp.error++;
-	//	return STK_FAILED;
-	//}
-
 	while (remaining > sizeof(ram.RingBuffer_Data)) {
 		write_flash_chunk(start, sizeof(ram.RingBuffer_Data));
 		start += sizeof(ram.RingBuffer_Data);
@@ -521,6 +490,21 @@ uint8_t write_flash(int length) {
 
 }
 
+int current_page(void) {
+	if (ram.isp.param.pagesize == 32)  return ram.isp._addr & 0xFFFFFFF0;
+	if (ram.isp.param.pagesize == 64)  return ram.isp._addr & 0xFFFFFFE0;
+	if (ram.isp.param.pagesize == 128) return ram.isp._addr & 0xFFFFFFC0;
+	if (ram.isp.param.pagesize == 256) return ram.isp._addr & 0xFFFFFF80;
+	return ram.isp._addr;
+}
+
+void commit(int addr) {
+	LEDs_TurnOffLEDs(LEDS_PMODE);
+	accessData(0x4C, addr, 0x00);
+	_delay_ms(30);
+	LEDs_TurnOnLEDs(LEDS_PMODE);
+}
+
 uint8_t write_flash_chunk(int start, int length) {
 	// this writes byte-by-byte,
 	// page writing may be faster (4 bytes at a time)
@@ -528,15 +512,24 @@ uint8_t write_flash_chunk(int start, int length) {
 	int x = 0;
 	int page = current_page();
 	while (x < length) {
+		// flash
+		accessData(0x40 + 8 * LOW, ram.isp._addr, ram.RingBuffer_Data[x++]);
+
+		// flash
+		accessData(0x40 + 8 * HIGH, ram.isp._addr, ram.RingBuffer_Data[x++]);
+
+		ram.isp._addr++;
+
+		// TODO check if its okay with this commit + chunk comibation <--
+		// could be a possible good fix if i understood this right
+		// check if current page finished, commit and start a new page
 		if (page != current_page()) {
+			// TODO merge commit here
 			commit(page);
 			page = current_page();
 		}
-		flash(LOW, ram.isp._addr, ram.RingBuffer_Data[x++]);
-		flash(HIGH, ram.isp._addr, ram.RingBuffer_Data[x++]);
-		ram.isp._addr++;
 	}
-	commit(page);
+	//commit(page);
 
 	return STK_OK;
 }
@@ -557,6 +550,7 @@ uint8_t write_eeprom(int length) {
 	write_eeprom_chunk(start, remaining);
 	return STK_OK;
 }
+
 // write (length) bytes, (start) is a byte address
 uint8_t write_eeprom_chunk(int start, int length) {
 	// this writes byte-by-byte,
@@ -564,90 +558,12 @@ uint8_t write_eeprom_chunk(int start, int length) {
 	fill(length);
 	LEDs_TurnOffLEDs(LEDS_PMODE);
 	for (int x = 0; x < length; x++) {
+		//TODO check here if we can use intern address
 		int addr = start + x;
-		spi_transaction(0xC0, (addr >> 8) & 0xFF, addr & 0xFF, ram.RingBuffer_Data[x]);
+		accessData(0xC0, addr, ram.RingBuffer_Data[x]);
 		_delay_ms(45);
 	}
 	LEDs_TurnOnLEDs(LEDS_PMODE);
 	return STK_OK;
-}
-
-
-
-
-
-
-void delay(unsigned long ms){
-	// workaround to avoid micros() implemenation
-	for (unsigned long i = 0; i < ms; i++)
-		delayMicroseconds(1000);
-}
-
-
-// Delay for the given number of microseconds.  Assumes a 8 or 16 MHz clock.
-void delayMicroseconds(unsigned int us){
-	// calling avrlib's delay_us() function with low values (e.g. 1 or
-	// 2 microseconds) gives delays longer than desired.
-	//delay_us(us);
-#if F_CPU >= 20000000L
-	// for the 20 MHz clock on rare Arduino boards
-
-	// for a one-microsecond delay, simply wait 2 cycle and return. The overhead
-	// of the function call yields a delay of exactly a one microsecond.
-	__asm__ __volatile__(
-		"nop" "\n\t"
-		"nop"); //just waiting 2 cycle
-	if (--us == 0)
-		return;
-
-	// the following loop takes a 1/5 of a microsecond (4 cycles)
-	// per iteration, so execute it five times for each microsecond of
-	// delay requested.
-	us = (us << 2) + us; // x5 us
-
-	// account for the time taken in the preceeding commands.
-	us -= 2;
-
-#elif F_CPU >= 16000000L
-	// for the 16 MHz clock on most Arduino boards
-
-	// for a one-microsecond delay, simply return.  the overhead
-	// of the function call yields a delay of approximately 1 1/8 us.
-	if (--us == 0)
-		return;
-
-	// the following loop takes a quarter of a microsecond (4 cycles)
-	// per iteration, so execute it four times for each microsecond of
-	// delay requested.
-	us <<= 2;
-
-	// account for the time taken in the preceeding commands.
-	us -= 2;
-#else
-	// for the 8 MHz internal clock on the ATmega168
-
-	// for a one- or two-microsecond delay, simply return.  the overhead of
-	// the function calls takes more than two microseconds.  can't just
-	// subtract two, since us is unsigned; we'd overflow.
-	if (--us == 0)
-		return;
-	if (--us == 0)
-		return;
-
-	// the following loop takes half of a microsecond (4 cycles)
-	// per iteration, so execute it twice for each microsecond of
-	// delay requested.
-	us <<= 1;
-
-	// partially compensate for the time taken by the preceeding commands.
-	// we can't subtract any more than this or we'd overflow w/ small delays.
-	us--;
-#endif
-
-	// busy wait
-	__asm__ __volatile__(
-		"1: sbiw %0,1" "\n\t" // 2 cycles
-		"brne 1b" : "=w" (us) : "0" (us) // 2 cycles
-		);
 }
 

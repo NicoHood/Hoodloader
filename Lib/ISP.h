@@ -74,48 +74,45 @@ THE SOFTWARE.
 #define LEDS_PMODE LEDS_LED1
 #define LEDS_ERR LEDS_LED2
 
+// avr isp
 void avrispReset(void);
 void avrisp(int ReceivedByte);
 
+// Serial send/receive
 void sendCDCbyte(uint8_t b);
 uint8_t getch(void);
 void fill(int n);
 
-void get_parameters(uint8_t c); // get_version
-void set_parameters(void);
-void universal(void);
-void read_signature(void);
-void commit(int addr);
-
-void breply(uint8_t b);
-void replyOK(void); // empty_reply
-
+// start/end pmode
 void start_pmode(void);
 void end_pmode(void);
+
+// General Programmer functions
+void breply(uint8_t b);
+void replyOK(void); // empty_reply
+void universal(void);
+void read_signature(void);
+void get_parameters(uint8_t c); // get_version
+void set_parameters(void);
+
+// spi
 void spi_init(void);
-uint8_t spi_transaction(uint8_t a, uint8_t b, uint8_t c, uint8_t d);
-uint8_t spi_send(uint8_t b);
 void spi_wait(void);
-void flash(uint8_t hilo, int addr, uint8_t data);
+uint8_t accessData(uint8_t type, int addr, uint8_t data);
+uint8_t spi_send(uint8_t b);
+uint8_t spi_transaction(uint8_t a, uint8_t b, uint8_t c, uint8_t d);
 
-int current_page(void);
+// read page
 void read_page(void);
-char flash_read_page(int length);
-uint8_t flash_read(uint8_t hilo, int addr);
-char eeprom_read_page(int length);
 
+// programm page
 void program_page(void);
 uint8_t write_flash(int length);
+int current_page(void);
+void commit(int addr);
 uint8_t write_flash_chunk(int start, int length);
 uint8_t write_eeprom(int length);
 uint8_t write_eeprom_chunk(int start, int length);
-
-
-
-
-// not used, replaved with intern delay TODO
-void delay(unsigned long ms);
-void delayMicroseconds(unsigned int us);
 
 #endif
 
