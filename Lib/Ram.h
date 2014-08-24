@@ -28,12 +28,10 @@ THE SOFTWARE.
 #include "Metainclude.h"
 #include "Lib/NHP.h"
 #include "Lib/HID_Reports.h"
-#include "Descriptors.h"
 
 //================================================================================
 // RAM
 //================================================================================
-
 
 // global variable to hold specific ram data
 // because we only have 500 bytes we have to free some memory for different modes
@@ -46,8 +44,8 @@ typedef struct{
 
 	// if baud == AVRISP_BAUD AVRISP mode
 	struct{
-		uint8_t error;
-		bool pmode;
+		uint8_t error : 7;
+		uint8_t pmode : 1; // true/false
 		int _addr; // here
 		struct{
 			int pagesize;
@@ -84,7 +82,6 @@ typedef struct{
 	// NHP needed as Serial Protocol to receive HID data
 	NHP_Data_t NHP;
 	uint8_t skipNHP; // up to 12 bytes (address error + nhp error)
-
 }ram_t;
 
 // access as global ram share

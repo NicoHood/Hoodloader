@@ -13,17 +13,23 @@ normal 16u2 usbserial Bootloader. It can still work the same but has more functi
 * Use the 16u2 as ISP to reprogram your 328 and others
 * One Firmware for Uno/Mega
 
-**Tested Devices:**
+**Tested Devices/OS:**
 * Arduino Uno R3
 * Arduino Mega R3
+* Windows XP/7/8
+* Linux: Ubuntu
+* Android
+* TODO: Raspberry
 
 **Limitations:**
 * HID only works at baud 115200 (Software and speed limitation, see "how it works below")
 * All other bauds work 100%. If you still try to use HID with other baud you will get weird output.
 * 16u2 as ISP has the same functions/bugs like the normal Arduino as ISP. Use IDE 1.5.7!
-* 8u2 has no ISP function (use Lite version)
+* 8u2 has no ISP function (less flash, use Lite version)
+* 4 pin header needs to be soldered for ISP and additional usage
 * No more Midi/other stuff is possible due to DRAM, RAM and endpoint limitation
 * 15 byte report, 15 report IDs max (by design)
+* The 16u2 has very few bytes of ram which is very hard to develop with. ISP and Serial have to share the ram.
 
 **Things that might change in the future:**
 * Programming baud for ISP
@@ -34,11 +40,12 @@ See http://nicohood.wordpress.com/ for more tutorials and projects
 
 Installation on Arduino Uno/Mega R3
 ===================================
-**For the whole Project IDE 1.5.7 is recommended!**
+**For the whole Project IDE 1.5.7 or higher is recommended!**
 
 **This tutorial is for Windows and R3 versions only.**
 This method is called “Device Firmware Upgrade” and also works on Linux/Mac and older versions but its not explained in this article.
-Maybe [this page](http://arduino.cc/en/Hacking/Upgrading16U2Due) can help you.
+Maybe [this](http://arduino.cc/en/pmwiki.php?n=Hacking/DFUProgramming8U2) or
+[this page](http://arduino.cc/en/Hacking/Upgrading16U2Due) can help you.
 If you have a 8u2 see instructions below the DFU tutorial.
 
 **What you need: Arduino Uno/Mega, USB Cable, a normal wire, [Flip with Java](http://www.atmel.com/tools/flip.aspx)**
@@ -94,10 +101,18 @@ Windows to use its built in CDC Serial driver. Ironically Microsoft never signed
 The drivers are located in Firmwares/Hoodloader.inf.
 Also see [this tutorial](http://arduino.cc/en/guide/windows) on how to install the drivers (rightclick the .inf file and hit install).
 [How to install drivers for Windows 8/8.1](https://learn.sparkfun.com/tutorials/disabling-driver-signature-on-windows-8/disabling-signed-driver-enforcement-on-windows-8).
+
 If you want it to be recognized as Uno/Mega edit the makefile and recompile. I dont recommend this to know what
-Bootloader currently is on your Board.
+Bootloader currently is on your Board. It seems that with the signed drivers HID wont work with official PIDs.
 
 You are done! Have fun with your new Arduino Firmware.
+
+Updating to a newer Version
+===========================
+
+Just upload the new hex file and check the HID Project if the HID library code has changed and replace the new files too.
+You normally dont need to reinstall the drivers for windows if the changelog dosnt note anything.
+Versions below 1.5 might need the new drivers.
 
 HID usage
 =========
@@ -106,17 +121,9 @@ for changelog, bugs, installing instructions and more information of the main fe
 
 Deactivate HID function
 =======================
-**This feature might be (re)moved in further releases due to the ISP usage.**
-
 Its possible to deactivate HID if you messed up something in the code and cannot return easily.
 
-**Do NOT use this shorting if you use the 16u2 as ISP! This will damage your 16u2.
-You need to replug/reprogram/open the Serial to use the bridge again.
-16u2 as ISP sets the pin to OUTPUT which will kill the pin if shorted to ground!**
-
-Just **short these two pins permanently** until you have uploaded your new, working sketch:
-
-![pictures/No_HID_Bridge.jpg](pictures/No_HID_Bridge.jpg)
+Short PB5 (next to AREF pin) of the 4 pin header to gnd to deactivate HID usage. You need to solder the pin header of course.
 
 16u2 as ISP usage
 =================
@@ -234,9 +241,11 @@ Known Bugs
 See the [HID project](https://github.com/NicoHood/HID) for HID related bugs.
 
 **Programming Arduino Mega with ISP doesnt work because of fuses.**
-See this for more information: http://forum.arduino.cc/index.php?topic=126160.0
+See this for more information + fix: http://forum.arduino.cc/index.php?topic=126160.0
 
 Media Keys dont work on Linux out of the box (not a Hoodloader problem, this is with any Keyboard)
+
+See this how to uninstall the drivers for Windows if something isnt working: https://support.microsoft.com/kb/315539
 
 Burning Bootloader error is fixed with IDE 1.5.7 or higher (avrdude bug)!
 
@@ -246,13 +255,10 @@ Feel free to open an Issue on Github if you find a bug. Or message me via my [bl
 
 Ideas for the future (Todo list):
 =====================
-* Save if HID report!=0 and release after every restart
 * Design new Arduino with I2C and SPI connection
-* Pmode timeout!
-* general timeout function for hid and other
-* remove older debug/TODO stuff
+* general timeout function for hid and Pmode timeout!
+* remove TODO <-- stuff
 * explain how it works better
-* release keys on reprogramming to not hold any key
 * Add phone control/flight simulator control (anyone who needs it?)
 * Add more devices (even more?)
 * Add Midi (no more free Endpoints)
@@ -260,50 +266,53 @@ Ideas for the future (Todo list):
 * Add HID rumble support (very hard)
 * Add Xbox Support (too hard)
 * Add Report Out function (for Keyboard Leds etc, maybe the 4 pin header?)
-* remove old flush functions
-* create tables for leonardo and uno/mega
+* create tables for leonardo and uno/mega (documentation)
 * SPI HID input?
 * fix programmers.txt installation
 * get Raw HID working
 * reduce gamepad report size, add 4 gamepads
-* shrink HID functions
-* note that drivers are always the same for updating to newer versions
-* compile for different drivers/ids (problem with official pids)
+* compile for different drivers/ids (problem with official pids) <-- problem with hid
 * HID reset with/without the isempty?
 * Center gamepads with 0 to suit with clear reports
-* add clear reports command for hid begin
-* fix ubuntu bug
-* check nhp if everything is okay
+* fix ubuntu gamepad bug
 * new dfu loader to reset 16u2 easier
 * fix pc restart bug
-* fix media keys
 * reduce flash if possible
-* rework ISP if possible
-* reduce HID EPsize
+* improve ISP if possible
 * access eeprom
-* shrink is Empty buff
-* before every HID reset call HIDflush and HIDcleareports
 * testing all examples in detail
 * adding more examples?
+* check hidclear again
+* add better pictures
+* isp cdc send better
+* led timeout timer interrupt?
 
 Version History
 ===============
 ```
 1.8.0 Beta Release (xx.08.2014)
+* Improved ram usage
+ * Move stable with more free ram
+ * saved more than 100 bytes of ram
+ * changed some variables/structs
+ * ISP flash chunk fix saved a lot of flash
+ * Separated NHP from ram
+* Improved HID functions
+ * Fixed Ubuntu HID Descriptor problem (crashed when using HID, same for Leonardo project)
+ * This also fixed a Media Keys bug
+ * Changed HID EP Size to 16 to have more DPRAM
+ * Added automated clear report function on reset
+ * HID working after ISP programming
+ * Moved HID deactivation function to PB5 (next to AREF PIN)
+ * Fixed Gamepad 1+2 bug on Linux (has a weird button limit and works better as "joystick" device)
+* Improved ISP functions
+ * Takes less flash
+ * Cleared code, ordered functions
+ * Added flash chunks to save more ram
 * Fixed programming bug on slow PCs (1.6 - 1.7.3)
 * Cutted huge main file into libraries
-* Improved ram usage
-* Fixed a bug in Serial Buffer + rewrote the lib with new functions
-* Separated NHP from ram
-* HID working after ISP programming
-* moved HID deactivation function to PB5 (next to AREF PIN)
-* Fixed Gamepad 1+2 bug on Linux (has a weird button limit and works better as "joystick" device)
-* Added automated clear report function on reset
-* Fixed Ubuntu HID Descriptor problem (crashed with HID usage, same problem for the Leonardo project)
-* Fixed Media Keys bug on non Windows systems
-* Improved ram usage+stability even more (around 100 bytes)
-* Improved ISP functions
-* Changed HID EPSize to 16
+* Fixed bugs in Serial Buffer + rewrote the lib with new functions
+* Reworked NHP
 
 1.7.3 Beta Release (10.08.2014)
 * Fixed HID flush bug (1.6 - 1.7.2)
@@ -370,7 +379,7 @@ So be careful if you change the source on your own with important PIDs.
 Therefore reinstall the divers for any device or just dont touch the HID reports in the Bootloader.
 The Leonardo/Micro version worked fine till now.
 
-See this how to uninstall the drivers (not tested):
+See this how to uninstall the drivers:
 https://support.microsoft.com/kb/315539
 
 The Hoodloader was coded with Windows7/8.1 + Visual Studio Express and compiled with a Raspberry Pi.

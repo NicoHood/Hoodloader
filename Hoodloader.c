@@ -39,17 +39,16 @@ int main(void)
 	ram.skipNHP = 0;
 	NHPreset(&ram.NHP);
 
-	// reset LEDs
-	ram.PulseMSRemaining.whole = 0;
-
 	// HID Setup
 	ram.HID.writeHID = false;
 	ram.HID.ID = 0;
 	ram.HID.writtenReport = false;
 
-	// AVR ISP Setup
-	avrispReset();
+	// AVR ISP Setup, includes SPI Hardware Setup Slave
+	end_pmode();
 
+	// Hardware Setup needs to be called at the very end!
+	// includes WDT, SerialHID, SPI, LED, USB, Reset, HID deactivation setup
 	SetupHardware();
 
 	GlobalInterruptEnable();
@@ -156,11 +155,8 @@ int main(void)
 				// reset the timer
 				TIFR0 |= (1 << TOV0);
 
-				// if reading has timed out write the buffers down the serial
+				// if reading has timed out write the cached NHP buffer down the serial
 				if (ram.PulseMSRemaining.NHPTimeout && !(--ram.PulseMSRemaining.NHPTimeout)){
-					// write the rest of the cached NHP buffer down
-
-
 					// write started lead
 					if (ram.NHP.leadError){
 						LRingBuffer_Append(&ram.RingBuffer, ram.NHP.readbuffer[ram.NHP.readlength]);
@@ -215,10 +211,18 @@ void SetupHardware(void)
 
 	/* Hardware Initialization */
 
-	// start Serial at HID baud to recognize new keypresses
-	SerialInitHID();
+	// Setup the TX Pin to OUTPUT and RX with PULLUP
+	DDRD |= (1 << 3);
+	PORTD |= (1 << 2);
 
+	// start Serial at HID baud to recognize new keypresses
+	EVENT_CDC_Device_LineEncodingChanged(&VirtualSerial_CDC_Interface);
+
+	// reset LEDs
+	ram.PulseMSRemaining.whole = 0;
 	LEDs_Init();
+
+	// initialize USB
 	USB_Init();
 
 	/* Start the flush timer so that overflows occur rapidly to push received bytes to the USB interface */
@@ -227,9 +231,6 @@ void SetupHardware(void)
 	/* Pull target /RESET line high */
 	AVR_RESET_LINE_PORT |= AVR_RESET_LINE_MASK;
 	AVR_RESET_LINE_DDR |= AVR_RESET_LINE_MASK;
-
-	// set hardware SS to input so we can use SPI slave mode
-	AVR_SPI_DDR &= ~(1 << AVR_HARDWARE_SS); // INPUT
 
 	// Hardwaresetup to turn off the HID function with shorting the pin to GND
 	AVR_NO_HID_DDR &= ~AVR_NO_HID_MASK; // INPUT

@@ -103,9 +103,9 @@ typedef union{
 
 typedef union {
 	// 32 Buttons, 6 Axis, 2 D-Pads
-	uint8_t whole8[17];
-	uint16_t whole16[17/2];
-	uint32_t whole32[17/4];
+	uint8_t whole8[15];
+	uint16_t whole16[15/2];
+	uint32_t whole32[15/4];
 	uint32_t buttons;
 
 	struct{
@@ -147,19 +147,14 @@ typedef union {
 
 		uint16_t	xAxis;
 		uint16_t	yAxis;
-		uint16_t	zAxis;
+		uint8_t	zAxis;
 
 		uint16_t	rxAxis;
 		uint16_t	ryAxis;
-		uint16_t	rzAxis;		
+		uint8_t	rzAxis;		
 
 		uint8_t		dPad1: 4;
 		uint8_t		dPad2: 4;
-
-		// deactivated because windows only supports 7 axis. should be enough.
-		//uint8_t		throttle;
-		//uint8_t		rudder;
-
 	};
 } HID_GamepadReport_Data_t;
 

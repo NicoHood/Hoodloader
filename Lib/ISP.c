@@ -176,9 +176,6 @@ void fill(int n) {
 //================================================================================
 
 void start_pmode(void) {
-	// clear all pending HID reports
-	clearHIDReports();
-
 	// set hardware SS to output so we can use SPI master mode
 	AVR_SPI_DDR |= (1 << AVR_HARDWARE_SS);
 	AVR_SPI_PORT |= (1 << AVR_HARDWARE_SS);
@@ -200,9 +197,13 @@ void start_pmode(void) {
 	AVR_SPI_DDR |= (1 << AVR_MOSI); // OUTPUT
 
 	spi_transaction(0xAC, 0x53, 0x00, 0x00);
-	ram.isp.pmode = true;
 
-	//TODO need a reset here?
+	// set pmode flag, do NOT reset other ISP values here!
+	ram.isp.pmode = true;
+	
+	// clear all pending HID reports
+	clearHIDReports();
+
 	// do not write Serial stuff into buffer, we need this ram now
 	LRingBuffer_ResetBuffer(&ram.RingBuffer);
 	ram.skipNHP = 0;
@@ -211,6 +212,7 @@ void start_pmode(void) {
 }
 
 void end_pmode(void) {
+	// SPI Input to save the pins
 	AVR_SPI_DDR &= ~(1 << AVR_MISO); // INPUT
 	AVR_SPI_DDR &= ~(1 << AVR_MOSI); // INPUT
 	AVR_SPI_DDR &= ~(1 << AVR_SCK);  // INPUT
@@ -219,13 +221,12 @@ void end_pmode(void) {
 	// set hardware SS to input so we can use SPI slave mode
 	AVR_SPI_DDR &= ~(1 << AVR_HARDWARE_SS); // INPUT
 
-	// release this buffer for Serial again
-	LRingBuffer_ResetBuffer(&ram.RingBuffer);
-
+	// reset isp values
+	ram.isp.error = 0;
+	ram.isp._addr = 0;
+	ram.isp.param.pagesize = 0;
+	ram.isp.param.eepromsize = 0;
 	ram.isp.pmode = false;
-
-	ram.skipNHP = 0;
-	NHPreset(&ram.NHP);
 }
 
 //================================================================================

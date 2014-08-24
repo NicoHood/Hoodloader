@@ -29,7 +29,6 @@ THE SOFTWARE.
 #include "Lib/Ram.h"
 #include "Lib/CDC.h"
 #include "Lib/HID.h"
-#include "Descriptors.h"
 
 //================================================================================
 // AVRISP

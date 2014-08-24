@@ -238,7 +238,6 @@ void checkNHPProtocol(uint8_t input){
 	// we already got a pending report
 	else if (ram.HID.ID && (address == (((ram.HID.recvlength + 2) / 2) + 1))){
 		// make sure there is no pending report, because we overwrite the buffer now
-		//TODO not needed?
 		flushHID();
 
 		// check if the new Address is in correct order of HID reports.
