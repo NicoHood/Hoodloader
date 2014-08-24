@@ -1,0 +1,67 @@
+menu.cpu=Processor
+
+#############################################################
+
+atmega32u4.name=Atmega 32u4 DFU
+atmega32u4.upload.tool=avrdude
+atmega32u4.upload.protocol=avr109
+atmega32u4.upload.maximum_size=28672
+atmega32u4.upload.maximum_data_size=2560
+atmega32u4.upload.speed=57600
+atmega32u4.upload.disable_flushing=true
+atmega32u4.upload.use_1200bps_touch=true
+atmega32u4.upload.wait_for_upload_port=true
+
+atmega32u4.bootloader.tool=avrdude
+atmega32u4.bootloader.low_fuses=0xFF
+atmega32u4.bootloader.high_fuses=0xD9
+atmega32u4.bootloader.extended_fuses=0xC3
+atmega32u4.bootloader.file=DFU/BootloaderDFU_32u4.hex
+atmega32u4.bootloader.unlock_bits=0x3F
+atmega32u4.bootloader.lock_bits=0x2F
+
+atmega32u4.build.mcu=atmega32u4
+atmega32u4.build.f_cpu=16000000L
+atmega32u4.build.vid=0x2341
+atmega32u4.build.pid=0x8037
+atmega32u4.build.usb_product="Atmega 32u4"
+atmega32u4.build.board=AVR_32U4
+atmega32u4.build.core=arduino
+atmega32u4.build.variant=atmega32u4
+atmega32u4.build.extra_flags={build.usb_flags}
+
+#############################################################
+
+hoodloader.name=Arduino Mega ISP fix
+
+# Hoodloader
+#hoodloader.vid.0=0x03EB
+#hoodloader.pid.0=0x6E68
+
+# Hoodloader Lite
+#hoodloader.vid.1=0x03EB
+#hoodloader.pid.1=0x4E48
+
+## Arduino Mega w/ ATmega2560 Testato Mega ISP Version
+## -------------------------
+hoodloader.menu.cpu.atmega2560T=ATmega2560 (Testato ISP Version)
+
+hoodloader.menu.cpu.atmega2560T.upload.tool=avrdude
+hoodloader.menu.cpu.atmega2560T.upload.protocol=wiring
+hoodloader.menu.cpu.atmega2560T.upload.maximum_size=258048
+hoodloader.menu.cpu.atmega2560T.upload.maximum_data_size=8192
+hoodloader.menu.cpu.atmega2560T.upload.speed=115200
+
+hoodloader.menu.cpu.atmega2560T.bootloader.tool=avrdude
+hoodloader.menu.cpu.atmega2560T.bootloader.low_fuses=0xFF
+hoodloader.menu.cpu.atmega2560T.bootloader.high_fuses=0xD9
+hoodloader.menu.cpu.atmega2560T.bootloader.extended_fuses=0xFD
+hoodloader.menu.cpu.atmega2560T.bootloader.file=stk500v2\stk500boot_v2_mega2560_fake.hex
+hoodloader.menu.cpu.atmega2560T.bootloader.unlock_bits=0x3F
+hoodloader.menu.cpu.atmega2560T.bootloader.lock_bits=0x0F
+
+hoodloader.menu.cpu.atmega2560T.build.mcu=atmega2560
+hoodloader.menu.cpu.atmega2560T.build.f_cpu=16000000L
+hoodloader.menu.cpu.atmega2560T.build.board=AVR_HOODLOADER_MEGA
+hoodloader.menu.cpu.atmega2560T.build.core=arduino
+hoodloader.menu.cpu.atmega2560T.build.variant=mega

@@ -62,7 +62,7 @@ This will also install the needed DFU drivers to flash the new firmware. Start F
 **_Briefly_ short these two pins** of the 16u2 with a Wire **(the jumper is only to show the connection)**.
 If you have an older Version than the R3 please google how to get in DFU mode.
 Today everybody should have an R3 so no resistor and complicated stuff is needed.
-![pictures/DFU_Bridge.jpg](pictures/DFU_Bridge.jpg)
+![DFU_Bridge.jpg](DFU_Bridge.jpg)
 
 The device should now show up as Atmega16u2 in the device manager.
 If not or if you get Error: **“AtLibUsbDfu.dll not found”** install the drivers manually from the device manager.
@@ -71,16 +71,16 @@ C:\Program Files (x86)\Atmel\Flip 3.4.7\usb rightclick the .inf file and hit ins
 
 Click the IC Button an select **Atmega16u2. (same for Uno/Mega).**
 
-![pictures/Flip_1.png](pictures/Flip_1.png)
+![Flip_1.png](Flip_1.png)
 
 **Click File->Load Hex File** and select the Firmware in Firmwares/Hoodloader1_x.hex (choose newest version).
 **Its the same file for Uno and Mega.**
 
-![pictures/Flip_2.png](pictures/Flip_2.png)
+![Flip_2.png](Flip_2.png)
 
 Click the USB Cable and **click open.**
 
-![pictures/Flip_2.png](pictures/Flip_2.png)
+![Flip_2.png](Flip_2.png)
 
 **Click run** to upload the firmware. Uncheck Reset and click Start Application to restart your Arduino. Or just **replug the cable.**
 Read further on how to install the drivers for Windows.
@@ -128,20 +128,17 @@ Short PB5 (next to AREF pin) of the 4 pin header to gnd to deactivate HID usage.
 16u2 as ISP usage
 =================
 The Hoodloader includes a port of the Arduino as ISP sketch. Some minor code style changes were made but overall it works the same.
-No need to flash the main processor.
+No need to flash the main processor with the sketch, the 16u2 can work as ISP.
 
-**This is still under development!**
-
-Copy the folder (16u2asISP) inside hardware/ into sketchbook/hardware/ like this:
+Copy the folder (Hoodloader-master) into sketchbook/hardware/ like this:
 ```
 Arduino/sketchbook/hardware/16u2asISP/avr/boards.txt
 Arduino/sketchbook/hardware/16u2asISP/avr/programmers.txt
 ```
 
-**SS pin is currently on the 4 pin header that normally isnt soldered. It is the pin on the bottom left (closest to the TX led).**
-Pins we could use for SS are: RESET, 0, 1, all 4 pins of the extra header. I would not recommend to use pin 0 or 1 to not burn or interfere with the main chip.
-Reset would also reset the main chip, the 4 pinheader needs to be soldered. I could also create two versions with two different bauds.
-![pictures/ISP_Pins.jpg](pictures/ISP_Pins.jpg)
+**You need to solder the 4 Pin Header. SS pin is currently on PB4, It is the pin on the bottom left (closest to the TX led).**
+
+![Pins.jpg](Pins.jpg)
 
 At the moment I use baud 1 to upload sketches. This is to not interfere with any other baud.
 This gives us most compatibility. Under Windows this works, tell me about other systems.
@@ -149,33 +146,32 @@ Otherwise I have to use 300 or something similar.
 
 **Use IDE 1.5.7** for 16u2 as ISP. It fixes a verification bug for burning the Mega bootloader.
 
-**Uploading Mega2560 sketches is broken** due to fuse settings. Contact me for any help. See this thread:
+**Uploading via Programmer on Mega2560 is broken** due to fuse settings. Select Arduino Mega ISP fix in the Board menu
+and burn the Bootloader. This is a workaround to set the BOOTRST fuse. Once you did that you can use the uploading via programmer function.
+This reason for this bug ist still not clear.
+
+See this thread:
 http://forum.arduino.cc/index.php?topic=126160.0
 
-TX Led is for status, RX Led for errors. **Please report me if the RX Led starts blinking and wont stop!**
+TX Led is for status, RX Led for errors.
 Please also report me other errors related to ISP.
-
-**Do NOT use the HID deactivation if you use the 16u2 as ISP! This will damage your 16u2.
-You need to replug/reprogram/open the Serial to use the bridge again.
-16u2 as ISP sets the pin to OUTPUT which will kill the pin if shorted to ground!
-I might remove this feature(or move to the 4 pin header), HID seems stable so far.**
 
 Wiring: Connect all lines together like this:
 ```
 16u2 - Chip being programmed
-5V - 5V
-GND - GND
+5V   - 5V
+GND  - GND
 MOSI - MOSI
 MISO - MISO
-SCK - SCK
-SS Pin - RESET
+SCK  - SCK
+SS   - RESET
 ```
-![pictures/ProgrammingNano.jpg](pictures/ProgrammingNano.jpg)
+![ProgrammingNano.jpg](ProgrammingNano.jpg)
 If you are programming the same board only MOSI, MISO, SCK, SS is needed to connect.
-![pictures/ProgrammingMega.jpg](pictures/ProgrammingMega.jpg)
+![ProgrammingMega.jpg](ProgrammingMega.jpg)
 
 See Google code discussion:
-https://groups.google.com/a/arduino.cc/forum/#!msg/developers/V_T-Uvj8hSs/h9xlGyM9cJoJ
+https://groups.google.com/a/arduino.cc/forum/#!topic/developers/V_T-Uvj8hSs
 
 How it works
 ============
@@ -309,10 +305,12 @@ Version History
  * Takes less flash
  * Cleared code, ordered functions
  * Added flash chunks to save more ram
+ * Added Mega Upload fix
 * Fixed programming bug on slow PCs (1.6 - 1.7.3)
 * Cutted huge main file into libraries
 * Fixed bugs in Serial Buffer + rewrote the lib with new functions
 * Reworked NHP
+* Sketchbook hardware folder compatibel
 
 1.7.3 Beta Release (10.08.2014)
 * Fixed HID flush bug (1.6 - 1.7.2)
