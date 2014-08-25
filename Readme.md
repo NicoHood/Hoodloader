@@ -32,7 +32,7 @@ normal 16u2 usbserial Bootloader. It can still work the same but has more functi
 * Programming baud for ISP
 * Gamepad reports
 
-Click here to get to the (HID library)[https://github.com/NicoHood/HID].
+Click here to get to the [HID library](https://github.com/NicoHood/HID).
 See http://nicohood.wordpress.com/ for more tutorials and projects
 
 Hoodloader Installation on Arduino Uno/Mega R3
@@ -53,7 +53,7 @@ Flashing new Firmware with DFU and Flip
 To **install the new bootloader** connect your Arduino to your PC and put it into DFU mode.
 **You can always switch back to the original firmware, nothing to break.**
 
-Install [Flip with Java](http://www.atmel.com/tools/flip.aspx)** first.
+**Install [Flip with Java](http://www.atmel.com/tools/flip.aspx)** first.
 This will also install the needed DFU drivers to flash the new firmware. Start Flip.
 
 **_Briefly_ short these two pins** of the 16u2 with a Wire **(the jumper is only to show the connection)**.
@@ -120,7 +120,7 @@ Usage
 =====
 
 Overview of the pins on a normal Arduino Mega:
-![Pins.jpg](Pins.jpg)
+![16u2Pins.jpg](16u2Pins.jpg)
 
 HID usage
 ---------
@@ -153,7 +153,9 @@ and burn the Bootloader. This is a workaround to set the BOOTRST fuse. Once you 
 This reason for this bug ist still not clear.
 
 See these threads:
+
 http://forum.arduino.cc/index.php?topic=126160.0
+
 https://github.com/arduino/Arduino/issues/388#issuecomment-53134423
 
 TX Led is for status, RX Led for errors.
@@ -170,11 +172,10 @@ SCK  - SCK
 SS   - RESET
 ```
 ![ProgrammingNano.jpg](ProgrammingNano.jpg)
-If you are programming the same board (Uno/Mega) only MOSI, MISO, SCK, SS is required to connect.
+If you are programming the main MCU only MOSI, MISO, SCK, SS is required to connect.
 ![ProgrammingMega.jpg](ProgrammingMega.jpg)
 
-See Google code discussion:
-https://groups.google.com/a/arduino.cc/forum/#!topic/developers/V_T-Uvj8hSs
+[See Google code discussion](https://groups.google.com/a/arduino.cc/forum/#!topic/developers/V_T-Uvj8hSs)
 
 How it works
 ============
@@ -247,7 +248,10 @@ Known Bugs
 ==========
 See the [HID project](https://github.com/NicoHood/HID) for HID related bugs.
 
-**Programming Arduino Mega with ISP doesnt work because of fuses.**
+System Wakeup is currently not working
+System Shutdown is only working on Windows systems.
+
+**Programming Arduino Mega with ISP needs a fix (see tutorial above).**
 See this for more information + fix: http://forum.arduino.cc/index.php?topic=126160.0
 
 Media Keys dont work on Linux out of the box (not a Hoodloader problem, this is with any Keyboard)
@@ -257,6 +261,8 @@ See this how to uninstall the drivers for Windows if something isnt working: htt
 Burning Bootloader error is fixed with IDE 1.5.7 or higher (avrdude bug)!
 
 Using the Hoodloader on a 8u2 you need to use the Lite Version and DFU wont work.
+
+It seems you cannot use the official VID/PID with HID due to signed drivers!?
 
 Feel free to open an Issue on Github if you find a bug. Or message me via my [blog](http://nicohood.wordpress.com/)!
 
@@ -306,13 +312,14 @@ Version History
  * ISP flash chunk fix saved a lot of flash
  * Separated NHP from ram
 * Improved HID functions
- * Fixed Ubuntu HID Descriptor problem (crashed when using HID, same for Leonardo project)
+ * Fixed Ubuntu HID Descriptor problem
  * This also fixed a Media Keys bug
  * Changed HID EP Size to 16 to have more DPRAM
  * Added automated clear report function on reset
  * HID working after ISP programming
  * Moved HID deactivation function to PB5 (next to AREF PIN)
- * Fixed Gamepad 1+2 bug on Linux (has a weird button limit and works better as "joystick" device)
+ * Fixed Gamepad 1+2 HID report bug on Linux
+ * Fixed Media Keys bug -> HID now working under Linux
  * Reworked HID library completly
  * Reduced Gamepad z axis to 8 bit
  * Replaced Joysticks with Gamepads
@@ -392,6 +399,8 @@ So be careful if you change the source on your own with important PIDs.
 Therefore reinstall the divers for any device or just dont touch the HID reports in the Bootloader.
 The Leonardo/Micro version worked fine till now.
 
+It seems you cannot use the official VID/PID with HID due to signed drivers!?
+
 See this how to uninstall the drivers:
 https://support.microsoft.com/kb/315539
 
@@ -443,7 +452,7 @@ $ sudo make
 ```
 
 **With not enough ram the Hoodloader wont work. My worst limit was 339/323 bytes used.
-This depends on the PC, some faster PCs can handle USB faster so you can use more ram.***
+This depends on the PC, some faster PCs can handle USB better so you can use more ram.**
 
 Licence and Copyright
 =====================
