@@ -1,25 +1,22 @@
 Arduino Hoodloader BETA
 ==================
 
-**There might be some problems with uploading on some computers or other errors. Try v1.5 instead!***
-
 This is the source page of the Hoodloader. The Hoodloader is a fully compatible replacement of the
 normal 16u2 usbserial Bootloader. It can still work the same but has more functions.
 
 **Functions:**
 * Program the Arduino Uno/Mega like you are used to
 * Serial interface is still usable!
-* Use your Arduino as HID device
+* Use your Arduino as (HID device)[https://github.com/NicoHood/HID]
 * Use the 16u2 as ISP to reprogram your 328 and others
-* One Firmware for Uno/Mega
+* One Firmware for Uno and Mega
 
 **Tested Devices/OS:**
 * Arduino Uno R3
 * Arduino Mega R3
 * Windows XP/7/8
-* Linux: Ubuntu
+* Linux: Ubuntu, TODO: Raspberry
 * Android
-* TODO: Raspberry
 
 **Limitations:**
 * HID only works at baud 115200 (Software and speed limitation, see "how it works below")
@@ -35,10 +32,10 @@ normal 16u2 usbserial Bootloader. It can still work the same but has more functi
 * Programming baud for ISP
 * Gamepad reports
 
-
+Click here to get to the (HID library)[https://github.com/NicoHood/HID].
 See http://nicohood.wordpress.com/ for more tutorials and projects
 
-Installation on Arduino Uno/Mega R3
+Hoodloader Installation on Arduino Uno/Mega R3
 ===================================
 **For the whole Project IDE 1.5.7 or higher is recommended!**
 
@@ -109,38 +106,43 @@ You are done! Have fun with your new Arduino Firmware.
 
 Updating to a newer Version
 ===========================
+HID library:
+
+To upgrade to v1.8 you need to redownload the ide files, replace the original files and install the library like you are used to.
+
+Hoodloader:
 
 Just upload the new hex file and check the HID Project if the HID library code has changed and replace the new files too.
 You normally dont need to reinstall the drivers for windows if the changelog dosnt note anything.
 Versions below 1.5 might need the new drivers.
 
+Usage
+=====
+
+Overview of the pins on a normal Arduino Mega:
+![Pins.jpg](Pins.jpg)
+
 HID usage
-=========
+---------
 See the [HID project](https://github.com/NicoHood/HID)
 for changelog, bugs, installing instructions and more information of the main feature.
 
 Deactivate HID function
-=======================
+-----------------------
 Its possible to deactivate HID if you messed up something in the code and cannot return easily.
 
 Short PB5 (next to AREF pin) of the 4 pin header to gnd to deactivate HID usage. You need to solder the pin header of course.
 
 16u2 as ISP usage
-=================
-The Hoodloader includes a port of the Arduino as ISP sketch. Some minor code style changes were made but overall it works the same.
+-----------------
+The Hoodloader includes a port of the Arduino as ISP sketch. Some minor code style changes and improvements were made but overall it works the same.
 No need to flash the main processor with the sketch, the 16u2 can work as ISP.
 
-Copy the folder (Hoodloader-master) into sketchbook/hardware/ like this:
-```
-Arduino/sketchbook/hardware/16u2asISP/avr/boards.txt
-Arduino/sketchbook/hardware/16u2asISP/avr/programmers.txt
-```
+Copy the folder (Hoodloader-master) into sketchbook/hardware/ like this: sketchbook/hardware/Hoodloader/avr/[...]
 
 **You need to solder the 4 Pin Header. SS pin is currently on PB4, It is the pin on the bottom left (closest to the TX led).**
 
-![Pins.jpg](Pins.jpg)
-
-At the moment I use baud 1 to upload sketches. This is to not interfere with any other baud.
+At the moment I use baud 1 (which is normally invalid) to upload sketches. This is to not interfere with any other baud.
 This gives us most compatibility. Under Windows this works, tell me about other systems.
 Otherwise I have to use 300 or something similar.
 
@@ -150,8 +152,9 @@ Otherwise I have to use 300 or something similar.
 and burn the Bootloader. This is a workaround to set the BOOTRST fuse. Once you did that you can use the uploading via programmer function.
 This reason for this bug ist still not clear.
 
-See this thread:
+See these threads:
 http://forum.arduino.cc/index.php?topic=126160.0
+https://github.com/arduino/Arduino/issues/388#issuecomment-53134423
 
 TX Led is for status, RX Led for errors.
 Please also report me other errors related to ISP.
@@ -167,7 +170,7 @@ SCK  - SCK
 SS   - RESET
 ```
 ![ProgrammingNano.jpg](ProgrammingNano.jpg)
-If you are programming the same board only MOSI, MISO, SCK, SS is needed to connect.
+If you are programming the same board (Uno/Mega) only MOSI, MISO, SCK, SS is required to connect.
 ![ProgrammingMega.jpg](ProgrammingMega.jpg)
 
 See Google code discussion:
@@ -175,24 +178,31 @@ https://groups.google.com/a/arduino.cc/forum/#!topic/developers/V_T-Uvj8hSs
 
 How it works
 ============
+For the Uno/Mega you need a special Bootloader. Why? See [Hoodloader repository](https://github.com/NicoHood/Hoodloader).
 To sum it up: Serial information is grabbed by the "man in the middle, 16u2" and you dont have to worry to get any wrong Serial stuff via USB.
+Thatswhy you need a special baud (115200) that both sides can communicate with each other.
+Every USB command is send via a special [NicoHood Protocol](https://github.com/NicoHood/NicoHoodProtocol)
+that's filtered out by the 16u2. If you use Serial0 for extern devices it cannot filter the signal of course.
+You can still use the NHP, just dont use the reserved Address 1.
 
-For the Uno/Mega you need a special Bootloader. Why? Because the Uno/Mega has 2 chips on board.
-The 328/2560 and 16u2 on each. And the only communication between the 16u2 and the main chip is via Serial.
+The Uno/Mega has 2 chips on board.
+The 328/2560 and a 16u2 on each. And the only communication between the 16u2 and the main chip is possible via Serial0.
 But the Serial is also used to program the chip. So what I do here is to filter out all Serial Data that comes in
-via the NicoHoodProtocol (NHP). There is an indicator address 1 which contains the beginning and the Report ID.
-If the following Serial information is Address 2 with a valid checksum the report will be created and sent if its
+via the NicoHoodProtocol (NHP). There is an indicator address 1 which contains the beginning mark and the Report ID.
+If the following Serial information is Address 2,3 a.s.o with a valid checksum the report will be created and sent if it
 finished successful. If any error occurred within the first 2 Protocol Addresses the information will be sent via Serial.
-The Program should forward this information because it could be a normal information. Everything above 2 Addresses that goes
-wrong wont be sent and discarded due to a normal wrong HID report. Normally you dont have to worry about getting weird HID
-presses. You need to send exactly 6 bytes with the special Numbers and another 6 bytes for the first information with checksum
-and complete the full report. You might get weird Serial output if you hit the exact 12 bytes without timeout of a few milliseconds.
-And if the reading timed out the Data will also be forwarded. And if you only send Ascii Code the Information is forwarded instantly
+The programm assumes the start mark was outside the protocol/HID function.The program should forward this information because
+it could be a normal information. Everything above 2 Addresses that goes
+suddenly wrong wont be sent and discarded due to a normal wrong HID report. Normally you dont have to worry about getting weird HID
+presses. You need to send exactly 6 bytes with the special numbers and another 6 bytes for the first information with checksum
+and complete the full report with even more addresses and no timeout. You might get weird Serial output if you hit the exact 12 bytes
+without timeout of a few milliseconds. This is nearly impossible.
+And if the reading timed out the data will also be forwarded. And if you only send Ascii Code the Information is forwarded instantly
 because the NHP filters that out instantly (see documentation of the NHP). So filtering should be fine and dont block :)
 
 Just an excerpt (better explanation soon):
 ```
-so There are 3 modes: Default (usb to serial), HID, and ISP
+There are 3 modes: Default (usb to serial), HID, and ISP
 to distinguish between ISP and the others there is a simple way of doing it: The CDC Virtual Serial interface can have different baud rates.
 and the MCU know this baud, because it needs to reprogram the chip. So what i did was to use an invalid baud (1) to say "hey, its programming mode"
 this will turn off usbtoserial and HID. this will set the ram up for ISP mode. this will deactivate any incoming Serial byte (discard)
@@ -213,8 +223,9 @@ and if a possible valid protocol times out the data is also send to the pc to no
 ```
 
 The 16u2 as ISP works like the Arduino sketch. It just uses its won SPI header to program the device
-and uses a special baud to not get into conflict with other commonly used bauds.
-In ISP mode no data is transferred between Arduino main chip and Pc. This also wouldnt be possible because of shared ram.
+and uses a special CDC baud to not get into conflict with other commonly used bauds.
+In ISP mode no data is transferred between Arduino main MCU and 16u2. This also wouldnt be possible because of shared ram.
+The ISP function has the same bugs like the normal Arduino as ISP sektch. It might have some improvements though.
 
 This library wouldnt be possible without
 ========================================
@@ -282,6 +293,7 @@ Ideas for the future (Todo list):
 * add better pictures
 * isp cdc send better
 * led timeout timer interrupt?
+* remove checksum for NHP on data to speed thing up
 
 Version History
 ===============
@@ -301,6 +313,9 @@ Version History
  * HID working after ISP programming
  * Moved HID deactivation function to PB5 (next to AREF PIN)
  * Fixed Gamepad 1+2 bug on Linux (has a weird button limit and works better as "joystick" device)
+ * Reworked HID library completly
+ * Reduced Gamepad z axis to 8 bit
+ * Replaced Joysticks with Gamepads
 * Improved ISP functions
  * Takes less flash
  * Cleared code, ordered functions
