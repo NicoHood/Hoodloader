@@ -56,7 +56,7 @@ int main(void)
 	for (;;)
 	{
 		// try to clear HID reports if HID is disabled by hardware
-		if (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK))
+		if (!(AVR_NO_HID_PIN = AVR_NO_HID_MASK))
 			clearHIDReports();
 
 		//================================================================================
@@ -110,7 +110,7 @@ int main(void)
 					{
 						// ignoe HID check if: we need to write a pending NHP buff, its deactivated or not the right baud
 						uint32_t baud = VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS;
-						if (ram.skipNHP || (baud != AVRISP_BAUD && baud != 0 && baud != 115200) || (!(AVR_NO_HID_PIN &= AVR_NO_HID_MASK))){
+						if (ram.skipNHP || (baud != AVRISP_BAUD && baud != 0 && baud != 115200) || (!(AVR_NO_HID_PIN & AVR_NO_HID_MASK))){
 							// Try to send the next bytes to the host, if DTR is set to not block serial reading in HID mode
 							// outside HID mode always write the byte (!ram.skipNHP) is only null outside hid mode
 							// discard the byte if host is not connected (needed to get new HID bytes and empty buffer)
