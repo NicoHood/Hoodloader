@@ -6,8 +6,8 @@ normal 16u2 usbserial Bootloader. It can still work the same but has more functi
 
 **Functions:**
 * Program the Arduino Uno/Mega like you are used to
-* Serial interface is still usable!
-* Use your Arduino as (HID device)[https://github.com/NicoHood/HID]
+* Serial interface is still usable via USB!
+* Use your Arduino as [HID device](https://github.com/NicoHood/HID)
 * Use the 16u2 as ISP to reprogram your 328 and others
 * One Firmware for Uno and Mega
 
@@ -70,7 +70,7 @@ Click the IC Button an select **Atmega16u2. (same for Uno/Mega).**
 
 ![Flip_1.png](Flip_1.png)
 
-**Click File->Load Hex File** and select the Firmware in Firmwares/Hoodloader1_x.hex (choose newest version).
+**Click File->Load Hex File** and select the Firmware in avr/firmwares/Hoodloader/Hoodloader.hex
 **Its the same file for Uno and Mega.**
 
 ![Flip_2.png](Flip_2.png)
@@ -132,6 +132,13 @@ Deactivate HID function
 Its possible to deactivate HID if you messed up something in the code and cannot return easily.
 
 Short PB5 (next to AREF pin) of the 4 pin header to gnd to deactivate HID usage. You need to solder the pin header of course.
+
+Deactivate auto reset function
+-----------------------
+Its possible to deactivate auto reset if you dont want to restart the MCU when opening the Serial.
+
+Short PB6 (closest pin to the power plug) of the 4 pin header to gnd to deactivate auto reset. You need to solder the pin header of course.
+See picture above where PB6 is located.
 
 16u2 as ISP usage
 -----------------
@@ -300,6 +307,8 @@ Ideas for the future (Todo list):
 * isp cdc send better
 * led timeout timer interrupt?
 * remove checksum for NHP on data to speed thing up
+* add a copy of th hoodloader hex to hid project
+* motion wakeup
 
 Version History
 ===============
@@ -322,6 +331,7 @@ Version History
  * Fixed Media Keys bug -> HID now working under Linux
  * Reworked HID library completly
  * Reduced Gamepad z axis to 8 bit
+ * Gamepad center is now at zero. (signed int/char)
  * Replaced Joysticks with Gamepads
 * Improved ISP functions
  * Takes less flash
@@ -333,6 +343,7 @@ Version History
 * Fixed bugs in Serial Buffer + rewrote the lib with new functions
 * Reworked NHP
 * Sketchbook hardware folder compatibel
+* Auto reset deactivation possible
 
 1.7.3 Beta Release (10.08.2014)
 * Fixed HID flush bug (1.6 - 1.7.2)

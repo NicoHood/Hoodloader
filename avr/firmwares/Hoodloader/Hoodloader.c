@@ -235,6 +235,10 @@ void SetupHardware(void)
 	// Hardwaresetup to turn off the HID function with shorting the pin to GND
 	AVR_NO_HID_DDR &= ~AVR_NO_HID_MASK; // INPUT
 	AVR_NO_HID_PORT |= AVR_NO_HID_MASK; // PULLUP
+
+	// Hardwaresetup to turn off the auto reset function with shorting the pin to GND
+	AVR_NO_AUTORESET_LINE_DDR &= ~AVR_NO_AUTORESET_LINE_MASK; // INPUT
+	AVR_NO_AUTORESET_LINE_PORT |= AVR_NO_AUTORESET_LINE_MASK; // PULLUP
 }
 
 //================================================================================

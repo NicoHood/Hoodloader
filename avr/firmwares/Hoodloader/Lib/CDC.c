@@ -144,6 +144,10 @@ void EVENT_CDC_Device_ControLineStateChanged(USB_ClassInfo_CDC_Device_t* const C
 	// clear all pending HID reports
 	clearHIDReports();
 
+	// autoreset disabled?
+	if (!(AVR_NO_AUTORESET_LINE_PIN & AVR_NO_AUTORESET_LINE_MASK))
+		return;
+
 	bool CurrentDTRState = (CDCInterfaceInfo->State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
 
 	if (CurrentDTRState)

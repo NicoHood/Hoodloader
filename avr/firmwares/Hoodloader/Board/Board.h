@@ -67,16 +67,21 @@ extern "C" {
 	/** Indicates the board has hardware LEDs mounted. */
 #define BOARD_HAS_LEDS
 
+#define AVR_RESET_LINE_PORT PORTD
+#define AVR_RESET_LINE_DDR DDRD
+#define AVR_RESET_LINE_PIN PIND
+#define AVR_RESET_LINE_MASK (1 << 7)
+
 #define AVR_NO_HID_PORT PORTB
 #define AVR_NO_HID_DDR DDRB
 #define AVR_NO_HID_PIN PINB
 #define AVR_NO_HID 5
 #define AVR_NO_HID_MASK (1 << AVR_NO_HID)
 
-#define AVR_RESET_LINE_PORT PORTD
-#define AVR_RESET_LINE_DDR DDRD
-#define AVR_RESET_LINE_PIN PIND
-#define AVR_RESET_LINE_MASK (1 << 7)
+#define AVR_NO_AUTORESET_LINE_PORT PORTB
+#define AVR_NO_AUTORESET_LINE_DDR DDRB
+#define AVR_NO_AUTORESET_LINE_PIN PINB
+#define AVR_NO_AUTORESET_LINE_MASK (1 << 6)
 
 	// hardware configuration
 #define AVR_SPI_PIN PINB

@@ -145,13 +145,14 @@ typedef union {
 		uint8_t button31 :1;
 		uint8_t button32 :1;
 
-		uint16_t	xAxis;
-		uint16_t	yAxis;
-		uint8_t	zAxis;
+		int16_t	xAxis;
+		int16_t	yAxis;
 
-		uint16_t	rxAxis;
-		uint16_t	ryAxis;
-		uint8_t	rzAxis;		
+		int16_t	rxAxis;
+		int16_t	ryAxis;
+
+		int8_t	zAxis;
+		int8_t	rzAxis;		
 
 		uint8_t		dPad1: 4;
 		uint8_t		dPad2: 4;
