@@ -27,7 +27,7 @@ int main()
 		r = rawhid_open(1, 0x16C0, 0x0486, 0xFFAB, 0x0200);
 		if (r <= 0) {
 			// Open Hoodloader
-			r = rawhid_open(1, 0x03EB, 0x6E68, 0xFFC0, 0x0C00);
+			r = rawhid_open(1, 0x03EB, 0x6E68, -1, -1);
 			if (r <= 0) {
 				// Open any other device
 				r = rawhid_open(1, -1, -1, -1, -1);

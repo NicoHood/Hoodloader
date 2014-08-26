@@ -1,7 +1,7 @@
 
-#OS = LINUX
+OS = LINUX
 #OS = MACOSX
-OS = WINDOWS
+#OS = WINDOWS
 
 PROG = rawhid_test
 

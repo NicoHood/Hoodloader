@@ -31,6 +31,7 @@ normal 16u2 usbserial Bootloader. It can still work the same but has more functi
 **Things that might change in the future:**
 * Programming baud for ISP
 * Gamepad reports
+* 4 Pinheader functions
 
 Click here to get to the [HID library](https://github.com/NicoHood/HID).
 See http://nicohood.wordpress.com/ for more tutorials and projects
@@ -261,6 +262,8 @@ System Shutdown is only working on Windows systems.
 **Programming Arduino Mega with ISP needs a fix (see tutorial above).**
 See this for more information + fix: http://forum.arduino.cc/index.php?topic=126160.0
 
+On a Raspberry Pi is a problem, because it opens Serial at baud 9600 by default which disables HID.
+
 Media Keys dont work on Linux out of the box (not a Hoodloader problem, this is with any Keyboard)
 
 See this how to uninstall the drivers for Windows if something isnt working: https://support.microsoft.com/kb/315539
@@ -275,7 +278,7 @@ Feel free to open an Issue on Github if you find a bug. Or message me via my [bl
 
 Ideas for the future (Todo list):
 =====================
-* Design new Arduino with I2C and SPI connection
+* (Design new Arduino(shield?) with I2C and SPI connection)
 * general timeout function for hid and Pmode timeout!
 * remove TODO <-- stuff
 * explain how it works better
@@ -286,29 +289,25 @@ Ideas for the future (Todo list):
 * Add HID rumble support (very hard)
 * Add Xbox Support (too hard)
 * Add Report Out function (for Keyboard Leds etc, maybe the 4 pin header?)
-* create tables for leonardo and uno/mega (documentation)
-* SPI HID input?
-* fix programmers.txt installation
 * get Raw HID working
-* reduce gamepad report size, add 4 gamepads
-* compile for different drivers/ids (problem with official pids) <-- problem with hid
-* HID reset with/without the isempty?
-* Center gamepads with 0 to suit with clear reports
-* fix ubuntu gamepad bug
 * new dfu loader to reset 16u2 easier
-* fix pc restart bug
 * reduce flash if possible
 * improve ISP if possible
 * access eeprom
-* testing all examples in detail
 * adding more examples?
-* check hidclear again
 * add better pictures
 * isp cdc send better
 * led timeout timer interrupt?
+Planned for 1.8:
+* add a copy of the hoodloader hex to hid project
+* fix pc restart bug
+
+Planned for 1.9:
 * remove checksum for NHP on data to speed thing up
-* add a copy of th hoodloader hex to hid project
-* motion wakeup
+* compile for different drivers/ids (problem with official pids) <-- problem with hid
+* motion wakeup, for reactivating from sleep on windows
+* HID on raspberry: slower
+* fix ubuntu gamepad bug
 
 Version History
 ===============

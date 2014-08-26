@@ -78,10 +78,6 @@ void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCI
 		CharFormat = CDC_LINEENCODING_OneStopBit;
 		DataBits = 8;
 		ParityType = CDC_PARITY_None;
-
-		// reset LEDs
-		ram.PulseMSRemaining.whole = 0;
-		LEDs_SetAllLEDs(LEDS_NO_LEDS);
 	}
 	else{
 		// use the Baud rate config from the USB interface
@@ -144,11 +140,13 @@ void EVENT_CDC_Device_ControLineStateChanged(USB_ClassInfo_CDC_Device_t* const C
 	// clear all pending HID reports
 	clearHIDReports();
 
+	bool CurrentDTRState;
+
 	// autoreset disabled?
 	if (!(AVR_NO_AUTORESET_LINE_PIN & AVR_NO_AUTORESET_LINE_MASK))
-		return;
-
-	bool CurrentDTRState = (CDCInterfaceInfo->State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
+		CurrentDTRState = true;
+	else
+	CurrentDTRState = (CDCInterfaceInfo->State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
 
 	if (CurrentDTRState)
 		AVR_RESET_LINE_PORT &= ~AVR_RESET_LINE_MASK;

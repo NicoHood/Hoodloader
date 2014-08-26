@@ -49,8 +49,10 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] =
 #define HID_SYSTEM_ENABLE 24
 #define HID_GAMEPAD1_ENABLE 71
 #define HID_GAMEPAD2_ENABLE 71
-#define HID_JOYSTICK1_ENABLE 51
-#define HID_JOYSTICK2_ENABLE 51
+#define HID_GAMEPAD3_ENABLE 71
+#define HID_GAMEPAD4_ENABLE 71
+	//#define HID_JOYSTICK1_ENABLE 51
+	//#define HID_JOYSTICK2_ENABLE 51
 
 #ifdef HID_MOUSE_ENABLE
 	// Mouse
@@ -318,7 +320,7 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] =
 	0xC0, // End Collection 	C0
 	0xC0, // End Collection 	C0
 
-	
+
 	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
 	0x09, 0x04, // Usage(Joystick) 	09 04
 	0xA1, 0x01, // Collection(Application) 	A1 01
@@ -371,8 +373,8 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] =
 	0x91, 0x02, // Output(Data, Var, Abs, NWrp, Lin, Pref, NNul, NVol, Bit) 	91 02
 	0xC0, // End Collection 	C0
 	0xC0, // End Collection 	C0
-	
-	
+
+
 	0x05, 0x01, // Usage Page(Generic Desktop) 	05 01
 	0x09, 0x04, // Usage(Joystick) 	09 04
 	0xA1, 0x01, // Collection(Application) 	A1 01
@@ -652,6 +654,124 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] =
 	0xc0,								// END_COLLECTION
 #endif
 
+#ifdef HID_GAMEPAD3_ENABLE
+	// Gamepad1
+	0x05, 0x01,							// USAGE_PAGE (Generic Desktop)
+	0x09, 0x04,							// USAGE (Joystick)
+	0xa1, 0x01,							// COLLECTION (Application)
+	0x85, HID_REPORTID_Gamepad3Report,	//   REPORT_ID
+	// 32 Buttons
+	0x05, 0x09,							//   USAGE_PAGE (Button)
+	0x19, 0x01,							//   USAGE_MINIMUM (Button 1)
+	0x29, 0x20,							//   USAGE_MAXIMUM (Button 32)
+	0x15, 0x00,							//   LOGICAL_MINIMUM (0)
+	0x25, 0x01,							//   LOGICAL_MAXIMUM (1)
+	0x75, 0x01,							//   REPORT_SIZE (1)
+	0x95, 0x20,							//   REPORT_COUNT (32)
+	0x81, 0x02,							//   INPUT (Data,Var,Abs)
+	// 4 16bit Axis
+	0x05, 0x01,							//   USAGE_PAGE (Generic Desktop)
+	0xa1, 0x00,							//   COLLECTION (Physical)
+	0x09, 0x30,							//     USAGE (X)
+	0x09, 0x31,							//     USAGE (Y)
+	0x09, 0x33,							//     USAGE (Rx)
+	0x09, 0x34,							//     USAGE (Ry)
+	0x16, 0x00, 0x80,					//     LOGICAL_MINIMUM (-32768)
+	0x26, 0xFF, 0x7F,					//     LOGICAL_MAXIMUM (32767)
+	0x75, 0x10,							//     REPORT_SIZE (16)
+	0x95, 0x04,							//     REPORT_COUNT (4)
+	0x81, 0x02,							//     INPUT (Data,Var,Abs)
+	// 2 8bit Axis
+	0x09, 0x32,							//     USAGE (Z)
+	0x09, 0x35,							//     USAGE (Rz)
+	0x15, 0x80,							//     LOGICAL_MINIMUM (-128)
+	0x25, 0x7F,							//     LOGICAL_MAXIMUM (127)
+	0x75, 0x08,							//     REPORT_SIZE (8)
+	0x95, 0x02,							//     REPORT_COUNT (2)
+	0x81, 0x02,							//     INPUT (Data,Var,Abs)
+	0xc0,								//   END_COLLECTION
+	// 2 Hat Switches
+	0x05, 0x01,							//   USAGE_PAGE (Generic Desktop)
+	0x09, 0x39,							//   USAGE (Hat switch)
+	0x09, 0x39,							//   USAGE (Hat switch)
+	0x15, 0x01,							//   LOGICAL_MINIMUM (1)
+	0x25, 0x08,							//   LOGICAL_MAXIMUM (8)
+	0x95, 0x02,							//   REPORT_COUNT (2)
+	0x75, 0x04,							//   REPORT_SIZE (4)
+	0x81, 0x02,							//   INPUT (Data,Var,Abs)
+	// 8bit Throttle + Rudder
+	//0x05, 0x02,							//   USAGE_PAGE (Simulation Controls)
+	//0xa1, 0x00,							//   COLLECTION (Physical)
+	//0x15, 0x00,							//     LOGICAL_MINIMUM (0)
+	//0x26, 0xff, 0x00,					//     LOGICAL_MAXIMUM (255)
+	//0x09, 0xbb,							//     USAGE (Throttle)
+	//0x09, 0xba,							//     USAGE (Rudder)
+	//0x75, 0x08,							//     REPORT_SIZE (8)
+	//0x95, 0x02,							//     REPORT_COUNT (2)
+	//0x81, 0x02,							//     INPUT (Data,Var,Abs)
+	//0xc0,								//   END_COLLECTION
+	0xc0,								// END_COLLECTION
+#endif
+
+#ifdef HID_GAMEPAD4_ENABLE
+	// Gamepad1
+	0x05, 0x01,							// USAGE_PAGE (Generic Desktop)
+	0x09, 0x04,							// USAGE (Joystick)
+	0xa1, 0x01,							// COLLECTION (Application)
+	0x85, HID_REPORTID_Gamepad4Report,	//   REPORT_ID
+	// 32 Buttons
+	0x05, 0x09,							//   USAGE_PAGE (Button)
+	0x19, 0x01,							//   USAGE_MINIMUM (Button 1)
+	0x29, 0x20,							//   USAGE_MAXIMUM (Button 32)
+	0x15, 0x00,							//   LOGICAL_MINIMUM (0)
+	0x25, 0x01,							//   LOGICAL_MAXIMUM (1)
+	0x75, 0x01,							//   REPORT_SIZE (1)
+	0x95, 0x20,							//   REPORT_COUNT (32)
+	0x81, 0x02,							//   INPUT (Data,Var,Abs)
+	// 4 16bit Axis
+	0x05, 0x01,							//   USAGE_PAGE (Generic Desktop)
+	0xa1, 0x00,							//   COLLECTION (Physical)
+	0x09, 0x30,							//     USAGE (X)
+	0x09, 0x31,							//     USAGE (Y)
+	0x09, 0x33,							//     USAGE (Rx)
+	0x09, 0x34,							//     USAGE (Ry)
+	0x16, 0x00, 0x80,					//     LOGICAL_MINIMUM (-32768)
+	0x26, 0xFF, 0x7F,					//     LOGICAL_MAXIMUM (32767)
+	0x75, 0x10,							//     REPORT_SIZE (16)
+	0x95, 0x04,							//     REPORT_COUNT (4)
+	0x81, 0x02,							//     INPUT (Data,Var,Abs)
+	// 2 8bit Axis
+	0x09, 0x32,							//     USAGE (Z)
+	0x09, 0x35,							//     USAGE (Rz)
+	0x15, 0x80,							//     LOGICAL_MINIMUM (-128)
+	0x25, 0x7F,							//     LOGICAL_MAXIMUM (127)
+	0x75, 0x08,							//     REPORT_SIZE (8)
+	0x95, 0x02,							//     REPORT_COUNT (2)
+	0x81, 0x02,							//     INPUT (Data,Var,Abs)
+	0xc0,								//   END_COLLECTION
+	// 2 Hat Switches
+	0x05, 0x01,							//   USAGE_PAGE (Generic Desktop)
+	0x09, 0x39,							//   USAGE (Hat switch)
+	0x09, 0x39,							//   USAGE (Hat switch)
+	0x15, 0x01,							//   LOGICAL_MINIMUM (1)
+	0x25, 0x08,							//   LOGICAL_MAXIMUM (8)
+	0x95, 0x02,							//   REPORT_COUNT (2)
+	0x75, 0x04,							//   REPORT_SIZE (4)
+	0x81, 0x02,							//   INPUT (Data,Var,Abs)
+	// 8bit Throttle + Rudder
+	//0x05, 0x02,							//   USAGE_PAGE (Simulation Controls)
+	//0xa1, 0x00,							//   COLLECTION (Physical)
+	//0x15, 0x00,							//     LOGICAL_MINIMUM (0)
+	//0x26, 0xff, 0x00,					//     LOGICAL_MAXIMUM (255)
+	//0x09, 0xbb,							//     USAGE (Throttle)
+	//0x09, 0xba,							//     USAGE (Rudder)
+	//0x75, 0x08,							//     REPORT_SIZE (8)
+	//0x95, 0x02,							//     REPORT_COUNT (2)
+	//0x81, 0x02,							//     INPUT (Data,Var,Abs)
+	//0xc0,								//   END_COLLECTION
+	0xc0,								// END_COLLECTION
+#endif
+
 #ifdef HID_JOYSTICK1_ENABLE
 	// Joystick1
 	0x05, 0x01,							// USAGE_PAGE (Generic Desktop)
@@ -735,7 +855,7 @@ const USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
 	.ProductID = PRODUCTID, //created for Hoodloader
 
 	// passed by makefile
-	.ReleaseNumber = VERSION_BCD(HOODLOADER_V1, HOODLOADER_V2, HOODLOADER_V3), 
+	.ReleaseNumber = VERSION_BCD(HOODLOADER_V1, HOODLOADER_V2, HOODLOADER_V3),
 
 	.ManufacturerStrIndex = STRING_ID_Manufacturer,
 	.ProductStrIndex = STRING_ID_Product,

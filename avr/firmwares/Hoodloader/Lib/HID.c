@@ -108,8 +108,8 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 	//	uint8_t* LEDReport = (uint8_t*)ReportData;
 
 	if (ReportID == HID_REPORTID_RawKeyboardReport){
-		//LEDs_SetAllLEDs(LEDS_ALL_LEDS);
-		//while (1); //TODO remove <--
+		LEDs_SetAllLEDs(LEDS_ALL_LEDS);
+		while (1); //TODO remove <--
 		//TODO get this working
 		// Turn on RX LED
 		LEDs_TurnOnLEDs(LEDMASK_RX);
@@ -185,6 +185,8 @@ uint8_t getHIDReportLength(uint8_t ID){
 
 	case HID_REPORTID_Gamepad1Report:
 	case HID_REPORTID_Gamepad2Report:
+	case HID_REPORTID_Gamepad3Report:
+	case HID_REPORTID_Gamepad4Report:
 		return sizeof(HID_GamepadReport_Data_t);
 		break;
 

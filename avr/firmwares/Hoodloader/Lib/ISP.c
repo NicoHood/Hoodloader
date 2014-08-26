@@ -205,9 +205,12 @@ void start_pmode(void) {
 	clearHIDReports();
 
 	// do not write Serial stuff into buffer, we need this ram now
-	LRingBuffer_ResetBuffer(&ram.RingBuffer);
-	ram.skipNHP = 0;
-	NHPreset(&ram.NHP);
+	LRingBuffer_DisableBuffer(&ram.RingBuffer);
+
+	// reset LEDs
+	ram.PulseMSRemaining.whole = 0;
+	LEDs_SetAllLEDs(LEDS_NO_LEDS);
+
 	return;
 }
 
@@ -227,6 +230,13 @@ void end_pmode(void) {
 	ram.isp.param.pagesize = 0;
 	ram.isp.param.eepromsize = 0;
 	ram.isp.pmode = false;
+
+	// Serial tx buffers Setup
+	LRingBuffer_InitBuffer(&ram.RingBuffer, ram.RingBuffer_Data, sizeof(ram.RingBuffer_Data));
+
+	//NHP setup
+	ram.skipNHP = 0;
+	NHPreset(&ram.NHP);
 }
 
 //================================================================================
