@@ -1,4 +1,4 @@
-Arduino Hoodloader BETA
+Arduino Hoodloader BETA 1.8
 ==================
 
 This is the source page of the Hoodloader. The Hoodloader is a fully compatible replacement of the
@@ -32,12 +32,13 @@ normal 16u2 usbserial Bootloader. It can still work the same but has more functi
 * Programming baud for ISP
 * Gamepad reports
 * 4 Pinheader functions
+* Hoodloader Lite
 
 Click here to get to the [HID library](https://github.com/NicoHood/HID).
 See http://nicohood.wordpress.com/ for more tutorials and projects
 
 Hoodloader Installation on Arduino Uno/Mega R3
-===================================
+==============================================
 **For the whole Project IDE 1.5.7 or higher is recommended!**
 
 **This tutorial is for Windows and R3 versions only.**
@@ -71,7 +72,8 @@ Click the IC Button an select **Atmega16u2. (same for Uno/Mega).**
 
 ![Flip_1.png](Flip_1.png)
 
-**Click File->Load Hex File** and select the Firmware in avr/firmwares/Hoodloader/Hoodloader.hex
+**Click File->Load Hex File** and select the Firmware Hoodloader1_x.hex
+(Dev versions on dev branch in avr/firmwares/Hoodloader/Hoodloader.hex)
 **Its the same file for Uno and Mega.**
 
 ![Flip_2.png](Flip_2.png)
@@ -109,7 +111,11 @@ Updating to a newer Version
 ===========================
 HID library:
 
-To upgrade to v1.8 you need to redownload the ide files, replace the original files and install the library like you are used to.
+To upgrade to v1.8 you need to redownload the Arduino IDE files, restore the original files and install the library like you are used to.
+You library is now located in sketchbook/libraries/HID/<files>
+Its now way easier to install the library, no need to replace system files. For further releases just replace all files again.
+
+**Restart the IDE**
 
 Hoodloader:
 
@@ -127,6 +133,7 @@ HID usage
 ---------
 See the [HID project](https://github.com/NicoHood/HID)
 for changelog, bugs, installing instructions and more information of the main feature.
+It contains an easy to use API for all HID functions and examples for each device.
 
 Deactivate HID function
 -----------------------
@@ -135,7 +142,7 @@ Its possible to deactivate HID if you messed up something in the code and cannot
 Short PB5 (next to AREF pin) of the 4 pin header to gnd to deactivate HID usage. You need to solder the pin header of course.
 
 Deactivate auto reset function
------------------------
+------------------------------
 Its possible to deactivate auto reset if you dont want to restart the MCU when opening the Serial.
 
 Short PB6 (closest pin to the power plug) of the 4 pin header to gnd to deactivate auto reset. You need to solder the pin header of course.
@@ -148,7 +155,8 @@ No need to flash the main processor with the sketch, the 16u2 can work as ISP.
 
 Copy the folder (Hoodloader-master) into sketchbook/hardware/ like this: sketchbook/hardware/Hoodloader/avr/[...]
 
-**You need to solder the 4 Pin Header. SS pin is currently on PB4, It is the pin on the bottom left (closest to the TX led).**
+**You need to solder the 4 Pin Header. SS pin is currently on PB4, It is the pin on the bottom left (closest to the TX led).
+See picture above.**
 
 At the moment I use baud 1 (which is normally invalid) to upload sketches. This is to not interfere with any other baud.
 This gives us most compatibility. Under Windows this works, tell me about other systems.
@@ -156,7 +164,7 @@ Otherwise I have to use 300 or something similar.
 
 **Use IDE 1.5.7** for 16u2 as ISP. It fixes a verification bug for burning the Mega bootloader.
 
-**Uploading via Programmer on Mega2560 is broken** due to fuse settings. Select Arduino Mega ISP fix in the Board menu
+Uploading via Programmer on Mega2560 is broken due to fuse settings. Select Arduino Mega ISP fix in the Board menu
 and burn the Bootloader. This is a workaround to set the BOOTRST fuse. Once you did that you can use the uploading via programmer function.
 This reason for this bug ist still not clear.
 
@@ -308,11 +316,12 @@ Planned for 1.9:
 * motion wakeup, for reactivating from sleep on windows
 * HID on raspberry: slower
 * fix ubuntu gamepad bug
+* Add Hoodloader Lite again
 
 Version History
 ===============
 ```
-1.8.0 Beta Release (xx.08.2014)
+1.8.0 Beta Release (26.08.2014)
 * Improved ram usage
  * Move stable with more free ram
  * saved more than 100 bytes of ram
@@ -343,6 +352,7 @@ Version History
 * Reworked NHP
 * Sketchbook hardware folder compatibel
 * Auto reset deactivation possible
+* Hoodloader Lite not possible anymore, too much flash used
 
 1.7.3 Beta Release (10.08.2014)
 * Fixed HID flush bug (1.6 - 1.7.2)

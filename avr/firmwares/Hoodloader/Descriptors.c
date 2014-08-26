@@ -655,7 +655,7 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] =
 #endif
 
 #ifdef HID_GAMEPAD3_ENABLE
-	// Gamepad1
+	// Gamepad3
 	0x05, 0x01,							// USAGE_PAGE (Generic Desktop)
 	0x09, 0x04,							// USAGE (Joystick)
 	0xa1, 0x01,							// COLLECTION (Application)
@@ -714,7 +714,7 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM HIDReport[] =
 #endif
 
 #ifdef HID_GAMEPAD4_ENABLE
-	// Gamepad1
+	// Gamepad4
 	0x05, 0x01,							// USAGE_PAGE (Generic Desktop)
 	0x09, 0x04,							// USAGE (Joystick)
 	0xa1, 0x01,							// COLLECTION (Application)
