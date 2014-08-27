@@ -35,6 +35,7 @@ extern USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface;
 
 void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo);
 void EVENT_CDC_Device_ControLineStateChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo);
+void SerialInit(uint32_t BaudRateBPS, uint8_t CharFormat, uint8_t DataBits, uint8_t ParityType);
 
 #endif
 

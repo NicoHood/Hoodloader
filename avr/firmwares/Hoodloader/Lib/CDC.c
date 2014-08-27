@@ -59,32 +59,49 @@ USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface =
 */
 void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo)
 {
-	// end pmode if needed and setup Serial + HID again (on errors)
-	//TODO pmode break to get out of this loop
-	if (ram.isp.pmode)
-		end_pmode();
-
-	// clear HID reports if chip gets restarted
-	clearHIDReports();
-
-	uint32_t BaudRateBPS = CDCInterfaceInfo->State.LineEncoding.BaudRateBPS;
-	uint8_t CharFormat;
-	uint8_t DataBits;
-	uint8_t ParityType;
-
-	// configure Serial with HID baud to work after ISP reprogramming
-	if (BaudRateBPS == AVRISP_BAUD || BaudRateBPS == 0){
-		BaudRateBPS = 115200;
-		CharFormat = CDC_LINEENCODING_OneStopBit;
-		DataBits = 8;
-		ParityType = CDC_PARITY_None;
+	if (!(Buttons_GetStatus() & BUTTON_HID)){
+		// use the Baud rate config from the USB interface if HID is deactivated
+		SerialInit(CDCInterfaceInfo->State.LineEncoding.BaudRateBPS,
+			CDCInterfaceInfo->State.LineEncoding.CharFormat,
+			CDCInterfaceInfo->State.LineEncoding.DataBits,
+			CDCInterfaceInfo->State.LineEncoding.ParityType);
+		ram.HIDSerial = false;
 	}
-	else{
-		// use the Baud rate config from the USB interface
-		CharFormat = CDCInterfaceInfo->State.LineEncoding.CharFormat;
-		DataBits = CDCInterfaceInfo->State.LineEncoding.DataBits;
-		ParityType = CDCInterfaceInfo->State.LineEncoding.ParityType;
+}
+
+/** Event handler for the CDC Class driver Host-to-Device Line Encoding Changed event.
+*
+*  \param[in] CDCInterfaceInfo  Pointer to the CDC class interface configuration structure being referenced
+*/
+void EVENT_CDC_Device_ControLineStateChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo)
+{
+	// only reset if autoreset is enabled and DTR is HIGH
+	if ((Buttons_GetStatus() & BUTTON_AUTORESET)
+		&& (CDCInterfaceInfo->State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR)){
+
+		// reset main MCU
+		AVR_RESET_LINE_PORT &= ~AVR_RESET_LINE_MASK;
+
+		// reset Buffer
+		LRingBuffer_ResetBuffer(&ram.RingBuffer);
+
+		// reset LEDs
+		ram.PulseMSRemaining.whole = 0;
+		LEDs_SetAllLEDs(LEDS_NO_LEDS);
+
+		//NHP setup
+		ram.skipNHP = 0;
+		NHPreset(&ram.NHP);
+
+		// clear all pending HID reports
+		clearHIDReports();
 	}
+	else
+		// release reset line
+		AVR_RESET_LINE_PORT |= AVR_RESET_LINE_MASK;
+}
+
+void SerialInit(uint32_t BaudRateBPS, uint8_t CharFormat, uint8_t DataBits, uint8_t ParityType){
 
 	uint8_t ConfigMask = 0;
 
@@ -129,32 +146,5 @@ void EVENT_CDC_Device_LineEncodingChanged(USB_ClassInfo_CDC_Device_t* const CDCI
 	UCSR1A = (BaudRateBPS == 57600) ? 0 : (1 << U2X1);
 	UCSR1B = ((1 << RXCIE1) | (1 << TXEN1) | (1 << RXEN1));
 	PORTD &= ~(1 << PD3); // And turn OFF Tx once USART has been reconfigured (this is overridden by TXEN)
-}
 
-/** Event handler for the CDC Class driver Host-to-Device Line Encoding Changed event.
-*
-*  \param[in] CDCInterfaceInfo  Pointer to the CDC class interface configuration structure being referenced
-*/
-void EVENT_CDC_Device_ControLineStateChanged(USB_ClassInfo_CDC_Device_t* const CDCInterfaceInfo)
-{
-	// clear all pending HID reports
-	clearHIDReports();
-
-	bool CurrentDTRState;
-
-	// autoreset disabled?
-	if (!(AVR_NO_AUTORESET_LINE_PIN & AVR_NO_AUTORESET_LINE_MASK))
-		CurrentDTRState = true;
-	else
-	CurrentDTRState = (CDCInterfaceInfo->State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
-
-	if (CurrentDTRState)
-		AVR_RESET_LINE_PORT &= ~AVR_RESET_LINE_MASK;
-	else{
-		AVR_RESET_LINE_PORT |= AVR_RESET_LINE_MASK;
-
-		// reset LEDs
-		ram.PulseMSRemaining.whole = 0;
-		LEDs_SetAllLEDs(LEDS_NO_LEDS);
-	}
 }

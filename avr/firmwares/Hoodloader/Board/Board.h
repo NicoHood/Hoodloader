@@ -70,31 +70,20 @@ extern "C" {
 #define AVR_RESET_LINE_PORT PORTD
 #define AVR_RESET_LINE_DDR DDRD
 #define AVR_RESET_LINE_PIN PIND
-#define AVR_RESET_LINE_MASK (1 << 7)
-
-#define AVR_NO_HID_PORT PORTB
-#define AVR_NO_HID_DDR DDRB
-#define AVR_NO_HID_PIN PINB
-#define AVR_NO_HID 5
-#define AVR_NO_HID_MASK (1 << AVR_NO_HID)
-
-#define AVR_NO_AUTORESET_LINE_PORT PORTB
-#define AVR_NO_AUTORESET_LINE_DDR DDRB
-#define AVR_NO_AUTORESET_LINE_PIN PINB
-#define AVR_NO_AUTORESET_LINE_MASK (1 << 6)
+#define AVR_RESET_LINE_MASK (1 << PB7)
 
 	// hardware configuration
 #define AVR_SPI_PIN PINB
 #define AVR_SPI_PORT PORTB
 #define AVR_SPI_DDR DDRB
-#define AVR_MOSI 2
-#define AVR_MISO 3
-#define AVR_SCK 1
-	// the "real" SS pin is not connected on a normal Arduino so we use another pin as SS.
-	// the hardware SS pin still needs to be in output mode to enable SPI master mode.
+#define AVR_MOSI PB2
+#define AVR_MISO PB3
+#define AVR_SCK PB1
+	// The "real", hardware SS pin is not connected on an Arduino R3 so we use another pin as SS.
+	// The hardware SS pin still needs to be in output mode to enable SPI master mode.
 	// SS is the pin thats close to the TX Led (bottom right)
-#define AVR_SS 4
-#define AVR_HARDWARE_SS 0
+#define AVR_SS PB4
+#define AVR_HARDWARE_SS PB0
 
 #define LOW 0
 #define HIGH 1

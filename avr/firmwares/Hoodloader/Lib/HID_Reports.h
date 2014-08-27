@@ -36,6 +36,8 @@ THE SOFTWARE.
 #define RAWHID_TX_SIZE 15 // 1 byte for report ID
 #define RAWHID_RX_SIZE 15 // 1 byte for report ID
 
+#define SERIAL_HID_BAUD 115200
+
 //================================================================================
 //Report Typedefinitions
 //================================================================================

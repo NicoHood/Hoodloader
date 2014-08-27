@@ -201,11 +201,11 @@ void start_pmode(void) {
 	// set pmode flag, do NOT reset other ISP values here!
 	ram.isp.pmode = true;
 	
-	// clear all pending HID reports
-	clearHIDReports();
-
 	// do not write Serial stuff into buffer, we need this ram now
 	LRingBuffer_DisableBuffer(&ram.RingBuffer);
+
+	// clear all pending HID reports
+	clearHIDReports();
 
 	// reset LEDs
 	ram.PulseMSRemaining.whole = 0;

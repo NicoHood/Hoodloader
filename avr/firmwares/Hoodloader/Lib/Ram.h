@@ -81,7 +81,9 @@ typedef struct{
 
 	// NHP needed as Serial Protocol to receive HID data
 	NHP_Data_t NHP;
-	uint8_t skipNHP; // up to 12 bytes (address error + nhp error)
+	uint8_t skipNHP : 4; // up to 12 bytes (address error + nhp error)
+	uint8_t HIDSerial : 1; // true/false
+	uint8_t reserved : 3;
 }ram_t;
 
 // access as global ram share

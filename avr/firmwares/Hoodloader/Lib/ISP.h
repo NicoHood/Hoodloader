@@ -70,8 +70,6 @@ THE SOFTWARE.
 #define STK_READ_SIGN 0x75
 
 #define AVRISP_BAUD 1
-#define LEDS_PMODE LEDS_LED1
-#define LEDS_ERR LEDS_LED2
 
 // avr isp
 void avrispReset(void);

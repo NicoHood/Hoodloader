@@ -306,9 +306,7 @@ Ideas for the future (Todo list):
 * add better pictures
 * isp cdc send better
 * led timeout timer interrupt?
-Planned for 1.8:
-* add a copy of the hoodloader hex to hid project
-* fix pc restart bug
+* reduce HID report size
 
 Planned for 1.9:
 * remove checksum for NHP on data to speed thing up
@@ -321,6 +319,10 @@ Planned for 1.9:
 Version History
 ===============
 ```
+1.9.0 Beta Release (xx.08.2014)
+* Single fixed Serial baud for HID to prevent problems with linux etc.
+* Fixed Serial to PC problems
+
 1.8.0 Beta Release (26.08.2014)
 * Improved ram usage
  * Move stable with more free ram
@@ -353,6 +355,7 @@ Version History
 * Sketchbook hardware folder compatibel
 * Auto reset deactivation possible
 * Hoodloader Lite not possible anymore, too much flash used
+* Fixed PC restart Bug
 
 1.7.3 Beta Release (10.08.2014)
 * Fixed HID flush bug (1.6 - 1.7.2)

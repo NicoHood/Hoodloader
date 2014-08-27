@@ -32,42 +32,60 @@ THE SOFTWARE.
 */
 int main(void)
 {
-	// HID Setup
-	ram.HID.writeHID = false;
-	ram.HID.ID = 0;
-	ram.HID.writtenReport = false;
-
-	// AVR ISP Setup, includes SPI Hardware Setup Slave
-	// Serial tx buffers Setup
-	// NHP Setup
-	end_pmode();
-
-	// Hardware Setup needs to be called at the very end!
-	// includes WDT, SerialHID, SPI, LED, USB, Reset, HID deactivation setup
+	// Hardware Setup to initialize every module of the Hoodloader
 	SetupHardware();
 
 	GlobalInterruptEnable();
 
 	for (;;)
 	{
-		// try to clear HID reports if HID is disabled by hardware
-		if (!(AVR_NO_HID_PIN = AVR_NO_HID_MASK))
+		//TODO remove debug
+		//if (Buttons_GetStatus()&BUTTONS_BUTTON3)
+		//	LEDs_TurnOnLEDs(LEDMASK_RX);
+		//else
+		//	LEDs_TurnOffLEDs(LEDMASK_RX);
+
+		if (!(Buttons_GetStatus() & BUTTON_HID)){
+			// try to clear HID reports if HID gets disabled by hardware
 			clearHIDReports();
+
+			if (ram.HIDSerial){
+				// use the Baud rate config from the USB interface if HID is deactivated
+				SerialInit(VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS,
+					VirtualSerial_CDC_Interface.State.LineEncoding.CharFormat,
+					VirtualSerial_CDC_Interface.State.LineEncoding.DataBits,
+					VirtualSerial_CDC_Interface.State.LineEncoding.ParityType);
+				ram.HIDSerial = false;
+			}
+		}
+		// HID is active
+		else{
+			if (!ram.HIDSerial){
+				// start Serial at HID baud to recognize new keypresses, if not set so
+				SerialInit(SERIAL_HID_BAUD, CDC_LINEENCODING_OneStopBit, 8, CDC_PARITY_None);
+				ram.HIDSerial = true;
+			}
+		}
 
 		//================================================================================
 		// CDC: read in bytes from the CDC interface
 		//================================================================================
 
 		int16_t ReceivedByte = CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
-		if (!(ReceivedByte < 0)){
-			if (VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS == AVRISP_BAUD){
-#if (PRODUCTID != HOODLOADER_LITE_PID)
-				// only run this on a 16u2 with enough flash
-				// avrisp can disable the serial buffer to free programming byte information
+#if (PRODUCTID != HOODLOADER_LITE_PID)	
+		if (VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS == AVRISP_BAUD){
+			// only run this on a 16u2 with enough flash
+			// avrisp can disable the serial buffer to free programming byte information
+			if (!(ReceivedByte < 0))
 				avrisp(ReceivedByte);
+		}
+		else{
+			// end pmode if needed
+			//TODO pmode break to get out of this loop
+			if (ram.isp.pmode)
+				end_pmode();
 #endif
-			}
-			else{
+			if (!(ReceivedByte < 0)){
 				// Turn on RX LED
 				LEDs_TurnOnLEDs(LEDMASK_RX);
 				ram.PulseMSRemaining.RxLEDPulse = TX_RX_LED_PULSE_MS;
@@ -75,7 +93,9 @@ int main(void)
 				// Send byte directly
 				Serial_SendByte(ReceivedByte);
 			}
+#if (PRODUCTID != HOODLOADER_LITE_PID)	
 		}
+#endif
 
 		//================================================================================
 		// Serial: read in bytes from the Serial buffer
@@ -89,27 +109,53 @@ int main(void)
 			LEDs_TurnOnLEDs(LEDMASK_TX);
 			ram.PulseMSRemaining.TxLEDPulse = TX_RX_LED_PULSE_MS;
 
-			Endpoint_SelectEndpoint(VirtualSerial_CDC_Interface.Config.DataINEndpoint.Address);
-
 			// Check if a packet is already enqueued to the host - if so, we shouldn't try to send more data
 			// until it completes as there is a chance nothing is listening and a lengthy timeout could occur
-			if (Endpoint_IsINReady())
-			{
-				// Never send more than one bank size less one byte to the host at a time, so that we don't block
-				// while a Zero Length Packet (ZLP) to terminate the transfer is sent if the host isn't listening
-				uint8_t BytesToSend = MIN(BufferCount, (CDC_TXRX_EPSIZE - 1));
+			Endpoint_SelectEndpoint(VirtualSerial_CDC_Interface.Config.DataINEndpoint.Address);
+			bool EndPointIsReady = Endpoint_IsINReady();
 
-				// Read bytes from the USART receive buffer into the USB IN endpoint */
-				while (BytesToSend--)
-				{
-					// ignoe HID check if: we need to write a pending NHP buff, its deactivated or not the right baud
-					uint32_t baud = VirtualSerial_CDC_Interface.State.LineEncoding.BaudRateBPS;
-					if (ram.skipNHP || (baud != AVRISP_BAUD && baud != 0 && baud != 115200) || (!(AVR_NO_HID_PIN & AVR_NO_HID_MASK))){
+			// Never send more than one bank size less one byte to the host at a time, so that we don't block
+			// while a Zero Length Packet (ZLP) to terminate the transfer is sent if the host isn't listening
+			BufferCount = MIN(BufferCount, (CDC_TXRX_EPSIZE - 1));
+
+			// Read bytes from the USART receive buffer into the USB IN endpoint */
+			while (BufferCount--)
+			{
+				// HID is deactivated
+				if (!(Buttons_GetStatus() & BUTTON_HID)){
+					// check if endpoint is ready
+					if (!EndPointIsReady)
+						break;
+
+					//NHP reset
+					if (ram.PulseMSRemaining.NHPTimeout){
+						ram.skipNHP = 0;
+						NHPreset(&ram.NHP);
+						ram.PulseMSRemaining.NHPTimeout = 0;
+					}
+
+					// Try to send the next byte of data to the host, abort if there is an error without dequeuing
+					if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
+						LRingBuffer_Peek(&ram.RingBuffer)) != ENDPOINT_READYWAIT_NoError)
+					{
+						break;
+					}
+
+					// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
+					LRingBuffer_Remove(&ram.RingBuffer);
+				}
+				// proceed the protocol
+				else {
+					if (ram.skipNHP){
 						// Try to send the next bytes to the host, if DTR is set to not block serial reading in HID mode
-						// outside HID mode always write the byte (!ram.skipNHP) is only null outside hid mode
-						// discard the byte if host is not connected (needed to get new HID bytes and empty buffer)
-						bool CurrentDTRState = (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR);
-						if (CurrentDTRState || (!ram.skipNHP)){
+						// Discard the byte if host is not connected in HID mode (needed to get new HID bytes and empty buffer)
+						if (VirtualSerial_CDC_Interface.State.ControlLineStates.HostToDevice & CDC_CONTROL_LINE_OUT_DTR)
+						{
+							// check if endpoint is ready
+							// We need to check it here to not discard data if the host is connected
+							// But if its not, the DTR isnt set anyways so we also dont block HID reading
+							if (!EndPointIsReady)
+								break;
 
 							// Try to send the next byte of data to the host, abort if there is an error without dequeuing
 							if (CDC_Device_SendByte(&VirtualSerial_CDC_Interface,
@@ -118,27 +164,21 @@ int main(void)
 								break;
 							}
 						}
+
 						// Dequeue the already sent byte from the buffer now we have confirmed that no transmission error occurred
 						LRingBuffer_Remove(&ram.RingBuffer);
 
 						// Dequeue the NHP buffer byte
-						if (ram.skipNHP){
-							ram.skipNHP--;
-
-							// set new timeout mark
-							ram.PulseMSRemaining.NHPTimeout = NHP_TIMEOUT_MS;
-						}
+						ram.skipNHP--;
 					}
-					else{
-						// set new timeout mark
-						ram.PulseMSRemaining.NHPTimeout = NHP_TIMEOUT_MS;
-
+					else
 						// main function to proceed HID input checks
 						checkNHPProtocol(LRingBuffer_Remove(&ram.RingBuffer));
-					}
+
+					// set new timeout mark
+					ram.PulseMSRemaining.NHPTimeout = NHP_TIMEOUT_MS;
 				}
 			}
-
 		}
 
 		//================================================================================
@@ -179,6 +219,7 @@ int main(void)
 			// Turn off RX LED(s) once the RX pulse period has elapsed
 			if (ram.PulseMSRemaining.RxLEDPulse && !(--ram.PulseMSRemaining.RxLEDPulse))
 				LEDs_TurnOffLEDs(LEDMASK_RX);
+
 		}
 
 		//================================================================================
@@ -204,16 +245,30 @@ void SetupHardware(void)
 
 	/* Hardware Initialization */
 
+	// HID Setup
+	ram.HID.writeHID = false;
+	ram.HID.ID = 0;
+	ram.HID.writtenReport = false;
+
+	// reset LEDs
+	ram.PulseMSRemaining.whole = 0;
+	LEDs_Init();
+
+	// initialize Buttons with pullups
+	Buttons_Init();
+
 	// Setup the TX Pin to OUTPUT and RX with PULLUP
 	DDRD |= (1 << 3);
 	PORTD |= (1 << 2);
 
 	// start Serial at HID baud to recognize new keypresses
-	EVENT_CDC_Device_LineEncodingChanged(&VirtualSerial_CDC_Interface);
+	SerialInit(SERIAL_HID_BAUD, CDC_LINEENCODING_OneStopBit, 8, CDC_PARITY_None);
+	ram.HIDSerial = true;
 
-	// reset LEDs
-	ram.PulseMSRemaining.whole = 0;
-	LEDs_Init();
+	// AVR ISP Setup, includes SPI Hardware Setup Slave
+	// Serial tx buffers Setup
+	// NHP Setup
+	end_pmode();
 
 	// initialize USB
 	USB_Init();
@@ -224,14 +279,6 @@ void SetupHardware(void)
 	/* Pull target /RESET line high */
 	AVR_RESET_LINE_PORT |= AVR_RESET_LINE_MASK;
 	AVR_RESET_LINE_DDR |= AVR_RESET_LINE_MASK;
-
-	// Hardwaresetup to turn off the HID function with shorting the pin to GND
-	AVR_NO_HID_DDR &= ~AVR_NO_HID_MASK; // INPUT
-	AVR_NO_HID_PORT |= AVR_NO_HID_MASK; // PULLUP
-
-	// Hardwaresetup to turn off the auto reset function with shorting the pin to GND
-	AVR_NO_AUTORESET_LINE_DDR &= ~AVR_NO_AUTORESET_LINE_MASK; // INPUT
-	AVR_NO_AUTORESET_LINE_PORT |= AVR_NO_AUTORESET_LINE_MASK; // PULLUP
 }
 
 //================================================================================

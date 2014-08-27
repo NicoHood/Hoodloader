@@ -67,6 +67,9 @@ extern "C" {
 	// LED mask for the library LED driver, to indicate RX activity.
 #define LEDMASK_RX               LEDS_LED2
 
+	// AVRISP Leds
+#define LEDS_PMODE LEDS_LED1
+#define LEDS_ERR LEDS_LED2
 
 	/* Inline Functions: */
 #if !defined(__DOXYGEN__)
