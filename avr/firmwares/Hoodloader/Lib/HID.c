@@ -123,7 +123,8 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 void flushHID(void){
 	// try to send until its done
 	while (ram.HID.writeHID){
-		if (USB_DeviceState == DEVICE_STATE_Configured){
+		//TODO check for any problem
+		if (USB_DeviceState != DEVICE_STATE_Configured){
 			ram.HID.writeHID = false;
 			ram.HID.ID = 0;
 		}
