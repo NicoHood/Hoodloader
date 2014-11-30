@@ -1,6 +1,9 @@
 Arduino Hoodloader BETA 1.8
 ==================
 
+#### Checkout the new [HoodLoader2](https://github.com/NicoHood/HoodLoader2)
+which is a fully Arduino IDE compatible bootloader with HID core as well.
+
 This is the source page of the Hoodloader. The Hoodloader is a fully compatible replacement of the
 normal 16u2 usbserial Bootloader. It can still work the same but has more functions.
 
@@ -315,6 +318,7 @@ Planned for 1.9:
 * HID on raspberry: slower
 * fix ubuntu gamepad bug
 * Add Hoodloader Lite again
+* change append to attach ringbuffer, use % for the borders
 
 Version History
 ===============
