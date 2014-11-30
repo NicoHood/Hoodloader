@@ -4,6 +4,8 @@ Arduino Hoodloader BETA 1.8
 This is the source page of the Hoodloader. The Hoodloader is a fully compatible replacement of the
 normal 16u2 usbserial Bootloader. It can still work the same but has more functions.
 
+### +++Checkout the new [HoodLoader2](https://github.com/NicoHood/HoodLoader2) which is a fully Arduino IDE compatible bootloader with custom programs and HID core as well.++
+
 **Functions:**
 * Program the Arduino Uno/Mega like you are used to
 * Serial interface is still usable via USB!
@@ -259,6 +261,8 @@ This library wouldnt be possible without
 * The awesome official Arduino IRC chat!
 * [The NicoHood Protocol ^.^](https://github.com/NicoHood/NicoHoodProtocol)
 * For donations please contact me on my blog :)
+
+### +++Checkout the new [HoodLoader2](https://github.com/NicoHood/HoodLoader2) which is a fully Arduino IDE compatible bootloader with custom programs and HID core as well.++
 
 Known Bugs
 ==========
